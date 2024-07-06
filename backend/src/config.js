@@ -1,4 +1,9 @@
-import packageJson from '../package.json' with { type: "json" };
+import { readFile } from 'fs/promises';
+const packageJson = JSON.parse(
+  await readFile(
+    new URL('../package.json', import.meta.url)
+  )
+);
 
 /**
  * Pattern for config is:
