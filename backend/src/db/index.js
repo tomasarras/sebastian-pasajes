@@ -2,6 +2,7 @@ import config from "../config.js";
 import fs from "fs";
 import path from "path";
 import Sequelize from "sequelize";
+import { MariaDbDialect } from '@sequelize/mariadb';
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,7 +21,7 @@ const sslConfig = config.db.sslConnection ? {
 const sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
   host: config.db.host,
   port: config.db.port,
-  dialect: config.db.dialect,
+  dialect: config.db.dialect == 'mariadb' ? MariaDbDialect : config.db.dialect,
   ...sslConfig,
   operatorsAliases: "0",
   //logging: false,
