@@ -31,7 +31,7 @@ const config = {
         database: process.env.DATABASE_NAME,
         host: process.env.DATABASE_HOST,
         sslConnection: (process.env.BACKEND_SSL_DB_CONNECTION === undefined || process.env.BACKEND_SSL_DB_CONNECTION === "false") ? false : true,
-        dialect: "mysql",
+        dialect: process.env.DATABASE_DIALECT,
         pool: {
             max: 5,
             min: 0,
