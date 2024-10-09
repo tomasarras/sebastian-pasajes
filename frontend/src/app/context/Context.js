@@ -5,14 +5,19 @@ import * as companyService from '../services/companyService'
 import * as locationService from '../services/locationService'
 import * as groupService from '../services/groupService'
 import * as provinceService from '../services/provinceService'
+import * as userService from '../services/userService'
 import * as ordersService from '../services/ordersService'
 import { useRouter, usePathname } from "next/navigation";
 
 export const Context = createContext();
 
 export const Provider = ({ children }) => {
+    const [isAlertActive, setIsAlertActive] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertStatus, setAlertStatus] = useState('');
     const [clients, setClients] = useState([])
     const [unfilteredOrders, setUnfilteredOrders] = useState([])
+    const [users, setUsers] = useState([]);
     const [provinces, setProvinces] = useState([])
     const [locations, setLocations] = useState([])
     const [groups, setGroups] = useState([])
@@ -24,6 +29,12 @@ export const Provider = ({ children }) => {
     const [company, setCompany] = useState(null)
     const [welcomeMessage, setWelcomeMessage] = useState('')
     const pathname = usePathname()
+
+    const changeAlertStatusAndMessage = (activeAlert, status, message) => {
+        setAlertMessage(message);
+        setIsAlertActive(activeAlert);
+        setAlertStatus(status);
+    }
 
     const getCompany = async () => {
         if (company == null) {
@@ -67,6 +78,11 @@ export const Provider = ({ children }) => {
         setAlreadyFetchedGroups(true)
     }
 
+    const fetchUsers = async () => {
+        const usrs = await userService.getUsers()
+        setUsers(usrs);
+    }
+
     const fetchOrders = async (props) => {
         const orders = await ordersService.getOrders(props)
         setUnfilteredOrders(orders)
@@ -85,6 +101,10 @@ export const Provider = ({ children }) => {
 
     return (
         <Context.Provider value={{
+            changeAlertStatusAndMessage,
+            isAlertActive,
+            alertMessage,
+            alertStatus,
             clients,
             alreadyFetchedClients,
             fetchClients,
@@ -93,6 +113,8 @@ export const Provider = ({ children }) => {
             groups,
             fetchGroups,
             alreadyFetchedGroups,
+            fetchUsers,
+            users,
             locations,
             fetchLocations,
             alreadyFetchedLocations,

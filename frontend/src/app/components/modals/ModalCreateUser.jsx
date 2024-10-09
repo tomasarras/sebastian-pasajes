@@ -1,5 +1,5 @@
 "use client"
-
+import React, { useContext } from 'react';
 import { createUserValidationSchema } from "@/app/validationSchemas/createUserValidationSchema";
 import Modal from "./modal"
 import { Formik, Form } from 'formik';
@@ -11,9 +11,11 @@ import SecondaryButton from "../buttons/secondaryButton";
 import { createUser } from "@/app/services/userService";
 import CommonLabel from "../commonLabel";
 import useClients from "@/app/hooks/useClients";
+import { Context } from '@/app/context/Context';
 
 export default function ModalCreateUser(props) {
   const clients = useClients()
+  const { fetchUsers, changeAlertStatusAndMessage } = useContext(Context);
   
   const documentTypes = [
     { value: "DNI", label: "DNI" },
@@ -21,13 +23,18 @@ export default function ModalCreateUser(props) {
   ]
 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
+    console.log(clients, 'clients');
     if (values.clientId == undefined || values.clientId == 'no-selected') {
       values.client = CLIENT_AGENCY_ID
+    } else {
+      values.clientId = clients.find(client => client.businessName == values.clientId).id
     }
     values.role = `ROLE_${values.role}`
     values.inactive = values.inactive == 'true'
     delete values.passwordConfirmation
     await createUser(values)
+    changeAlertStatusAndMessage(true, 'success', 'Usuario creado exitosamente!');
+    await fetchUsers();
     setSubmitting(false)
     resetForm()
     props.close()

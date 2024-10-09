@@ -14,6 +14,13 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import useAuth from '../hooks/useAuth';
 import useModal from '../hooks/useModal';
 import ModalUserAccount from './modals/ModalUserAccount';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 
 export default function Layout({ children }) {
 	const [isOpenSidebar, setIsOpenSidebar] = useState(false);
@@ -22,6 +29,11 @@ export default function Layout({ children }) {
 	const router = useRouter();
 	const { isAdmin, logout } = useContext(Context);
 	const modalUserAccount = useModal()
+	const [open, setOpen] = useState(true);
+
+	const handleClick = () => {
+	  setOpen(!open);
+	};
 
 	const closeSession = () => {
 		localStorage.removeItem('accessToken');
@@ -100,7 +112,24 @@ export default function Layout({ children }) {
 								<li className={!userData?.isAdmin && 'hidden'}><NavItem className={`${pathname === '/clientes' ? 'bg-primary-900' : 'hover:bg-gray-100'}`} icon={<HandshakeIcon />} href="/clientes" navText="Clientes" /></li>
 								<li className={!userData?.isAdmin && 'hidden'}><NavItem className={`${pathname === '/grupos' ? 'bg-primary-900' : 'hover:bg-gray-100'}`} icon={<GroupsIcon />} href="/grupos" navText="Grupos" /></li>
 								<li className={!userData?.isAdmin && 'hidden'}><NavItem className={`${pathname === '/usuarios' ? 'bg-primary-900' : 'hover:bg-gray-100'}`} icon={<PermIdentityIcon />} href="/usuarios" navText="Usuarios" /></li>
-								<li className={(userData?.isAdmin || userData?.isAgent) ? '' : "hidden"}><NavItem className={`${pathname === '/empresa' ? 'bg-primary-900' : 'hover:bg-gray-100'}`} icon={<SettingsIcon />} href="/empresa" navText="Configuración" /></li>
+								<li className={(userData?.isAdmin || userData?.isAgent) ? '' : "hidden"}>
+									<button onClick={handleClick} className='w-full'>
+										<NavItem className={`${pathname === '/empresa' ? 'bg-primary-900' : 'hover:bg-gray-100'} w-full`} icon={<SettingsIcon />} href={pathname} endIcon={open ? <ExpandLess /> : <ExpandMore />} navText="Configuración" />	
+									</button>
+									<Collapse in={open} timeout="auto" unmountOnExit>
+										<List component="div" disablePadding>
+											<ListItemButton sx={{ pl: 4 }} onClick={handleClick}>
+												<NavItem className={`${pathname === '/empresa' ? '' : ''} w-full`} href="/empresa" navText="Empresa" />	
+											</ListItemButton>
+											<ListItemButton sx={{ pl: 4 }} onClick={handleClick}>
+												<NavItem className={`${pathname === '/empresa' ? '' : ''} w-full`} href="/localidades" navText="Localidades" />	
+											</ListItemButton>
+											<ListItemButton sx={{ pl: 4 }} onClick={handleClick}>
+												<NavItem className={`${pathname === '/empresa' ? '' : ''} w-full`} href="/provincias" navText="Provincias" />	
+											</ListItemButton>
+										</List>
+									</Collapse>
+								</li>
 							</ul>
 						</div>
 					</div>

@@ -1,16 +1,20 @@
 "use client"
-
+import React, { useContext } from "react";
 import Modal from "./modal"
 import { Formik, Form } from 'formik';
 import FormikStyledField from "../form/FormikStyledField";
 import SecondaryButton from "../buttons/secondaryButton";
 import { createGroupValidationSchema } from "@/app/validationSchemas/createGroupValidationSchema";
 import { create } from "@/app/services/groupService";
+import { Context } from "../../context/Context";
 
 export default function ModalCreateGroup(props) {
+  const { changeAlertStatusAndMessage, fetchGroups } = useContext(Context);
   
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
     await create(values.name)
+    changeAlertStatusAndMessage(true, 'success', 'Grupo creado exitosamente!');
+    await fetchGroups();
     setSubmitting(false)
     resetForm()
     props.close()

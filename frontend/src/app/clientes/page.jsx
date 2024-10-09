@@ -1,31 +1,81 @@
 "use client"
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Container from "../components/Container";
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import MainHeader from "../components/MainHeader";
+import { deleteClient } from "@/app/services/clientService";
 import { tableCustomStyles } from "../../../utils";
+import { createClient, editClient } from "@/app/services/clientService";
 import Table from "../components/table";
 import useModal from "../hooks/useModal";
 import ModalCreateClient from "../components/modals/ModalCreateClient";
+import useClients from "../hooks/useClients";
+import { formatNextBookCode } from "../utils/utils";
+import TableActionButton from "../components/buttons/tableActionButton";
+import GenericModalDelete from "../components/modals/GenericModalDelete";
+import { Context } from "../context/Context";
 
 export default function Clientes() {
-  const [clients, setClients] = useState([{name: 'Azucar'}]);
+  const clients = useClients();
   const createClientModal = useModal()
+  const deleteClientModal = useModal()
+  const editClientModal = useModal()
+  const [selectedClient, setSelectedClient] = useState(null)
+  const { fetchClients } = useContext(Context)
+
+  const openDeleteModal = (client) => {
+    setSelectedClient(client);
+    deleteClientModal.open();
+  }
+
+  const handleOnDelete = async () => {
+    await deleteClient(selectedClient.id)
+    setSelectedClient({})
+    deleteClientModal.close();
+    await fetchClients()
+  }
+
+  const openEditModal = (client) => {
+    setSelectedClient(client);
+    editClientModal.open();
+  }
 
   const columns = useMemo(() => {
     const newColumns = [
       {
-        name: 'Nombre',
+        name: 'Razón Social',
         sortable: true,
-        searchable: false,
-        selector: row => row.name,
+        searchable: true,
+        selector: row => row.businessName,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Talonario',
+        sortable: true,
+        searchable: true,
+        selector: row => formatNextBookCode(row.nextBookCode),
+        //maxWidth: '80px'
+      },
+      {
+        name: 'CUIT',
+        sortable: true,
+        searchable: true,
+        selector: row => row.cuit,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Télefonos',
+        sortable: false,
+        searchable: true,
+        selector: row => row.phones,
         //maxWidth: '80px'
       },
       {
         name: 'Acciones',
-        minWidth: '180px',
-        cell: row => { return (<div className="flex-row"></div>)
-      },
+        maxWidth: '20%',
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary" />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /></div>
       },
     ];
     return newColumns;
@@ -50,7 +100,9 @@ export default function Clientes() {
                 </div>
             </div>
         </Container>
-        <ModalCreateClient {...createClientModal}/>
+        <ModalCreateClient onSubmit={createClient} {...createClientModal}/>
+        <ModalCreateClient client={selectedClient} onSubmit={editClient} {...editClientModal}/>
+        <GenericModalDelete id={selectedClient?.id} type={"cliente"} label={selectedClient?.businessName} onDelete={handleOnDelete} {...deleteClientModal}/>
     </>
   )
 }

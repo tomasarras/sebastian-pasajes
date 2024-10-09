@@ -42,7 +42,7 @@ export default function ModalChangeOrderStatus({ order, ...props }) {
   return <Modal title={`Cambiar estado`} {...props}>
     {order && userData &&
       <div className="max-w-lg">
-        <div class="mt-2">
+        <div className="mt-2">
           <h3 className="flex items-center font-semibold leading-6 text-gray-900"><OrderColor statusId={order.statusId} /><span className="ml-2">Orden N°{order.number}</span></h3>
           <div className="text-sm mt-1 text-gray-500">Creada en {formatDateWithSlash(order.registrationDate)}</div>
           <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">

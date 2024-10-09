@@ -8,40 +8,64 @@ import FormikStyledRadio from "../form/FormikStyledRadio";
 import SecondaryButton from "../buttons/secondaryButton";
 import { useState } from "react";
 import { useEffect } from "react";
-import { createClient } from "@/app/services/clientService";
 import { createClientValidationSchema } from "@/app/validationSchemas/createClientValidationSchema";
 import useGroups from "@/app/hooks/useGroups";
 import useLocations from "@/app/hooks/useLocations";
 
-export default function ModalCreateClient(props) {
+export default function ModalCreateClient({ client, onSubmit, ...props }) {
   const groups = useGroups()
   const locations = useLocations()
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [selectedLocationObject, setSelectedLocationObject] = useState(null)
+  const [localClient, setLocalClient] = useState(null)
+  const isEditMode = localClient != null
 
+  useEffect(() => {
+    if (client) {
+      const localClient = JSON.parse(JSON.stringify(client));
+      if (localClient.locationId == 1) {
+        localClient.locationId = "no-selected"
+      } else {
+        localClient.locationId = localClient.location.name
+      }
+      if (localClient.groupId == 1) {
+        localClient.groupId = "no-selected"
+      } else {
+        localClient.groupId = localClient.clientGroup.name
+      }
+      setLocalClient(localClient)
+    }
+  }, [client])
+  
+  
   useEffect(() => {
     const selectedLocationObject = locations.find(location => location.name == selectedLocation)
     setSelectedLocationObject(selectedLocationObject)
   }, [selectedLocation, locations])
 
-  const onSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleOnSubmit = async (values, { setSubmitting, resetForm }) => {
     if (values.groupId == 'no-selected') {
       values.groupId = null
+    } else {
+      values.groupId = groups.find(group => group.name == values.groupId).id
     }
     if (values.locationId == 'no-selected') {
       values.locationId = null
+    } else {
+      values.locationId = locations.find(location => location.name == values.locationId).id
     }
-    await createClient(values)
+    await onSubmit(values)
     setSubmitting(false)
     resetForm()
     props.close()
   }
 
-  return <Modal title="Crear Cliente" {...props}>
+  return <Modal title={`${isEditMode ? "Editar" : "Crear"} Cliente`} {...props}>
     <Formik
       validateOnChange={false}
       validateOnBlur={false}
-      initialValues={{
+      enableReinitialize
+      initialValues={isEditMode ? localClient : {
         businessName: "",
         bookCode: "0",
         cuit: "",
@@ -55,7 +79,7 @@ export default function ModalCreateClient(props) {
         mailAuto: '0'
       }}
       validationSchema={createClientValidationSchema}
-      onSubmit={onSubmit}
+      onSubmit={handleOnSubmit}
     >
       {({ isSubmitting }) => (
         <Form className="mt-4">
@@ -69,7 +93,7 @@ export default function ModalCreateClient(props) {
               label="Localidad"
               options={locations}
               placeholder="Seleccionar"
-              getOptionLabel={(client) => client.name}
+              getOptionLabel={(location) => location.name}
               onChange={setSelectedLocation}
             />
             <div className={`mt-1 ${!selectedLocationObject?.province && 'invisible'}`}>Provincia de {selectedLocationObject?.province?.name}<span className={`${selectedLocationObject?.postalCode == undefined && 'hidden'}`}>, codigo postal {selectedLocationObject?.postalCode}</span></div>
@@ -81,7 +105,7 @@ export default function ModalCreateClient(props) {
           <FormikStyledRadio className="mb-4" name="mailAuto" label="Mail autorizante" options={[{ label: "Si", value: "1" }, { label: "No", value: "0" }]} />
           <div className={`mt-1`}>Si Mail Autorizante esté activo, al dar de Alta una Orden de Titular se enviará un mail a los Autorizantes</div>
           <div className="w-full flex justify-end mt-2">
-            <SecondaryButton type="submit" actionText="Crear Cliente" disabled={isSubmitting}/>
+            <SecondaryButton type="submit" actionText={`${isEditMode ? "Editar" : "Crear"} Cliente`} disabled={isSubmitting}/>
           </div>
         </Form>
       )}

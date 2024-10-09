@@ -1,5 +1,5 @@
 "use client"
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useEffect, useState, useContext } from "react";
 import Container from "../components/Container";
 import AddIcon from '@mui/icons-material/Add';
 import MainHeader from "../components/MainHeader";
@@ -7,10 +7,35 @@ import { tableCustomStyles } from "../../../utils";
 import Table from "../components/table";
 import useModal from "../hooks/useModal";
 import ModalCreateUser from "../components/modals/ModalCreateUser";
+import { Context } from "../context/Context";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import TableActionButton from "../components/buttons/tableActionButton";
+import ModalDeleteUser from "../components/modals/ModalDeleteUser";
+import ModalEditUser from "../components/modals/ModalEditUser";
 
 export default function Usuarios() {
   const createUserModal = useModal()
-  const [users, setUsers] = useState([{name: 'Azucar'}]);
+  const { users, fetchUsers } = useContext(Context);
+  const [selectedUser, setSelectedUser] = useState({});
+  const deleteUserModal = useModal()
+  const editUserModal = useModal()
+
+  const openDeleteModal = (user) => {
+    setSelectedUser(user);
+    deleteUserModal.open();
+  }
+
+  const openEditModal = (user) => {
+    setSelectedUser(user);
+    editUserModal.open();
+  }
+
+
+  useEffect(() => {
+    fetchUsers();
+  }, [])
+  
 
   const columns = useMemo(() => {
     const newColumns = [
@@ -18,14 +43,41 @@ export default function Usuarios() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.firstName + ' ' + row.lastName,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Usuario',
+        sortable: true,
+        searchable: false,
+        selector: row => row.username,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Correo',
+        sortable: true,
+        searchable: false,
+        selector: row => row.email || 'No informado',
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Cliente',
+        sortable: true,
+        searchable: false,
+        selector: row => row.client.businessName,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Perfil',
+        sortable: true,
+        searchable: false,
+        selector: row => row.profile.name,
         //maxWidth: '80px'
       },
       {
         name: 'Acciones',
-        minWidth: '180px',
-        cell: row => { return (<div className="flex-row"></div>)
-      },
+        maxWidth: '20%',
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary" />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /></div>
       },
     ];
     return newColumns;
@@ -39,6 +91,7 @@ export default function Usuarios() {
                 <hr/>
                 <div className="px-2 md:px-4 py-8 md:py-16 bg-white">
                   <Table
+                    key={users.length}
                     className="shadow"
                     customStyles={tableCustomStyles}
                     columns={columns}
@@ -50,6 +103,8 @@ export default function Usuarios() {
                 </div>
             </div>
             <ModalCreateUser {...createUserModal}></ModalCreateUser>
+            <ModalEditUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...deleteUserModal}></ModalEditUser>
+            <ModalDeleteUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...deleteUserModal}></ModalDeleteUser>
         </Container>
     </>
   )

@@ -41,4 +41,9 @@ export const formatDate = (date) => {
   });
 };
 
+export const formatNextBookCode = (nextBookCode) => {
+  if (nextBookCode == 0) return 'N° 000000'
+  return `N° ${nextBookCode.toString().padStart(6, '0')}`;
+}
+
 export const CLIENT_AGENCY_ID = 2
