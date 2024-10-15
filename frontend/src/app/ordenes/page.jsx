@@ -3,30 +3,91 @@ import React, { useMemo, useState } from "react";
 import Container from "../components/Container";
 import AddIcon from '@mui/icons-material/Add';
 import MainHeader from "../components/MainHeader";
+import { STATUS_ID_TO_NAME } from "../utils/utils";
 import { tableCustomStyles } from "../../../utils";
 import Table from "../components/table";
 import useModal from "../hooks/useModal";
 import ModalCreateOrder from "../components/modals/ModalCreateOrder";
 import useUnfilteredOrders from "../hooks/userUnfilteredOrders";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import TableActionButton from "../components/buttons/tableActionButton";
+import CheckIcon from '@mui/icons-material/Check';
+import ModalDeleteOrder from "../components/modals/ModalDeleteOrder";
+import ModalEditOrder from "../components/modals/ModalEditOrder";
 
 export default function Ordenes() {
   const orders = useUnfilteredOrders()
+  const [selectedOrder, setSelectedOrder] = useState({});
   const createOrderModal = useModal()
+  const deleteOrderModal = useModal()
+  const editOrderModal = useModal()
+
+  const openDeleteModal = (order) => {
+    setSelectedOrder(order);
+    deleteOrderModal.open();
+  }
+
+  const openEditModal = (order) => {    
+    setSelectedOrder(order);
+    editOrderModal.open();
+  }
 
   const columns = useMemo(() => {
     const newColumns = [
       {
-        name: 'Nombre',
+        name: 'Estado',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.statusId ? STATUS_ID_TO_NAME[row.statusId] : 'No informado',
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Número',
+        sortable: true,
+        searchable: false,
+        selector: row => row.id,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Alta',
+        sortable: true,
+        searchable: false,
+        selector: row => row.registrationDate,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Cliente',
+        sortable: true,
+        searchable: false,
+        selector: row => row.client?.businessName,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Pasajero',
+        sortable: true,
+        searchable: false,
+        selector: row => row.firstName + ' ' + row.lastName,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Fecxha de ida',
+        sortable: true,
+        searchable: false,
+        selector: row => (row.departureDate ? row.departureDate : 'No informada') + (row.departureDateHour ? ' ' + row.departureDateHour : ''),
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Fecha de vuelta',
+        sortable: true,
+        searchable: false,
+        selector: row => (row.returnDate ? row.returnDate : 'No informada') + (row.returnDateHour ? ' ' + row.returnDateHour : ''),
         //maxWidth: '80px'
       },
       {
         name: 'Acciones',
-        minWidth: '180px',
-        cell: row => { return (<div className="flex-row"></div>)
-      },
+        maxWidth: '20%',
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary" />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /><TableActionButton actionIcon={<CheckIcon color="success" />} tooltipText="Editar estado" onClick={() => openDeleteModal(row)} /></div>
       },
     ];
     return newColumns;
@@ -52,6 +113,8 @@ export default function Ordenes() {
             </div>
         </Container>
         <ModalCreateOrder {...createOrderModal}/>
+        <ModalEditOrder order={selectedOrder} cleanSelectedOrder={() => setSelectedOrder({})} {...editOrderModal}></ModalEditOrder>
+        <ModalDeleteOrder order={selectedOrder} cleanSelectedOrder={() => setSelectedOrder({})} {...deleteOrderModal}></ModalDeleteOrder>
     </>
   )
 }

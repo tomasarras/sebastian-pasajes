@@ -63,6 +63,7 @@ async function checkUsernameAvailable(username) {
 }
 
 export const login = async (username, password) => {
+	//TODO: check if user is active
 	const userDb = await User.findOne({ where: { username }, include: [Profile, { model: Client, include: [ClientGroup] }]});
 	if (userDb == null) {
 		invalidUsernameOrPassoword()

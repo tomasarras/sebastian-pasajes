@@ -1,17 +1,22 @@
 "use client"
-
+import React, { useContext } from "react";
+import { Context } from "../../context/Context";
 import { formatDateWithSlash } from "@/app/utils/functions"
 import Modal from "./modal"
 import Input from "../form/input/input"
-import FormikStyledRadio from "../form/FormikStyledRadio"
+import { deleteOrder } from "@/app/services/ordersService";
 import CommonLabel from "../commonLabel"
 
-export default function ModalDeleteOrder({ order, ...props }) {
+export default function ModalDeleteOrder({ order, cleanSelectedOrder, ...props }) {
+  const { changeAlertStatusAndMessage, fetchOrders } = useContext(Context);
 
   const handleOnDelete = async () => {
+    await deleteOrder(group.id);
+    changeAlertStatusAndMessage(true, 'success', 'Orden eliminada exitosamente!');
+    await fetchOrders();
+    cleanSelectedOrder();
     props.close()
   }
-
   return <Modal title={`Eliminar Orden`} {...props}>
     <div className="max-w-lg">
       <div className="mt-2">

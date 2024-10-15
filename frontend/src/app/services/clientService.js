@@ -1,6 +1,10 @@
+import { applyFilterParams } from '../utils/utils'
 import axios from './interceptors'
 
-export const getAllClients = () => axios.get(`/clients`)
+export const getAllClients = (options) => {
+  const params = applyFilterParams(options)
+  return axios.get(`/clients?${params}`)
+}
 
 export const createClient = (client) => axios.post(`/clients`, client)
 

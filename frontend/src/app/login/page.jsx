@@ -1,19 +1,30 @@
 "use client"
 import CommonInput from "../components/commonInput"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import SecondaryButton from "../components/buttons/secondaryButton";
 import { useRouter } from 'next/navigation'
 import * as userService from '../services/userService'
+import Warning from "../components/alerts/Warning";
+import { useSearchParams } from 'next/navigation';
+import useToggle from "../hooks/useToggle";
 
 export default function Login() {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
+  const searchParams = useSearchParams();
   const [showPass, setShowPass] = useState(false);
   const [isInavlidPasswordOrUsername, setIsInavlidPasswordOrUsername] = useState(false)
   const router = useRouter();
+  const [isSessionExpired, expireSession] = useToggle()
+
+  useEffect(() => {
+    const isExpired = searchParams.has('expired');
+    if (isExpired)
+      expireSession()
+  }, [searchParams]);
 
   const login = async () => {
     try {
@@ -27,9 +38,9 @@ export default function Login() {
   return (
     <div className="bg-gray-75">
       <div className="bg-white h-20 w-full flex"><img src="/logo (1).png" /></div>
-      <div className="flex items-center justify-center min-h-screen min-w-screen">
-        <div className="w-4/6 grid grid-cols-2 bg-white shadow">
-          <div className="col-span-1 flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center min-h-screen min-w-screen">
+        <div className="w-4/6 grid grid-cols-2 bg-white shadow rounded">
+          <div className="col-span-1 flex items-center justify-center rounded-l">
             <img src="/travel-illustration-secondary.png" />
           </div>
           <div className="col-span-1 bg-yellow-75 grid content-center p-6 md:p-10 font-normal space-y-2 md:space-y-3">
@@ -60,6 +71,14 @@ export default function Login() {
             <SecondaryButton actionText="INGRESAR" onClick={login} /> 
           </div>
         </div>
+        {isSessionExpired &&
+          <div className="mt-4 w-4/6 shadow">
+            <Warning
+              title="Sesión expirada"
+              description="Su sesión ha expirado, por favor vuelva a iniciar sesión"
+            />
+          </div>
+        }
       </div>
     </div>
   )

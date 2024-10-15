@@ -10,7 +10,7 @@ export const PROFILES = [
 export const PROFILES_VALUES = {
   UNASSIGNED: "UNASSIGNED",
   APPLICANT: "APPLICANT",
-  AUTHORIZER: "AUTHORIZER",
+  AUTHORIZER: "AUTHORIZER", 
   AGENT: "AGENT",
   ADMIN: "ADMIN",
   AUDITOR: "AUDITOR",
@@ -24,6 +24,16 @@ export const STATUS_NAME_TO_ID = {
   REJECTED: 5,
   CANCELLED: 6,
   REJECTED_FROM_OPEN: 7,
+}
+
+export const STATUS_ID_TO_NAME = {
+  1: 'Sin asignar',
+  2: 'Abierta',
+  3: 'Autorizada',
+  4: 'Cerrada',
+  5: 'Rechazada',
+  6: 'Cancelada',
+  7: 'Rechazada (desde abierta)',
 }
 
 export const datePickerDateToString = (date) => {
@@ -46,4 +56,18 @@ export const formatNextBookCode = (nextBookCode) => {
   return `N° ${nextBookCode.toString().padStart(6, '0')}`;
 }
 
+export const applyFilterParams = (options) => {
+  if (options == undefined) return ""
+  let concat = ""
+  Object.keys(options).forEach(key => {
+    if (options[key] != null && options[key] != '')
+      concat += `${key}=${options[key]}&`
+  })
+  return concat.slice(0, -1);
+}
+
 export const CLIENT_AGENCY_ID = 2
+
+export function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}

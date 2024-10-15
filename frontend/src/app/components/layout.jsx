@@ -38,6 +38,7 @@ export default function Layout({ children }) {
 	const closeSession = () => {
 		localStorage.removeItem('accessToken');
 		localStorage.removeItem('userInfo');
+		console.log("closeSession");
 		router.push('/login');
 	};
 

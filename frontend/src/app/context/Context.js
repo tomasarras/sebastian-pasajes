@@ -54,10 +54,12 @@ export const Provider = ({ children }) => {
         return welcomeMessage
     }
 
-    const fetchClients = async () => {
-        const clients = await clientService.getAllClients()
-        setClients(clients)
+    const fetchClients = async (options) => {
+        const clients = await clientService.getAllClients(options)
+        if (options == undefined)
+            setClients(clients)
         setAlreadyFetchedClients(true)
+        return clients
     }
 
     const fetchProvinces = async () => {

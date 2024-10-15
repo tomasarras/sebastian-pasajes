@@ -8,7 +8,7 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const clients = await clientService.getAll(req.params);
+      const clients = await clientService.getAll(req.query);
       res.status(200).json(toLowerCaseRelations(clients));
     } catch (e) {
       next(e);

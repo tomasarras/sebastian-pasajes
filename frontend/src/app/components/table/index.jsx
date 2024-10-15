@@ -9,9 +9,17 @@ const Table = ({ className = "", columns, onChangePage, data, ...rest }) => {
     setHydrated(true);
   }, []);
 
+  useEffect(() => {
+    setDataFiltered(data)
+    setHydrated(true);
+  }, [data]);
+
   if (!hydrated) {
     return null;
   }
+
+  
+  
 
   return (
     <div>
@@ -19,6 +27,7 @@ const Table = ({ className = "", columns, onChangePage, data, ...rest }) => {
         className={className}
         columns={columns}
         data={dataFiltered}
+        noDataComponent="No hay datos"
         onChangePage={onChangePage}
         paginationComponentOptions={{
           rowsPerPageText: "Filas por página:",

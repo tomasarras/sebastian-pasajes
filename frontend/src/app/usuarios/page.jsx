@@ -103,7 +103,7 @@ export default function Usuarios() {
                 </div>
             </div>
             <ModalCreateUser {...createUserModal}></ModalCreateUser>
-            <ModalEditUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...deleteUserModal}></ModalEditUser>
+            <ModalEditUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...editUserModal}></ModalEditUser>
             <ModalDeleteUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...deleteUserModal}></ModalDeleteUser>
         </Container>
     </>

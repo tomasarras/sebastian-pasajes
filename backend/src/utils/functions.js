@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import { Op } from 'sequelize';
 
 export const toLowerCaseRelations = (obj) => {
     if (Array.isArray(obj)) {

@@ -40,6 +40,18 @@ h3 {
   font-size: 1.125rem;
 }
 
+.op-header {
+  background-color: #57707D;
+}
+
+.op-sidebar {
+  background-color: #7d97a5;
+}
+
+.op-sidebar-hover:hover, .op-sidebar-selected {
+  background-color: #9eb1bb;
+}
+
 /*.loginBg {
   background-image: url("/vista-angulo-hombre-musculoso-irreconocible-preparandose-levantar-barra-club-salud.jpg");
   background-repeat: no-repeat;

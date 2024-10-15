@@ -2,14 +2,25 @@
 
 import React, { useEffect, useState } from "react";
 import { PROFILES_VALUES } from "../utils/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function useAuth() {
   const [userData, setUserData] = useState(null)
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('userInfo'))
+    if (pathname === "/") {
+      console.log("redirect to login");
+      router.push('/login')
+      return
+    } else if (pathname === "/ordenes-pagos") {
+      router.push('/ordenes-pagos/login')
+      return
+    } else if (pathname === "/ordenes-pagos/login") {
+      return
+    }
     if (!userData) {
       router.push('/login')
       return

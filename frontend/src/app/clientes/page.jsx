@@ -1,7 +1,6 @@
 "use client"
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import Container from "../components/Container";
-import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MainHeader from "../components/MainHeader";
@@ -16,13 +15,19 @@ import { formatNextBookCode } from "../utils/utils";
 import TableActionButton from "../components/buttons/tableActionButton";
 import GenericModalDelete from "../components/modals/GenericModalDelete";
 import { Context } from "../context/Context";
+import AddItemButton from "../components/buttons/addItemButton";
+import FilterClientsModal from "../components/modals/FilterClientsModal";
+import TableFilters from "../components/table/tableFilters";
 
 export default function Clientes() {
   const clients = useClients();
   const createClientModal = useModal()
   const deleteClientModal = useModal()
   const editClientModal = useModal()
+  const filterModal = useModal()
   const [selectedClient, setSelectedClient] = useState(null)
+  const [filterOptions, setFilterOptions] = useState(null)
+  const [filteredClients, setFilteredClients] = useState(null)
   const { fetchClients } = useContext(Context)
 
   const openDeleteModal = (client) => {
@@ -41,6 +46,22 @@ export default function Clientes() {
     setSelectedClient(client);
     editClientModal.open();
   }
+
+  const updateFiterClients = async () => {
+    const data = await fetchClients(filterOptions)
+    console.log("receibed", data, filterOptions);
+    setFilteredClients(data)
+  }
+  
+  useEffect(() => {
+    updateFiterClients()
+  }, [filterOptions])
+
+  useEffect(() => {
+    console.log("df", filteredClients);
+  }, [filteredClients])
+  
+  
 
   const columns = useMemo(() => {
     const newColumns = [
@@ -85,14 +106,20 @@ export default function Clientes() {
     <>
         <Container>
             <div className="shadow rounded-lg">
-                <MainHeader mainTitle="Clientes" onClickActionText={createClientModal.open} actionText={<span className="flex items-center"><AddIcon className="mr-2" />Agregar Cliente</span>} />
+                <MainHeader
+                  onOpenFilterModal={filterModal.open}
+                  mainTitle="Clientes"
+                  onClickActionText={createClientModal.open}
+                  actionText={<AddItemButton actionText="Agregar Cliente"/>}
+                />
                 <hr/>
+                <TableFilters filters={filterOptions} setFilters={setFilterOptions}/>
                 <div className="px-2 md:px-4 py-8 md:py-16 bg-white">
                   <Table
                     className="shadow"
                     customStyles={tableCustomStyles}
                     columns={columns}
-                    data={clients}
+                    data={filterOptions != null ? filteredClients : clients}
                     striped
                     responsive
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -100,6 +127,7 @@ export default function Clientes() {
                 </div>
             </div>
         </Container>
+        <FilterClientsModal onApplyFilter={setFilterOptions} {...filterModal}/>
         <ModalCreateClient onSubmit={createClient} {...createClientModal}/>
         <ModalCreateClient client={selectedClient} onSubmit={editClient} {...editClientModal}/>
         <GenericModalDelete id={selectedClient?.id} type={"cliente"} label={selectedClient?.businessName} onDelete={handleOnDelete} {...deleteClientModal}/>

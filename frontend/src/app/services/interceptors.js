@@ -10,7 +10,7 @@ axios.interceptors.response.use((response) => {
       if (!isLoginPath) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('userInfo');
-        window.location.href = "/login";
+        window.location.href = "/login?expired";
       }
     }
     return Promise.reject(error);

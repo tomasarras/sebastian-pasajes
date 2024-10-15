@@ -9,6 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import SnackBar from "./components/snackBar";
 import { Provider } from "./context/Context";
 import Layout from './components/layout';
+import OPLayout from './components/opLayout';
 const inter = Inter({ subsets: ['latin'],   weight: ['300', '400', '500', '600', '700'], });
 
 export default function RootLayout({ children }) {
@@ -41,15 +42,21 @@ export default function RootLayout({ children }) {
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
           <body className={inter.className}>
             <span className="absolute right-0 top-0"><SnackBar /></span>
-            {pathname === '/login' && (
+            {(pathname === '/login' || pathname === '/ordenes-pagos/login') ? (
                   <main>{children}</main>
             )
-            }
-            {pathname !== '/login' && (<main>
+            :
+            <main>
+              {pathname.startsWith("/ordenes-pagos") ? 
+              <OPLayout>
+              {children}
+            </OPLayout>
+            :
               <Layout>
                 {children}
               </Layout>
-            </main>)
+              }
+            </main>
             }
           </body>
         </LocalizationProvider>
