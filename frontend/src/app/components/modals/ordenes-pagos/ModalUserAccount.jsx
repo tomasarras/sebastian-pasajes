@@ -7,7 +7,7 @@ import SecondaryButton from "../../buttons/secondaryButton";
 import * as userService from '../../../services/ordenes-pagos/userService'
 import useAuth from "@/app/hooks/ordenes-pagos/useAuth";
 import { updatePasswordValidationSchema } from "@/app/validationSchemas/updatePasswordValidationSchema";
-import PrimaryButton from "../../buttons/primaryButton";
+import PrimaryButton from "../../buttons/ordenes-pago/primaryButton";
 
 export default function ModalUserAccount(props) {
 

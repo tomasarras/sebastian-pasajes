@@ -1,4 +1,4 @@
-//import * as criteriasService from "../../services/iso/criteriasService.js";
+import * as criteriasService from "../../services/iso/criteriasService.js";
 import { toLowerCaseRelations } from "../../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const criterias = await criteriasService.getAll();
-      //res.status(200).json(toLowerCaseRelations(criterias));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const criterias = await criteriasService.getAll();
+      res.status(200).json(toLowerCaseRelations(criterias));
     } catch (e) {
       next(e);
     }

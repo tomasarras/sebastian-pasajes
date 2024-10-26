@@ -9,7 +9,9 @@ import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreat
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import Table from "@/app/components/table";
+import useIsoCourses from "@/app/hooks/ordenes-pagos/iso/useIsoCourses";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
+import { formatDate } from "@/app/utils/utils";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
@@ -22,14 +24,7 @@ export default function OrdenesPagoCapacitaciones() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("curso")
-  const courses = [{
-    id: '000010',
-    curso: "Amadeus",
-    tema: 'Sistema de pago con tarjeta de credito',
-    sector: 'Corporativo',
-    fecha: '17-10-2017',
-    fechaBaja: '',
-  }]
+  const courses = useIsoCourses()
 
   const handleOnDelete = async () => {
     //TODO
@@ -38,7 +33,7 @@ export default function OrdenesPagoCapacitaciones() {
   const columns = useMemo(() => {
     const newColumns = [
       {
-        name: 'Numero',
+        name: 'Número',
         sortable: true,
         searchable: false,
         selector: row => row.id,
@@ -47,31 +42,31 @@ export default function OrdenesPagoCapacitaciones() {
         name: 'Curso',
         sortable: true,
         searchable: false,
-        selector: row => row.curso,
+        selector: row => row.titulo,
       },
       {
         name: 'Tema',
         sortable: true,
         searchable: false,
-        selector: row => row.tema,
+        selector: row => row?.tema?.nombre,
       },
       {
         name: 'Sector',
         sortable: true,
         searchable: false,
-        selector: row => row.sector,
+        selector: row => row?.sector?.nombre,
       },
       {
         name: 'Fecha',
         sortable: true,
         searchable: false,
-        selector: row => row.fecha,
+        selector: row => formatDate(row.fechaAlta),
       },
       {
         name: 'Fecha Baja',
         sortable: true,
         searchable: false,
-        selector: row => row.fechaBaja,
+        selector: row => formatDate(row.fechaBaja),
       },
       actionColumn
     ];

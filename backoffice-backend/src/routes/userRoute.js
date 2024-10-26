@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/login", controller.login);
 router.post("/change-password", verifyToken, check("currentPassword").notEmpty(),passwordValidator("newPassword"), controller.changePassword);
 router.post("/create", verifyToken, onlyAgencyAndAdministrators(), userValidator(), passwordValidator("password"), controller.create);
-router.get("/", verifyToken, onlyAgencyAndAdministrators(), controller.getAll);
+router.get("/", controller.getAll);
 router.delete("/:id", verifyToken, onlyAgencyAndAdministrators(), controller.deleteById);
 router.put("/:id", verifyToken, onlyAgencyAndAdministrators(), controller.update);
 

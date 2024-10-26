@@ -2,6 +2,38 @@ import { Op, fn, col } from 'sequelize';
 import { Client, Order, Status, User, Company, Passenger } from "../db/index.js"
 import { AGENCY_CLIENT_ID, CLIENTS_GROUPS, PASSENGER_TYPES, ROLES, ROLES_VALUES, STATUSES, STATUSES_VALUES } from "../utils/constants.js";
 import { filterAttributes, stringifyDate } from "../utils/functions.js";
+import { sendEmail } from './emailService.js';
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const newOrderAdminTemplatePath = path.join(__dirname, '../', 'mail', 'new_order_admin_template.html');
+const newOrderClientTemplatePath = path.join(__dirname, '../', 'mail', 'new_order_client_template.html');
+let newOrderAdminTemplateHtml;
+fs.readFile(newOrderAdminTemplatePath, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading the HTML file:', err);
+        return;
+    }
+    newOrderAdminTemplateHtml = data
+});
+let newOrderClientTemplateHtml;
+fs.readFile(newOrderClientTemplatePath, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading the HTML file:', err);
+        return;
+    }
+    newOrderClientTemplateHtml = data
+});
+function replacePlaceholders(placeholders, html) {
+    const placeHoldersKeys = Object.keys(placeholders)
+    for (const key of placeHoldersKeys) {
+        const regex = new RegExp(`{${key}}`, 'g');
+        html = html.replace(regex, placeholders[key]);
+    }
+    return html
+}
 
 async function createPassangerIfNotExists(passenger) {
     passenger.id = 0
@@ -45,8 +77,8 @@ const getNewOrderValues = (orderParam, clientId) => {
         const { observationAgent, companies, tickets, issueDate, price } = orderParam;
         return { observationAgent, companies, tickets, issueDate, price };
     } else {
-        const { observations, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureDateFrom, departureDateUntil, departureDate, departureDateHour, returnDateFrom, returnDateUntil, returnDate, returnDateHour } = orderParam;
-        return { observations, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureDateFrom, departureDateUntil, departureDate, departureDateHour, returnDateFrom, returnDateUntil, returnDate, returnDateHour };
+        const { observations, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureFrom, departureTo, departureDate, departureDateHour, returnFrom, returnTo, returnDate, returnDateHour } = orderParam;
+        return { observations, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureFrom, departureTo, departureDate, departureDateHour, returnFrom, returnTo, returnDate, returnDateHour };
     }
 };
 
@@ -124,7 +156,7 @@ export const create = async (orderParam, user) => {
         const nextBookCode = client.nextBookCode;
         lastNumber = nextBookCode != 0 ? nextBookCode : 1
     }
-    orderParam.number = lastNumber
+    orderParam.number = lastNumber+1
     if (orderParam.passengerType == PASSENGER_TYPES.COMPANION) {
         orderParam.fatherId = orderParam.fatherNumber;
         orderParam.root = orderParam.fatherNumber;
@@ -152,8 +184,14 @@ export const create = async (orderParam, user) => {
         const [company] = await Company.findAll()
         const email = company.emailNotification
         const subject = formatSubjectEmail(orderParam.number, user.client.businessName, fullName)
-        const body = "Alta de Orden de Cliente que Reserva";
-        //sendEmail(email, subject, body); TODO
+        const text = "Alta de Orden de Cliente que Reserva";
+        const placeholders = {
+            orderNumber: orderParam.number.toString().padStart(6, '0'),
+            passengerFullName: fullName,
+            bussinessName: user.client.businessName
+        }
+        const html = replacePlaceholders(placeholders, newOrderAdminTemplateHtml)
+        sendEmail(email, subject, html, text)
         passenger.clientId = user.client.id
         passenger.registrationDate = orderParam.registrationDate
         createPassangerIfNotExists(passenger);
@@ -166,9 +204,13 @@ export const create = async (orderParam, user) => {
             clientId: user.client.id,
         }, attributes: ['email']})
         const userEmails = users.map(user => user.get({plain:true}).email)
-        const subject = formatSubjectEmail(number, user.client.businessName, fullName)
-        const body = '<BODY><FONT FACE="arial"><SMALL>Estimado usuario:<BR><BR>Le informamos que se ha generado una orden de pasaje para el/la Sr/Sra '+fullName+' y la misma se encuentra pendiente de su autorización para poder ser procesada por nuestro personal.<BR><BR>Podrá ingresar al sistema con sus datos de acceso haciendo clic en el siguiente vínculo http://www.sebastianpasajes.com.ar<BR><BR>Muchas gracias!<BR><BR><BR><STRONG>SEBASTIAN VIAJES</STRONG></SMALL></FONT></BODY>';
-        //sendEmail(userEmails, subject, body); TODO
+        const subject = formatSubjectEmail(orderParam.number, user.client.businessName, fullName)
+        const placeholders = {
+            passengerFullName: fullName
+        }
+        const html = replacePlaceholders(placeholders, newOrderClientTemplateHtml)
+        const text = 'Le informamos que se ha generado una orden de pasaje para el/la Sr/Sra '+fullName+' y la misma se encuentra pendiente de su autorización'
+        sendEmail(userEmails, subject, html, text);
     }
     if (orderParam.passengerType == PASSENGER_TYPES.COMPANION) {
         const fatherOrder = await Order.findByPk(orderParam.fatherNumber)
@@ -187,7 +229,12 @@ export const update = async (orderId, orderParam, user) => {
     return updatedOrder.get({ plain: true })
 };
 
-export const getById = (orderId) => Order.findByPk(orderId, { include: [Client, Status] });
+export const getById = (orderId) => Order.findByPk(orderId, { include: [
+    Client,
+    Status,
+    { model: User, as: 'ApplicantUser' , attributes: ["firstName", "lastName"] },
+    { model: User, as: 'AuthorizerUser', attributes: ["firstName", "lastName"] }
+]});
 
 export const completeOrderData = async (order) => {
     const companions = await Order.findAll({ where: {
@@ -230,7 +277,6 @@ export const authorize = async (order, user) => {
     const email = company.emailNotification
     const subject = formatSubjectEmail(order.number, order.Client.businessName, fullName)
     const body = "Orden Autorizada"
-    console.log();
     //sendEmail(email, subject, body); TODO
 };
 

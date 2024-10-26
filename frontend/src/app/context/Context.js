@@ -26,6 +26,7 @@ export const Provider = ({ children }) => {
     const [alreadyFetchedProvinces, setAlreadyFetchedProvinces] = useState(false)
     const [alreadyFetchedLocations, setAlreadyFetchedLocations] = useState(false)
     const [alreadyFetchedGroups, setAlreadyFetchedGroups] = useState(false)
+    const [alreadyFetchedUsers, setAlreadyFetchedUsers] = useState(false)
     const [company, setCompany] = useState(null)
     const [welcomeMessage, setWelcomeMessage] = useState('')
     const pathname = usePathname()
@@ -83,6 +84,11 @@ export const Provider = ({ children }) => {
     const fetchUsers = async () => {
         const usrs = await userService.getUsers()
         setUsers(usrs);
+        setAlreadyFetchedUsers(true)
+    }
+
+    const getOrderById = async (id) => {
+        return await ordersService.getOrder(id);
     }
 
     const fetchOrders = async (props) => {
@@ -103,6 +109,8 @@ export const Provider = ({ children }) => {
 
     return (
         <Context.Provider value={{
+            getOrderById,
+            alreadyFetchedUsers,
             changeAlertStatusAndMessage,
             isAlertActive,
             alertMessage,

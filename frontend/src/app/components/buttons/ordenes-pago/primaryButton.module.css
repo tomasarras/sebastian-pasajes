@@ -1,0 +1,17 @@
+.button {
+  background-color: #8eb1b3;
+}
+
+.button:hover {
+  background-color: #608284;
+}
+
+.buttonOutline {
+  border: 1px solid #8eb1b3;
+  color: #8eb1b3;
+}
+
+.buttonOutline:hover {
+  background-color: #608284;
+  color: white;
+}

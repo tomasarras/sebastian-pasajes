@@ -8,6 +8,7 @@ import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOr
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateWithSimpleName from "@/app/components/ordenes-pago/modals/ModalCreateWithSimpleName";
 import Table from "@/app/components/table";
+import useIsoCriterios from "@/app/hooks/ordenes-pagos/iso/useIsoCriterios";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
@@ -21,9 +22,7 @@ export default function OrdenesPagoTiempoSgcTablasCriterios() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("criterio")
-  const creterieas = [{
-    name: "Requisito 5.6.2 Norma ISO 9001.2008",
-  }]
+  const criterios = useIsoCriterios()
 
   const handleOnDelete = async () => {
     //TODO
@@ -35,12 +34,12 @@ export default function OrdenesPagoTiempoSgcTablasCriterios() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
       },
       actionColumn
     ];
     return newColumns;
-  }, [creterieas]); 
+  }, [criterios]); 
 
   return (
   <Container>
@@ -51,7 +50,7 @@ export default function OrdenesPagoTiempoSgcTablasCriterios() {
         <Table
           className="shadow"
           columns={columns}
-          data={creterieas}
+          data={criterios}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}

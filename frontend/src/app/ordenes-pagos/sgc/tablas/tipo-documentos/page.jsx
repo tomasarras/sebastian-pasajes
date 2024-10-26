@@ -8,6 +8,7 @@ import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOr
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateWithSimpleName from "@/app/components/ordenes-pago/modals/ModalCreateWithSimpleName";
 import Table from "@/app/components/table";
+import useIsoTipoDocumentos from "@/app/hooks/ordenes-pagos/iso/useIsoTipoDocumentos";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
@@ -21,9 +22,7 @@ export default function OrdenesPagoTiempoSgcTablasTipoDocumentos() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("tipo de documento")
-  const documentTypes = [{
-    name:"Instructivo"
-  }]
+  const documentTypes = useIsoTipoDocumentos()
 
   const handleOnDelete = async () => {
     //TODO
@@ -35,7 +34,7 @@ export default function OrdenesPagoTiempoSgcTablasTipoDocumentos() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
       },
       actionColumn
     ];

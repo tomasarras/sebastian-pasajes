@@ -1,4 +1,4 @@
-//import * as sectorService from "../../services/sectorService.js";
+import * as sectorService from "../services/sectorService.js";
 import { toLowerCaseRelations } from "../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const sectors = await sectorService.getAll();
-      //res.status(200).json(toLowerCaseRelations(sectors));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const sectors = await sectorService.getAll();
+      res.status(200).json(toLowerCaseRelations(sectors));
     } catch (e) {
       next(e);
     }

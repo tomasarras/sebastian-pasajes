@@ -8,11 +8,13 @@ import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOr
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateWithSimpleName from "@/app/components/ordenes-pago/modals/ModalCreateWithSimpleName";
 import Table from "@/app/components/table";
+import useUsers from "@/app/hooks/ordenes-pagos/useUsers";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoUsuarios() {
+  const users = useUsers()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -21,13 +23,6 @@ export default function OrdenesPagoUsuarios() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("usuario")
-  const users = [{
-    firstName:"Sebastian Nicolas",
-    username: 'nsebastian',
-    puesto: 'personal',
-    perfil: 'administrador sistema',
-    fechaBaja: ''
-  }]
 
   const handleOnDelete = async () => {
     //TODO
@@ -39,13 +34,13 @@ export default function OrdenesPagoUsuarios() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.firstName,
+        selector: row => `${row?.personal?.apellido} ${row?.personal?.nombre}`,
       },
       {
         name: 'Usuario',
         sortable: true,
         searchable: false,
-        selector: row => row.username,
+        selector: row => row.usuario,
       },
       {
         name: 'Puesto',
@@ -57,7 +52,7 @@ export default function OrdenesPagoUsuarios() {
         name: 'Perfil',
         sortable: true,
         searchable: false,
-        selector: row => row.perfil,
+        selector: row => row?.perfil?.nombre,
       },
       {
         name: 'Fecha Baja',

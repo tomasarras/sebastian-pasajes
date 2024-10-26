@@ -1,21 +1,92 @@
 "use client"
 import CommonInput from "@/app/components/commonInput";
-import React, { useState } from "react";
-import PersonIcon from '@mui/icons-material/Person';
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { useRouter } from 'next/navigation'
-import * as userService from '../../services/ordenes-pagos/userService.js'
-import Header from "@/app/components/ordenes-pago/header/header.jsx";
-import Image from "next/image.js";
-import illustration from "../../../../public/travel-illustration-primary.png"
-import PrimaryButton from "@/app/components/buttons/primaryButton.jsx";
+import Container from "@/app/components/Container";
+import MainHeader from "@/app/components/MainHeader";
+import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
+import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreateOperator";
+import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
+import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
+import Table from "@/app/components/table";
+import usePasajes from "@/app/hooks/ordenes-pagos/iso/usePasajes";
+import useClients from "@/app/hooks/ordenes-pagos/useClients.jsx";
+import useCRUDModals from "@/app/hooks/useCRUDModals";
+import { formatDate } from "@/app/utils/utils";
+import Link from "next/link";
+import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoPasajes() {
+  const pasajes = usePasajes()
+
+  const { 
+    mainHeaderProps,
+    createModalProps,
+    editModalProps,
+    deleteModalProps,
+    selectedEntity,
+    actionColumn,
+  } = useCRUDModals("pasaje devuelto")
+  
+
+  const handleOnDelete = async () => {
+    //TODO
+  }
+
+  const columns = useMemo(() => {
+    const newColumns = [
+      {
+        name: 'Fecha',
+        sortable: true,
+        searchable: false,
+        selector: row => formatDate(row.fecha),
+      },
+      {
+        name: 'Pasaje',
+        sortable: true,
+        searchable: false,
+        selector: row => row.nro,
+      },
+      {
+        name: 'Pasajero',
+        sortable: true,
+        searchable: false,
+        selector: row => row.pasajero,
+      },
+      {
+        name: 'Waiber',
+        sortable: true,
+        searchable: false,
+        selector: row => row.w,
+      },
+      {
+        name: 'Estado',
+        sortable: true,
+        searchable: false,
+        selector: row => row.estado,
+      },
+      actionColumn
+    ];
+    return newColumns;
+  }, [pasajes]); 
 
   return (
-  <div className="bg-gray-75">
-    pasajes
-  </div>
+  <Container>
+    <div className="shadow rounded-lg bg-white p-2 md:p-4">
+      <MainHeader mainTitle="Pasajes Devueltos" {...mainHeaderProps} />
+      <hr/>
+      <div className="py-8 md:py-16">
+        <Table
+          className="shadow"
+          columns={columns}
+          data={pasajes}
+          striped
+          responsive
+          pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+        />
+      </div>
+    </div>
+    <ModalCreateOperator {...createModalProps} />
+    <ModalCreateOperator operator={selectedEntity} {...editModalProps} />
+    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+  </Container>
   )
 }

@@ -10,11 +10,13 @@ import SnackBar from "./components/snackBar";
 import { Provider } from "./context/Context";
 import Layout from './components/layout';
 import OPLayout from './components/opLayout';
+import OPSnackBar from './components/opSnackBar';
 const inter = Inter({ subsets: ['latin'],   weight: ['300', '400', '500', '600', '700'], });
 
 export default function RootLayout({ children }) {
 
   const pathname = usePathname();
+  const pathnameIncludesLayout = !['/login', '/email/new-order', '/ordenes-pagos/login'].includes(pathname)
 
   return (
     <html lang="en">
@@ -41,9 +43,11 @@ export default function RootLayout({ children }) {
       <Provider>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
           <body className={inter.className}>
-            <span className="absolute right-0 top-0"><SnackBar /></span>
-            {(pathname === '/login' || pathname === '/ordenes-pagos/login') ? (
-                  <main>{children}</main>
+            {pathname.startsWith("/ordenes-pagos") 
+            ? <></>
+            : <span className="absolute right-0 top-0"><SnackBar /></span>}
+            {!pathnameIncludesLayout ? (
+                <main>{children}</main>
             )
             :
             <main>

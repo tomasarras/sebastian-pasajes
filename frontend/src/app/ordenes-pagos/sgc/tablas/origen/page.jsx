@@ -8,6 +8,7 @@ import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOr
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateWithSimpleName from "@/app/components/ordenes-pago/modals/ModalCreateWithSimpleName";
 import Table from "@/app/components/table";
+import useIsoOrigenes from "@/app/hooks/ordenes-pagos/iso/useIsoOrigenes";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
@@ -21,9 +22,7 @@ export default function OrdenesPagoTiempoSgcTablasOrigen() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("origen accion")
-  const origins = [{
-    name:"NO CUMPLIMIENTO DE REQUISITOS DEL SISTEMA"
-  }]
+  const origins = useIsoOrigenes()
 
   const handleOnDelete = async () => {
     //TODO
@@ -35,7 +34,7 @@ export default function OrdenesPagoTiempoSgcTablasOrigen() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
       },
       actionColumn
     ];

@@ -6,10 +6,13 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import SecondaryButton from "../components/buttons/secondaryButton";
 import { useRouter } from 'next/navigation'
+import StaticHeader from "../components/header/StaticHeader";
 import * as userService from '../services/userService'
 import Warning from "../components/alerts/Warning";
 import { useSearchParams } from 'next/navigation';
 import useToggle from "../hooks/useToggle";
+import illustration from "../../../public/travel-illustration-secondary.png"
+import Image from "next/image";
 
 export default function Login() {
   const [user, setUser] = useState('');
@@ -36,12 +39,12 @@ export default function Login() {
   }
 
   return (
-    <div className="bg-gray-75">
-      <div className="bg-white h-20 w-full flex"><img src="/logo (1).png" /></div>
-      <div className="flex flex-col items-center justify-center min-h-screen min-w-screen">
+    <div className="bg-gray-75 min-h-screen min-w-screen">
+      <StaticHeader className="absolute"/>
+      <div className="flex items-center justify-center min-h-screen">
         <div className="w-4/6 grid grid-cols-2 bg-white shadow rounded">
           <div className="col-span-1 flex items-center justify-center rounded-l">
-            <img src="/travel-illustration-secondary.png" />
+            <Image src={illustration} alt="ilustracion" />
           </div>
           <div className="col-span-1 bg-yellow-75 grid content-center p-6 md:p-10 font-normal space-y-2 md:space-y-3">
             <div className="text-xl md:text-2xl">¡Bienvenido!</div>

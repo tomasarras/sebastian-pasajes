@@ -5,5 +5,6 @@ import controller from "../../controllers/iso/coursesController.js";
 const router = express.Router();
 
 router.get("/", controller.getAll);
+router.get("/temas", controller.getAllCursoTemas);
 
 export default router;

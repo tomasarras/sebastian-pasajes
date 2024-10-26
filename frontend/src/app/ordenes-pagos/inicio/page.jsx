@@ -20,12 +20,17 @@ export default function OrdenesPagosHome() {
     setLocalNews(news.length == 0 ? defaultNews : news)
   }, [news])
   
+  const alertProps = neww => ({
+    title: neww.titulo,
+    subtitle: neww.subtitulo,
+    text: neww.texto
+  })
 
   return (
     <Container>
       <div className="shadow rounded-lg bg-white p-2 md:p-4">
         <div className="flex flex-col gap-4">
-          {localNews.map(neww => neww.isUrgent ? <DangerAlert key={neww.title} {...neww}/> : <InfoAlert key={neww.title} {...neww} />)}
+          {localNews.map(neww => neww.urgente ? <DangerAlert key={neww.id} {...alertProps(neww)}/> : <InfoAlert key={neww.id} {...alertProps(neww)} />)}
         </div>
       </div>
     </Container>

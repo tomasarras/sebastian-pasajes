@@ -5,5 +5,6 @@ import controller from "../../controllers/iso/ncController.js";
 const router = express.Router();
 
 router.get("/", controller.getAll);
+router.get("/origins", controller.getAllOrigins);
 
 export default router;

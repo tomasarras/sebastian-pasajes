@@ -1,4 +1,4 @@
-//import * as indicatorsService from "../../services/iso/indicatorsService.js";
+import * as indicatorsService from "../../services/iso/indicatorsService.js";
 import { toLowerCaseRelations } from "../../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const indicators = await indicatorsService.getAllSells();
-      //res.status(200).json(toLowerCaseRelations(indicators));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const indicators = await indicatorsService.getAll();
+      res.status(200).json(toLowerCaseRelations(indicators));
     } catch (e) {
       next(e);
     }

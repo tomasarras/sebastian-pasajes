@@ -1,4 +1,5 @@
-//import * as ticketsService from "../services/ticketsService.js";
+import * as ticketsService from "../services/ticketsService.js";
+import { toLowerCaseRelations } from "../utils/functions.js";
 
 export default {
   
@@ -8,10 +9,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const tickets = await ticketsService.getAll();
-      //res.status(200).json(tickets);
-      //TODO: get news from db
-      res.status(200).json([]);
+      const tickets = await ticketsService.getAll();
+      res.status(200).json(toLowerCaseRelations(tickets));
     } catch (e) {
       next(e);
     }

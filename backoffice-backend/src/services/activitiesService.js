@@ -1,6 +1,7 @@
-import { Activity } from "../db/index.js"
+import { Actividad } from "../db/index.js"
+import { Op } from 'sequelize';
+
 export const getAll = async () => {
-	//TODO ver si meter estos tres llamados en uno
-	const activities = await Activity.findAll()
-	return activities
+	const activities = await Actividad.findAll({ where: { Id: {[Op.ne]: 0} }})
+	return activities.map(a => a.get({plain:true}))
 };

@@ -1,4 +1,4 @@
-//import * as trService from "../../services/iso/trService.js";
+import * as trService from "../../services/iso/trService.js";
 import { toLowerCaseRelations } from "../../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const times = await trService.getAll();
-      //res.status(200).json(toLowerCaseRelations(times));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const times = await trService.getAll();
+      res.status(200).json(toLowerCaseRelations(times));
     } catch (e) {
       next(e);
     }

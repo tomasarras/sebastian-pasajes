@@ -100,7 +100,7 @@ export default function Clientes() {
       },
     ];
     return newColumns;
-}, [clients]); 
+  }, [clients]); 
 
   return (
     <>

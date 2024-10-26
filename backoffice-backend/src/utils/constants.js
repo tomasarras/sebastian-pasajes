@@ -35,13 +35,9 @@ export const ROLES_VALUES = {
     ADMIN: 5,
     AUDITOR: 6,
 }
-export const EMPTY_GROUP = 1
-export const EMPTY_PROVINCE = 1
-export const EMPTY_LOCATION = 1
-export const COMPANY_ID = 1
-export const EMPTY_USER = 1
-export const EMPTY_AGENCY_ID = 1
-export const AGENCY_CLIENT_ID = 2
+export const EMPTY_CLIENT = 0
+export const EMPTY_PROVIDER = 0
+export const EMPTY_PERSONAL = 0
 
 export const CLIENTS_GROUPS = {
     UNASSIGNED: 1,

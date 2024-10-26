@@ -1,4 +1,5 @@
-//import * as providersService from "../services/providersService.js";
+import * as providersService from "../services/providersService.js";
+import { toLowerCaseRelations } from "../utils/functions.js";
 
 export default {
   
@@ -8,10 +9,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const providers = await providersService.getAll();
-      //res.status(200).json(providers);
-      //TODO: get news from db
-      res.status(200).json([]);
+      const providers = await providersService.getAll(req.query);
+      res.status(200).json(toLowerCaseRelations(providers));
     } catch (e) {
       next(e);
     }

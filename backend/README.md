@@ -2,6 +2,9 @@
 
 ## Usage:
 
+pip install -r requirements.txt
+
+
 You should copy `.env.sample` to `.env` and then:
 
 `npm run dev` - Run the development server.

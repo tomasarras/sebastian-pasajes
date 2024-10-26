@@ -13,10 +13,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import TableActionButton from "../components/buttons/tableActionButton";
 import ModalDeleteUser from "../components/modals/ModalDeleteUser";
 import ModalEditUser from "../components/modals/ModalEditUser";
+import useUsers from "../hooks/useUsers";
 
 export default function Usuarios() {
   const createUserModal = useModal()
-  const { users, fetchUsers } = useContext(Context);
+  const users = useUsers()
   const [selectedUser, setSelectedUser] = useState({});
   const deleteUserModal = useModal()
   const editUserModal = useModal()
@@ -30,12 +31,6 @@ export default function Usuarios() {
     setSelectedUser(user);
     editUserModal.open();
   }
-
-
-  useEffect(() => {
-    fetchUsers();
-  }, [])
-  
 
   const columns = useMemo(() => {
     const newColumns = [

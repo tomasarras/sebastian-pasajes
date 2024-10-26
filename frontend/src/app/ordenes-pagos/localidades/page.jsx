@@ -6,19 +6,23 @@ import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import Table from "@/app/components/table";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import ModalCreateLocality from "@/app/components/ordenes-pago/modals/ModalCreateLocality";
+import useProvinces from "@/app/hooks/ordenes-pagos/useProvinces";
 
 export default function OrdenesPagoLocalidades() {
+  const provinces = useProvinces()
+  const [localities, setLocalities] = useState([])
 
-  const localities = [{
-    name: '25 de mayo',
-    postalCode: 8201,
-    province: 'La pampa'
-  }]
+  useEffect(() => {
+    let localities = []
+    provinces.forEach(province => localities = [...localities, ...province.localidades])
+    setLocalities(localities)
+  }, [provinces])
+  
   const { 
     mainHeaderProps,
     createModalProps,
@@ -38,7 +42,21 @@ export default function OrdenesPagoLocalidades() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'CP',
+        sortable: true,
+        searchable: false,
+        selector: row => row.cP,
+        //maxWidth: '80px'
+      },
+      {
+        name: 'Provincia',
+        sortable: true,
+        searchable: false,
+        selector: row => provinces.find(p => p.id == row.idPcia).nombre,
         //maxWidth: '80px'
       },
       actionColumn

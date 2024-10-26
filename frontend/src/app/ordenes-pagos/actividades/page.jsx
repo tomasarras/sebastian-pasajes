@@ -13,8 +13,10 @@ import React, { useMemo, useState } from "react";
 import TableActionButton from "@/app/components/buttons/tableActionButton";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
+import useActivities from "@/app/hooks/ordenes-pagos/useActivities";
 
 export default function OrdenesPagoActividades() {
+  const activities = useActivities();
   const { 
     mainHeaderProps,
     createModalProps,
@@ -23,10 +25,6 @@ export default function OrdenesPagoActividades() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("actividad")
-  const activities = [{
-    id: 1,
-    name: "Auditoria ISO"
-  }]
 
   const handleOnDelete = async () => {
     //TODO
@@ -38,7 +36,7 @@ export default function OrdenesPagoActividades() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
         //maxWidth: '80px'
       },
       actionColumn

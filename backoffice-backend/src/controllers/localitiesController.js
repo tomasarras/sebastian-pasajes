@@ -1,4 +1,4 @@
-//import * as localitiesService from "../../services/localitiesService.js";
+import * as localitiesService from "../services/localitiesService.js";
 import { toLowerCaseRelations } from "../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const localities = await localitiesService.getAll();
-      //res.status(200).json(toLowerCaseRelations(localities));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const localities = await localitiesService.getAll();
+      res.status(200).json(toLowerCaseRelations(localities));
     } catch (e) {
       next(e);
     }

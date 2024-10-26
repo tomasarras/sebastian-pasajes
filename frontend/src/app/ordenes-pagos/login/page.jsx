@@ -8,9 +8,9 @@ import { useRouter } from 'next/navigation'
 import * as userService from '../../services/ordenes-pagos/userService.js'
 import Header from "@/app/components/ordenes-pago/header/header.jsx";
 import Image from "next/image.js";
-import illustration from "../../../../public/travel-illustration-primary.png"
+import illustration from "../../../../public/digital-nomad-v1.png"
 import styles from "./login.module.css"
-import PrimaryButton from "@/app/components/buttons/primaryButton.jsx";
+import PrimaryButton from "@/app/components/buttons/ordenes-pago/primaryButton.jsx";
 
 export default function OrdenesPagosLogin() {
   const [user, setUser] = useState('');

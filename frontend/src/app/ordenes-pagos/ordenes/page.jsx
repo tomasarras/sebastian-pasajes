@@ -6,11 +6,13 @@ import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import Table from "@/app/components/table";
+import useOrders from "@/app/hooks/ordenes-pagos/useOrders";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoOrdenes() {
+  const orders = useOrders()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -19,28 +21,27 @@ export default function OrdenesPagoOrdenes() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("orden")
-  const orders = [{
-    id: '007931',
-    operador: "Tower hotel ne",
-    alta: '14-10-2024',
-    pasajero: 'Moreno Viviann',
-    usuario: 'Sanchez Ju',
-    vendedor: 'Sanchez Ju',
-    NFA: '1',
-    NFO: '96061',
-    pago: '',
-    estado: 'pendiente',
-    importe: 'USD 1.089,04'
-  }]
+  
 
   const handleOnDelete = async () => {
     //TODO
   }
 
+  const formatImporte = opago => {
+    const isDolar = opago.moneda == 1
+    let formatter = new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+    return `${isDolar ? 'USD ' : '$'}${formatter.format(opago.importe).slice(1)}`
+  }
+
   const columns = useMemo(() => {
     const newColumns = [
       {
-        name: 'Numero',
+        name: 'Número',
         sortable: true,
         searchable: false,
         selector: row => row.id,
@@ -49,61 +50,61 @@ export default function OrdenesPagoOrdenes() {
         name: 'Alta',
         sortable: true,
         searchable: false,
-        selector: row => row.alta,
+        selector: row => row.fecha,
       },
       {
         name: 'Operador',
         sortable: true,
         searchable: false,
-        selector: row => row.operador,
+        selector: row => row?.operador?.nombre,
       },
       {
         name: 'Pasajero',
         sortable: true,
         searchable: false,
-        selector: row => row.pasajero,
+        selector: row => row.cliente,
       },
       {
         name: 'Usuario',
         sortable: true,
         searchable: false,
-        selector: row => row.usuario,
+        selector: row => `${row?.usuario?.personal?.apellido} ${row?.usuario?.personal?.nombre}`,
       },
       {
         name: 'Vendedor',
         sortable: true,
         searchable: false,
-        selector: row => row.vendedor,
+        selector: row => `${row?.personal?.apellido} ${row?.personal?.nombre}`,
       },
       {
         name: 'NFA',
         sortable: true,
         searchable: false,
-        selector: row => row.NFA,
+        selector: row => row.nFA,
       },
       {
         name: 'NFO',
         sortable: true,
         searchable: false,
-        selector: row => row.NFO,
+        selector: row => row.nFO,
       },
       {
         name: 'Pago',
         sortable: true,
         searchable: false,
-        selector: row => row.pago,
+        selector: row => row.fechaP,
       },
       {
         name: 'Estado',
         sortable: true,
         searchable: false,
-        selector: row => row.estado,
+        selector: row => row?.estado?.nombre,
       },
       {
         name: 'Importe',
         sortable: true,
         searchable: false,
-        selector: row => row.importe,
+        selector: row => formatImporte(row),
       },
       actionColumn
     ];

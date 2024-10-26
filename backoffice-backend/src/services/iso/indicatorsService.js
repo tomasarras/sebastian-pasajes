@@ -1,5 +1,5 @@
-import { ISOIndicadores } from "../db/index.js"
+import { IsoIndicadores } from "../../db/index.js"
 export const getAll = async () => {
-	const indicadores = await ISOIndicadores.findAll()
-	return indicadores
+	const indicadores = await IsoIndicadores.findAll()
+	return indicadores.map(i => i.get({ plain: true }))
 };

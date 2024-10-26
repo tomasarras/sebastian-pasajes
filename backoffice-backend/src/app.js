@@ -7,14 +7,14 @@ import morgan from 'morgan';
 import config from './config.js';
 import errorHandler from './middleware/errorHandler.js';
 import root from './routes/index.js';
-// import { sequelize } from "./db/index.js";
+import { sequelize } from "./db/index.js";
 
-// try {
-//     await sequelize.authenticate();
-//     console.log('DB successful conected');
-// } catch (err) {
-//     console.error('Could not connect to DB, error:', err);
-// }
+try {
+    await sequelize.authenticate();
+    console.log('DB successful conected');
+} catch (err) {
+    console.error('Could not connect to DB, error:', err);
+}
 
 const app = express()
 

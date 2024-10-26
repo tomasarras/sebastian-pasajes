@@ -5,11 +5,13 @@ import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import Table from "@/app/components/table";
+import useProvinces from "@/app/hooks/ordenes-pagos/useProvinces";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoProvincias() {
+  const provinces = useProvinces()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -18,10 +20,6 @@ export default function OrdenesPagoProvincias() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("provincia")
-  const provinces = [{
-    id: 1,
-    name: "Buenos Aires"
-  }]
 
   const handleOnDelete = async () => {
     //TODO
@@ -33,7 +31,7 @@ export default function OrdenesPagoProvincias() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
         //maxWidth: '80px'
       },
       actionColumn

@@ -15,12 +15,12 @@ export const validateOrder = [
   check('passengerType').notEmpty()
     .isIn([PASSENGER_TYPES.HOLDER, PASSENGER_TYPES.COMPANION]),
   check('transportType').notEmpty(),
-  check('departureDateFrom').notEmpty(),
-  check('departureDateUntil').notEmpty(),
+  check('departureFrom').notEmpty(),
+  check('departureTo').notEmpty(),
   check('departureDate').notEmpty(),
   check('departureDateHour').notEmpty(),
-  check('returnDateFrom').notEmpty(),
-  check('returnDateUntil').notEmpty(),
+  check('returnFrom').notEmpty(),
+  check('returnTo').notEmpty(),
   check('returnDate').notEmpty(),
   check('returnDateHour').notEmpty(),
   

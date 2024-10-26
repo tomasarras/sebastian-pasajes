@@ -9,8 +9,7 @@ export default {
   login: async (req, res, next) => {
     try {
       const { username, password } = req.body;
-      //const token = await usersService.login(username, password);
-      const token = { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZmlyc3ROYW1lIjoiTm9udGh1ZSIsImxhc3ROYW1lIjoiR3J1bm1hbm4iLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6IlJPTEVfQURNSU4iLCJjbGllbnQiOnsiaWQiOjIsImJ1c2luZXNzTmFtZSI6IlNlYmFzdGlhbiAmIENvIiwiYm9va0NvZGUiOm51bGwsImN1aXQiOm51bGwsImFkZHJlc3MiOm51bGwsImxvY2F0aW9uSWQiOjEsInByb3ZpbmNlIjpudWxsLCJwb3N0YWxDb2RlIjpudWxsLCJwaG9uZXMiOm51bGwsImljb24iOm51bGwsIm5leHRCb29rQ29kZSI6MCwiYWN0aW9uIjpudWxsLCJpbW1lZGlhdGUiOiJTIiwiZ3JvdXBJZCI6MSwibWFpbEF1dG8iOjAsImdyb3VwIjp7ImlkIjoxLCJuYW1lIjoiPE5vIEFzaWduYWRvPiJ9fSwiaWF0IjoxNzI3NzQ0MzgzLCJleHAiOjE3Mjc3NDc5ODN9.KB0Wzb9GGBMOo49Z77Gs6pnHWKkwopgajBfdhUeIb3c" }
+      const token = await usersService.login(username, password);
       res.status(200).json(token);
     } catch (e) {
       next(e);

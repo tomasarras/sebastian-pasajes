@@ -1,4 +1,4 @@
-//import * as evaluationsService from "../../services/iso/evaluationsService.js";
+import * as evaluationsService from "../../services/iso/evaluationsService.js";
 import { toLowerCaseRelations } from "../../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAllSells: async (req, res, next) => {
     try {
-      //const evaluations = await evaluationsService.getAllSells();
-      //res.status(200).json(toLowerCaseRelations(evaluations));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const evaluations = await evaluationsService.getAllEv();
+      res.status(200).json(toLowerCaseRelations(evaluations));
     } catch (e) {
       next(e);
     }
@@ -23,10 +21,8 @@ export default {
    */
   getAllEvc: async (req, res, next) => {
     try {
-      //const evaluations = await evaluationsService.getAllEvc();
-      //res.status(200).json(toLowerCaseRelations(evaluations));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const evaluations = await evaluationsService.getAllEvc();
+      res.status(200).json(toLowerCaseRelations(evaluations));
     } catch (e) {
       next(e);
     }
@@ -38,10 +34,8 @@ export default {
    */
   getAllAdm: async (req, res, next) => {
     try {
-      //const evaluations = await evaluationsService.getAllAdm();
-      //res.status(200).json(toLowerCaseRelations(evaluations));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const evaluations = await evaluationsService.getAllAdm();
+      res.status(200).json(toLowerCaseRelations(evaluations));
     } catch (e) {
       next(e);
     }

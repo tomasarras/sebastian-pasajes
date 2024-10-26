@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import { AGENCY_CLIENT_ID } from "../utils/constants.js";
 
 const onlyAgency = (req, res, next) => {
   try {

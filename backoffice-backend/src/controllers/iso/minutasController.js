@@ -1,4 +1,4 @@
-//import * as minutasService from "../../services/iso/minutasService.js";
+import * as minutasService from "../../services/iso/minutasService.js";
 import { toLowerCaseRelations } from "../../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const minutas = await minutasService.getAll();
-      //res.status(200).json(toLowerCaseRelations(minutas));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const minutas = await minutasService.getAll();
+      res.status(200).json(toLowerCaseRelations(minutas));
     } catch (e) {
       next(e);
     }

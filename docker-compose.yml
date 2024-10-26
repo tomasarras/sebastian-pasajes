@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - NODE_ENV=development
+
+  backend:
+    restart: always
+    depends_on:
+      - phpmyadmin
+    build:
+      context: ./backend
+    ports:
+      - '3001:3000'
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+
+  # backoffice-backend:
+  #   restart: always
+  #   build:
+  #     context: ./backoffice-backend
+  #   ports:
+  #     - '3002:3000'
+  #   volumes:
+  #     - ./backoffice-backend:/app
+  #   env_file:
+  #     - ./backoffice-backend/.env
+  #   environment:
+  #     - NODE_ENV=development
+  #   command: npm run dev
+
+  mysql-db:
+    image: mysql:5.6
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'sebastianviajes'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: '123'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: '123'
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+
+  phpmyadmin:
+    depends_on:
+      - mysql-db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: mysql-db
+      MYSQL_ROOT_PASSWORD: "123"

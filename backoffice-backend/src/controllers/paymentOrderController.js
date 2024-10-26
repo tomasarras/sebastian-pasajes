@@ -1,4 +1,4 @@
-//import * as paymentOrdersService from "../services/paymentOrdersService.js";
+import * as paymentOrdersService from "../services/paymentOrdersService.js";
 import { toLowerCaseRelations } from "../utils/functions.js";
 
 export default {
@@ -8,10 +8,9 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const paymentOrders = await paymentOrdersService.getAll();
-      //res.status(200).json(toLowerCaseRelations(paymentOrders));
+      const paymentOrders = await paymentOrdersService.getAll(req.query);
+      res.status(200).json(toLowerCaseRelations(paymentOrders));
       //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
     } catch (e) {
       next(e);
     }

@@ -31,7 +31,10 @@
     "morgan": "^1.10.0",
     "mysql2": "^3.9.7",
     "sequelize": "^6.37.3",
-    "unix-crypt-td-js": "^1.1.4"
+    "unix-crypt-td-js": "^1.1.4",
+    "nodemailer": "^6.9.14",
+    "path": "^0.12.7",
+    "url": "^0.11.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",

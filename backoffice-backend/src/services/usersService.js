@@ -3,9 +3,9 @@ import config from "../config.js"
 import { StatusCodes } from "http-status-codes";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { User } from "../db/index.js"
+import { Usuarios, Personal, Perfil } from "../db/index.js"
 import { toLowerCaseRelations, useLikeOperation } from '../utils/functions.js';
-import { AGENCY_CLIENT_ID, EMPTY_AGENCY_ID, EMPTY_USER, ROLES } from '../utils/constants.js';
+import { ROLES } from '../utils/constants.js';
 import { Op } from 'sequelize';
 
 /**
@@ -30,27 +30,27 @@ async function hashPassword(password) {
  */
 async function updatePasswordHashAlgorithm(user, password) {
 	const hashedPassword = await hashPassword(password);
-	user.password = hashedPassword;
+	user.Password = hashedPassword;
 	await user.save();
 }
 
-function invalidUsernameOrPassoword() {
+function invalidUsernameOrPassword() {
 	throw { statusCode: StatusCodes.UNAUTHORIZED, message: "Invalid username or password" };
 }
 
-function createJWT(user) {
+function isInactive(entity) {
+	return entity.FechaBaja != '0000-00-00';
+}
+
+function createJWT(user, extraParams) {
 	user = user.get({ plain:true })
+	console.log(user, "skksks");
 	let jwtPayload = { 
-		id: user.id,
-		firstName: user.firstName,
-		lastName: user.lastName,
-		username: user.username,
-		role: user.Profile.role,
-		client: user.Client
+		username: user.Usuario,
+		type: user.Tipo,
+		...extraParams,
 	}
 	jwtPayload = toLowerCaseRelations(jwtPayload)
-	jwtPayload.client.group = jwtPayload.client.clientGroup
-	delete jwtPayload.client.clientGroup
 	const token = jwt.sign(jwtPayload, config.secretApiKey, { expiresIn: '1h' });
 	return { token }
 }
@@ -64,50 +64,49 @@ async function checkUsernameAvailable(username) {
 
 export const login = async (username, password) => {
 	//TODO: Check if the user is active
-	const userDb = await User.findOne({ where: { username } });
-	const { type, providerId, personalId, profileId } = userDb;
-	if (userDb == null) {
-		invalidUsernameOrPassoword()
+	const userDb = await Usuarios.scope(null).findOne({ where: { Usuario: username } });
+	if (userDb == null || isInactive(userDb)) {
+		invalidUsernameOrPassword()
 	}
-	const hasOldHashPassword = (user) => user.password.length === 13
+	const { Tipo, IdPersonal, IdPerfil } = userDb;
+	const hasOldHashPassword = (user) => user.Password.length === 13
 	if (hasOldHashPassword(userDb)) {
 		const passwordHashed = await encryptPasswordWithOldAlgorithm(password, config.passwordSalt);
-		const match = passwordHashed == userDb.password
+		const match = passwordHashed == userDb.Password
 		if (match) {
 			await updatePasswordHashAlgorithm(userDb, password)
 		}
 	}
-	const match = await bcrypt.compare(password, userDb.password);
+	const match = await bcrypt.compare(password, userDb.Password);
 	if (match) {
-		let username = ''
-		if (type == 'PERSONAL') {
-			const personal = await Personal.findByPk(personalId)
+		let extraParams = {
+			firstName: "",
+			lastName: "",
+			idPerfil: IdPerfil,
+			idPersonal: IdPersonal,
+		}
+		if (Tipo == 'PERSONAL') {
+			const personal = await Personal.findByPk(IdPersonal)
 			//TODO: check personal is active
-			if (personal.inactive) {
+			if (isInactive(personal)) {
 				throw { message: "personal is inactive", statusCode: StatusCodes.BAD_REQUEST }
 			}
-			username = personal.name + ' ' + personal.lastname
-		} else if (type == 'PROVEEDOR') {
-			const provider = await Provider.findByPk(providerId)
-			//TODO: check provider is active
-			if (provider.inactive) {
-				throw { message: "provider is inactive", statusCode: StatusCodes.BAD_REQUEST }
-			}
-			username = provider.lastname
+			extraParams.firstName = personal.Nombre
+			extraParams.lastName = personal.Apellido
 		}
-		return createJWT(userDb)
+		return createJWT(userDb, extraParams)
 	} else {
-		invalidUsernameOrPassoword()
+		invalidUsernameOrPassword()
 	}
 };
 
 export const changePassword = async (currentPassword, newPassword, user) => {
-	const userDb = await User.findOne({ where: { username: user.username } });
-	const match = await bcrypt.compare(currentPassword, userDb.password);
+	const userDb = await Usuarios.scope(null).findOne({ where: { Usuario: user.username } });
+	const match = await bcrypt.compare(currentPassword, userDb.Password);
 	if (!match) {
-		invalidUsernameOrPassoword()
+		invalidUsernameOrPassword()
 	}
-	userDb.password = await hashPassword(newPassword);
+	userDb.Password = await hashPassword(newPassword);
 	await userDb.save();
 };
 
@@ -133,21 +132,10 @@ export const create = async (userParam) => {
 };
 
 export const getAll = async () => {
-	const users = await User.findAll({ where: {
-			id: {[Op.ne]: EMPTY_USER}
-		},
-		include: [Client, Profile],
-		order: [
-			['inactive'],
-			['lastName'],
-			['firstName']
-		]
+	const users = await Usuarios.findAll({ 
+		include: [{model:Personal, as: "personal"}, {model:Perfil, as: "perfil"}],
 	})
-	return users.map(user => {
-		user = user.get({ plain: true })
-		delete user.password
-		return user
-	})
+	return users.map(user => user.get({ plain: true }))
 };
 
 export const update = async (userId, userParam) => {

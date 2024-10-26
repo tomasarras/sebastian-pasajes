@@ -8,9 +8,15 @@ axios.interceptors.response.use((response) => {
       const urlSplited = url.split('/')
       const isLoginPath = urlSplited[urlSplited.length-1] == 'login'
       if (!isLoginPath) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('userInfo');
-        window.location.href = "/login?expired";
+        if (url.startsWith(process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL)) {
+          localStorage.removeItem('opAccessToken');
+          localStorage.removeItem('opUserInfo');
+          window.location.href = "/ordenes-pagos/login?expired";
+        } else {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('userInfo');
+          window.location.href = "/login?expired";
+        }
       }
     }
     return Promise.reject(error);

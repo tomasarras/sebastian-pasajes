@@ -1,4 +1,4 @@
-"use client"
++"use client"
 
 import { utils } from "@hassanmojab/react-modern-calendar-datepicker";
 import Modal from "./modal"
@@ -20,11 +20,11 @@ import { createOrderValidationSchema } from "@/app/validationSchemas/createOrder
 import { datePickerDateToString } from "@/app/utils/utils";
 import * as ordersService from '../../services/ordersService'
 
-export default function ModalCreateOrder(props) {
+export default function ModalCreateOrder({ isCompanion = false, fatherNumber, defaultValues = {}, ...props }) {
   const [birthdate, setBirthdate] = useState(null);
   const userData = useAuth()
-  const [returnDate, setReturnDate] = useState(null);
-  const [departureDate, setDepartureDate] = useState(null);
+  const [returnDate, setReturnDate] = useState(defaultValues.returnDate || null);
+  const [departureDate, setDepartureDate] = useState(defaultValues.departureDate || null);
   const [disabledPassengerFields, toggleDisabledPassengerFields] = useToggle()
 
   const documentTypes = [
@@ -52,8 +52,8 @@ export default function ModalCreateOrder(props) {
     delete values.nationality
     delete values.phones
     delete values.birthdate
-    //TODO companion si es acompanante
-    values.passengerType = "holder"
+    values.passengerType = isCompanion ? 'companion' : 'holder'
+    values.fatherNumber = fatherNumber
     await ordersService.create(values)
     setSubmitting(false)
     resetForm()
@@ -100,21 +100,21 @@ export default function ModalCreateOrder(props) {
       validateOnChange={false}
       validateOnBlur={false}
       initialValues={{
-        documentType: "DNI",
-        document: '',
-        firstName: '',
-        lastName: '',
-        nationality: '',
-        phones: '',
-        transportType: '',
-        departureDateFrom: '',
-        departureDateUntil: '',
-        departureDateHour: '',
-        returnDateFrom: '',
-        returnDateUntil: '',
-        returnDateHour: '',
-        observations: '',
-        derivation: '',
+        documentType: defaultValues?.documentType || 'DNI',
+        document: defaultValues?.document || '',
+        firstName: defaultValues?.firstName || '',
+        lastName: defaultValues?.lastName || '',
+        nationality: defaultValues?.nationality || '',
+        phones: defaultValues?.phones || '',
+        transportType: defaultValues?.transportType || '',
+        departureFrom: defaultValues?.departureFrom || '',
+        departureTo: defaultValues?.departureTo || '',
+        departureDateHour: defaultValues?.departureDateHour || '',
+        returnFrom: defaultValues?.returnFrom || '',
+        returnTo: defaultValues?.returnTo || '',
+        returnDateHour: defaultValues?.returnDateHour || '',
+        observations: defaultValues?.observations || '',
+        derivation: defaultValues?.derivation || '',
         applicantFirstName: userData?.firstName,
         applicantLastName: userData?.lastName,
       }}
@@ -166,8 +166,8 @@ export default function ModalCreateOrder(props) {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="flex flex-col">
                 <div className="text-center"><h3 className="text-black mb-2">Ida</h3></div>
-                <FormikStyledField className="mb-4" name="departureDateFrom" label="Desde" />
-                <FormikStyledField className="mb-4" name="departureDateUntil" label="Hasta" />
+                <FormikStyledField className="mb-4" name="departureFrom" label="Desde" />
+                <FormikStyledField className="mb-4" name="departureTo" label="Hasta" />
                 <div className="mb-4">
                   <CommonLabel>Fecha</CommonLabel>
                   <DatePicker
@@ -181,8 +181,8 @@ export default function ModalCreateOrder(props) {
               <div className="flex flex-col">
                 <div className="flex flex-col">
                   <div className="text-center"><h3 className="text-black mb-2">Regreso</h3></div>
-                  <FormikStyledField className="mb-4" name="returnDateFrom" label="Desde" />
-                  <FormikStyledField className="mb-4" name="returnDateUntil" label="Hasta" />
+                  <FormikStyledField className="mb-4" name="returnFrom" label="Desde" />
+                  <FormikStyledField className="mb-4" name="returnTo" label="Hasta" />
                   <div className="mb-4">
                     <CommonLabel>Fecha</CommonLabel>
                     <DatePicker

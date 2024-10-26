@@ -9,7 +9,7 @@ export default function OrdenesPagoTablas() {
   return (
   <Container>
     <div className="shadow rounded-lg bg-white p-2 md:p-4">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Link href="/ordenes-pagos/actividades" className="p-2 flex justify-center border rounded hover:bg-gray-100">Actividades</Link>
         <Link href="/ordenes-pagos/localidades" className="p-2 flex justify-center border rounded hover:bg-gray-100 cursor-pointer">Localidades</Link>
         <Link href="/ordenes-pagos/provincias" className="p-2 flex justify-center border rounded hover:bg-gray-100 cursor-pointer">Provincias</Link>

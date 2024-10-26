@@ -8,11 +8,13 @@ import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOr
 import ModalCreatePersonal from "@/app/components/ordenes-pago/modals/ModalCreatePersonal";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import Table from "@/app/components/table";
+import usePersonals from "@/app/hooks/ordenes-pagos/usePersonals";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoPersonal() {
+  const personals = usePersonals()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -21,16 +23,7 @@ export default function OrdenesPagoPersonal() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("personal")
-  const personals = [{
-    id: '000016',
-    lastName: "Cernich",
-    firstName: "Maria Jimena",
-    document: '36816824',
-    cuitOrCuil: '27-36816824-1',
-    puesto: 'Administrativo',
-    email: 'admventas@sebastianviajes.com.ar',
-    
-  }]
+
 
   const handleOnDelete = async () => {
     //TODO
@@ -48,37 +41,37 @@ export default function OrdenesPagoPersonal() {
         name: 'Apellido',
         sortable: true,
         searchable: false,
-        selector: row => row.lastName,
+        selector: row => row.nombre,
       },
       {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.firstName,
+        selector: row => row.apellido,
       },
       {
         name: 'Documento',
         sortable: true,
         searchable: false,
-        selector: row => row.document,
+        selector: row => row.documento,
       },
       {
         name: 'CUIT/CUIL',
         sortable: true,
         searchable: false,
-        selector: row => row.cuitOrCuil,
+        selector: row => row.identificacion,
       },
       {
         name: 'Puesto',
         sortable: true,
         searchable: false,
-        selector: row => row.puesto,
+        selector: row => row?.puesto?.nombre,
       },
       {
         name: 'Email',
         sortable: true,
         searchable: false,
-        selector: row => row.email,
+        selector: row => row.eMail,
       },
       actionColumn
     ];

@@ -28,6 +28,7 @@ import { List } from '@mui/material';
 import useToggle from '../hooks/useToggle';
 import Link from 'next/link';
 import { OPProvider } from '../context/OPContext';
+import OPSnackBar from './opSnackBar';
 
 export default function OPLayout({ children }) {
 	const [isOpenSidebar, setIsOpenSidebar] = useState(false);
@@ -57,6 +58,7 @@ export default function OPLayout({ children }) {
 
 	return (
 		<OPProvider>
+			<span className="absolute right-0 top-0"><OPSnackBar /></span>
 			<header className={`fixed w-full right-0 top-0 z-50 md:-right-32 shadow py-3 px-4 h-24 op-header`}>
 				<div className="max-w-5xl mx-auto my-4 sm:my-0 grid content-center justify-end">
 					<div>
@@ -86,6 +88,11 @@ export default function OPLayout({ children }) {
 												<div onClick={modalUserAccount.open} className="cursor-pointer block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900">
 													Mi cuenta
 												</div>
+											</MenuItem>
+											<MenuItem>
+												<Link href="/ordenes-pagos/mis-licencias" className="cursor-pointer block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900">
+													Mis licencias
+												</Link>
 											</MenuItem>
 											<MenuItem>
 												<div onClick={closeSession} className="cursor-pointer block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900">

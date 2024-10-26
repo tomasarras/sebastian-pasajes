@@ -6,11 +6,13 @@ import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateSector from "@/app/components/ordenes-pago/modals/ModalCreateSector";
 import Table from "@/app/components/table";
+import useSectors from "@/app/hooks/ordenes-pagos/useSectors";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoSector() {
+  const sectors = useSectors()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -19,10 +21,6 @@ export default function OrdenesPagoSector() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("sector")
-  const sectors = [{
-    id: 1,
-    name: "Marketing"
-  }]
 
   const handleOnDelete = async () => {
     //TODO
@@ -34,7 +32,7 @@ export default function OrdenesPagoSector() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
         //maxWidth: '80px'
       },
       actionColumn

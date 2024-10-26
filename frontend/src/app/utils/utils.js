@@ -43,12 +43,72 @@ export const datePickerDateToString = (date) => {
   return `${date.year}-${date.month}-${date.day}`
 }
 
+export const evaluarEncuesta = (encuesta) => {
+  switch (encuesta) {
+      case 0:
+          return ''
+      case 1:
+          return 'Excelente';
+      case 2:
+          return 'Muy Bueno';
+      case 3:
+          return 'Bueno';
+      case 4:
+          return 'Regular';
+      case 5:
+          return 'Malo';
+      case 6:
+          return 'Otro';
+      default:
+          return ''
+  }
+}
+
+export const evaluarEncuestaSAT = (encuesta) => {
+  switch (encuesta) {
+      case 0:
+          return '';
+      case 1:
+          return 'Muy Satisfecho';
+      case 2:
+          return 'Satisfecho';
+      case 3:
+          return 'Neutral';
+      case 4:
+          return 'Insatisfecho';
+      case 5:
+          return 'Muy Insatisfecho';
+      case 6:
+          return 'Otro';
+      default:
+          return '';
+  }
+}
+
+export const compareDates = (f1, f2) => {
+  if (f1 > f2) return 1;
+  if (f1 < f2) return 2;
+  return 0;
+};
+
 export const formatDate = (date) => {
+  if (date === '0000-00-00') return ''
+  if (typeof date === 'string') date = new Date(date)
   return date.toLocaleDateString('es-ES', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
   });
+};
+
+export const dayOfWeek = (date) => {
+  if (date === '0000-00-00') return ''
+  if (typeof date === 'string') {
+    const [year, month, day] = date.split('-');
+    date = new Date(year, month - 1, day);
+  }
+  const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  return daysOfWeek[date.getDay()];
 };
 
 export const formatNextBookCode = (nextBookCode) => {
@@ -70,4 +130,13 @@ export const CLIENT_AGENCY_ID = 2
 
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function getOpToken() {
+  return localStorage.getItem('opAccessToken')
+}
+
+export function getOpAuthHeader() {
+  const token = getOpToken()
+  return { headers: { Authorization: `Bearer ${token}` } }
 }

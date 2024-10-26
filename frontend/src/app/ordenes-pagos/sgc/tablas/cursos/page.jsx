@@ -8,6 +8,7 @@ import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOr
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateWithSimpleName from "@/app/components/ordenes-pago/modals/ModalCreateWithSimpleName";
 import Table from "@/app/components/table";
+import useIsoFormadores from "@/app/hooks/ordenes-pagos/iso/useIsoFormadores";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
@@ -21,10 +22,7 @@ export default function OrdenesPagoTiempoSgcTablasCursos() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("formador")
-  const formers = [{
-    firstName: "Amadeus",
-    lastName: "Amadeus",
-  }]
+  const formers = useIsoFormadores()
 
   const handleOnDelete = async () => {
     //TODO
@@ -36,13 +34,13 @@ export default function OrdenesPagoTiempoSgcTablasCursos() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.firstName,
+        selector: row => row.nombre,
       },
       {
         name: 'Apellido',
         sortable: true,
         searchable: false,
-        selector: row => row.lastName,
+        selector: row => row.apellido,
       },
       actionColumn
     ];

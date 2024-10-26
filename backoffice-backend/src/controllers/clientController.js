@@ -1,4 +1,4 @@
-//import * as clientsService from "../services/clientsService.js";
+import * as clientsService from "../services/clientsService.js";
 import { toLowerCaseRelations } from "../utils/functions.js";
 
 export default {
@@ -8,10 +8,22 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const clients = await clientsService.getAll();
-      //res.status(200).json(toLowerCaseRelations(clients));
+      const clients = await clientsService.getAll(req.query);
+      res.status(200).json(toLowerCaseRelations(clients));
       //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /clients/{id} [PUT]
+   * @returns 200 and updated @Client
+   */
+  update: async (req, res, next) => {
+    try {
+      const updatedClient = await clientsService.update(req.params.id, req.body);
+      res.status(200).json(toLowerCaseRelations(updatedClient));
     } catch (e) {
       next(e);
     }

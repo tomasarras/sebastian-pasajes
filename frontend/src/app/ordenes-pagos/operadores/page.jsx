@@ -7,11 +7,13 @@ import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreat
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import Table from "@/app/components/table";
+import useProviders from "@/app/hooks/ordenes-pagos/useProviders";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export default function OrdenesPagoOperadores() {
+  const providers = useProviders()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -36,7 +38,7 @@ export default function OrdenesPagoOperadores() {
   const columns = useMemo(() => {
     const newColumns = [
       {
-        name: 'Numero',
+        name: 'Número',
         sortable: true,
         searchable: false,
         selector: row => row.id,
@@ -45,30 +47,30 @@ export default function OrdenesPagoOperadores() {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.name,
+        selector: row => row.nombre,
       },
       {
-        name: 'Razon social',
+        name: 'Razón social',
         sortable: true,
         searchable: false,
-        selector: row => row.razonSocial,
+        selector: row => row.apellido,
       },
       {
         name: 'CUIT',
         sortable: true,
         searchable: false,
-        selector: row => row.cuit,
+        selector: row => row.identificacion,
       },
       {
         name: 'CBU',
         sortable: true,
         searchable: false,
-        selector: row => row.cbu,
+        selector: row => row.cBU,
       },
       actionColumn
     ];
     return newColumns;
-  }, [operators]); 
+  }, [providers]); 
 
   return (
   <Container>
@@ -79,7 +81,7 @@ export default function OrdenesPagoOperadores() {
         <Table
           className="shadow"
           columns={columns}
-          data={operators}
+          data={providers}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}

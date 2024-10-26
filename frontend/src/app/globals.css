@@ -32,6 +32,10 @@ body {
   z-index: 9 !important;
 }
 
+h1 {
+  font-size: 2.3rem;
+}
+
 h2 {
   font-size: 1.25rem;
 }
@@ -44,7 +48,7 @@ h3 {
   background-color: #57707D;
 }
 
-.op-sidebar {
+.op-sidebar, .bg-op {
   background-color: #7d97a5;
 }
 

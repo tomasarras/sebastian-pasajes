@@ -1,4 +1,4 @@
-//import * as audService from "../../services/iso/audService.js";
+import * as audService from "../../services/iso/audService.js";
 import { toLowerCaseRelations } from "../../utils/functions.js";
 
 export default {
@@ -8,10 +8,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      //const aud = await audService.getAll();
-      //res.status(200).json(toLowerCaseRelations(aud));
-      //TODO: filtrar por props
-      res.status(200).json(toLowerCaseRelations([]));
+      const aud = await audService.getAll(req.query);
+      res.status(200).json(toLowerCaseRelations(aud));
     } catch (e) {
       next(e);
     }
