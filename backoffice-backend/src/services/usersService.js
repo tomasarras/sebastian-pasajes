@@ -44,7 +44,6 @@ function isInactive(entity) {
 
 function createJWT(user, extraParams) {
 	user = user.get({ plain:true })
-	console.log(user, "skksks");
 	let jwtPayload = { 
 		username: user.Usuario,
 		type: user.Tipo,

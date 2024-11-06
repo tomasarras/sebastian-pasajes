@@ -1,6 +1,5 @@
-import axios from 'axios'
+import axios from '../interceptors'
 
 export const getAll = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/minutas`)
+  return axios.get(`/iso/minutas`)
 }

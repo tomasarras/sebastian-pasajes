@@ -1,31 +1,25 @@
-import axios from 'axios'
+import axios from '../interceptors'
 
 export const getAllCriterios = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/criterias`)
+  return axios.get(`/iso/criterias`)
 }
 
 export const getAllFormadores = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/formadores`)
+  return axios.get(`/iso/formadores`)
 }
 
 export const getAllOrigenes = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/nc/origins`)
+  return axios.get(`/iso/nc/origins`)
 }
 
 export const getAllProcesos = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/procesos`)
+  return axios.get(`/iso/procesos`)
 }
 
 export const getAllDocs = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/docs`)
+  return axios.get(`/iso/docs`)
 }
 
 export const getAllCursoTemas = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/courses/temas`)
+  return axios.get(`/iso/courses/temas`)
 }

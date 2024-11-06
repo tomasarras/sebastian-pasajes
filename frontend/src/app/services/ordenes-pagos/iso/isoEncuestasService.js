@@ -1,21 +1,17 @@
-import axios from 'axios'
+import axios from '../interceptors'
 
 export const getAllCor = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/encuestas/cor`)
+  return axios.get(`/iso/encuestas/cor`)
 }
 
 export const getAllIssn = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/encuestas/issn`)
+  return axios.get(`/iso/encuestas/issn`)
 }
 export const getAllTur = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/encuestas/tur`)
+  return axios.get(`/iso/encuestas/tur`)
 }
 
 export const getAllTurr = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/encuestas/turr`)
+  return axios.get(`/iso/encuestas/turr`)
 }
 

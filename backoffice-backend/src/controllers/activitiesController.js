@@ -8,7 +8,7 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const activities = await activitiesService.getAll(req.query);
+      const activities = await activitiesService.getAll(req.query); 
       res.status(200).json(toLowerCaseRelations(activities));
     } catch (e) {
       next(e);

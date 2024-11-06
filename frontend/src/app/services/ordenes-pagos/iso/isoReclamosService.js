@@ -1,11 +1,9 @@
-import axios from 'axios'
+import axios from '../interceptors'
 
 export const getAllReclamosCoorporativos = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/claims/c`)
+  return axios.get(`/iso/claims/c`)
 }
 
 export const getAllReclamosTurismo = (params) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.get(`${url}/iso/claims/t`)
+  return axios.get(`/iso/claims/t`)
 }

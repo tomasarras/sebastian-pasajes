@@ -1,7 +1,6 @@
-import axios from 'axios'
+import axios from './interceptors'
 
 export const updateCurrentNew = (neww) => {
-  const url = process.env.NEXT_PUBLIC_ORDENES_PAGOS_SERVER_BASE_URL
-  return axios.put(`${url}/news/${neww.id}`, neww)
+  return axios.put(`/news/${neww.id}`, neww)
 }
 

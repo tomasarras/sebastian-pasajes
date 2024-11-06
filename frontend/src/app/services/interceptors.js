@@ -1,6 +1,10 @@
 import axios from "axios";
 
-axios.interceptors.response.use((response) => {
+const axiosIntance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_BASE_URL
+})
+
+axiosIntance.interceptors.response.use((response) => {
     return response.data;
   }, (error) => {
     if (error.response && (error.response.status === 401)) {
@@ -22,7 +26,7 @@ axios.interceptors.response.use((response) => {
     return Promise.reject(error);
 });
 
-axios.interceptors.request.use((config) => {
+axiosIntance.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
@@ -32,6 +36,6 @@ axios.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+//axios.defaults.baseURL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
 
-export default axios;
+export default axiosIntance;

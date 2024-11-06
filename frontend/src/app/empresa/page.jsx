@@ -10,7 +10,7 @@ import Container from "../components/Container";
 import MainHeader from "../components/MainHeader";
 
 export default function Empresa() {
-  const { company } = useContext(Context)
+  const { company } = useContext(Context) 
 
   const onSubmit = async (values) => {
     const updatedCompany = await companyService.update(values)
