@@ -27,6 +27,7 @@ import activitiesRouter from "./activityRoute.js";
 import localitiesRouter from "./localityRoute.js";
 import sectorsRouter from "./sectorRoute.js";
 import provincesRouter from "./provinceRoute.js";
+import excelRouter from "./excelRoute.js";
 
 const router = Router();
 
@@ -42,11 +43,11 @@ router.use("/iso/nc", ncRouter);
 router.use("/iso/aud", audRouter);
 router.use("/iso/courses", courseRouter);
 router.use("/iso/evaluations", evaluationsRouter);
-router.use("/iso/indicators", indicatorsRouter);
+router.use("/iso/indicadores", indicatorsRouter);
 router.use("/iso/minutas", minutasRouter);
-router.use("/iso/claims", claimsRouter);
+router.use("/iso/reclamos", claimsRouter);
 router.use("/iso/rg", rgRouter);
-router.use("/iso/times-responses", trRouter);
+router.use("/iso/tiempo-respuesta", trRouter);
 router.use("/iso/criterias", criteriasRouter);
 router.use("/iso/formadores", formadoresRouter);
 router.use("/iso/docs", docsRouter);
@@ -58,5 +59,6 @@ router.use("/activities", activitiesRouter);
 router.use("/localities", localitiesRouter);
 router.use("/sectors", sectorsRouter);
 router.use("/provinces", provincesRouter);
+router.use("/excel", excelRouter);
 
 export default router

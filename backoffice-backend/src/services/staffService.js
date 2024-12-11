@@ -1,7 +1,22 @@
 import { Personal, Puesto, PersonalLicencias, LicenciasTipo, Feriados, PersonalLicxAnio, Parametros } from "../db/index.js"
 import { EMPTY_PERSONAL } from "../utils/constants.js";
 import { Op } from 'sequelize';
-import { newId, replaceFields } from "../utils/functions.js";
+import { formatDate, newId, replaceFields, replacePlaceholders } from "../utils/functions.js";
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url';
+import { sendEmail } from "./emailService.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const requestLicencesTemplatePath = path.join(__dirname, '../', 'archivos', 'email', 'request_licences.html');
+let requestLicencesTemplateHtml;
+fs.readFile(requestLicencesTemplatePath, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading the HTML file:', err);
+        return;
+    }
+    requestLicencesTemplateHtml = data
+});
 
 export const getAll = async (where) => {
 	const { search, active, Id } = where
@@ -20,6 +35,57 @@ export const getAll = async (where) => {
     where.Id = Id == undefined ? { [Op.notIn]: skipIds } : Id;
 	const staffs = await Personal.findAll({ where, include: [{ model: Puesto, as: "puesto" }] })
 	return staffs.map(s => s.get({plain:true}))
+};
+
+export const getAllPuestos = async () => {
+	const puestos = await Puesto.findAll({ where: { Id: {[Op.ne]: 0} } })
+	return puestos.map(s => s.get({plain:true}))
+};
+
+export const createPuesto = async (puestoParam) => {
+    const maxId = await Puesto.max('Id');
+    puestoParam.Id = maxId +1
+	const puesto = await Puesto.create(puestoParam)
+	return puesto.get({plain:true})
+};
+
+export const deletePuestoById = async (id) => {
+	const puesto = await Puesto.findOne({ where: { Id: id } })
+	puesto.destroy()
+};
+
+export const getAllLicenciasTipo = async () => {
+	const licenciasTipo = await LicenciasTipo.findAll({ where: { Id: {[Op.ne]: 0} } })
+	return licenciasTipo.map(s => s.get({plain:true}))
+};
+
+export const getAllFeriados = async () => {
+    const feriados = await Feriados.findAll({ where: { Id: {[Op.ne]: 0} } })
+	return feriados.map(s => s.get({plain:true}))
+};
+
+export const createFeriado = async (feriadoParam) => {
+    const maxId = await Feriados.max('Id');
+    feriadoParam.Id = maxId +1
+    const feriado = await Feriados.create(feriadoParam)
+	return feriado.get({plain:true})
+};
+
+export const deleteFeriadoById = async (id) => {
+    const feriado = await Feriados.findOne({ where: { Id: id } })
+    feriado.destroy()
+};
+
+export const deleteLicenciaTipoById = async (id) => {
+    const licenciaTipo = await LicenciasTipo.findOne({ where: { Id: id } })
+    licenciaTipo.destroy()
+};
+
+export const createLicenciaTipo = async (licenciaTipoParam) => {
+    const maxId = await LicenciasTipo.max('Id');
+    licenciaTipoParam.Id = maxId +1
+    const licenciaTipo = await LicenciasTipo.create(licenciaTipoParam)
+    return licenciaTipo.get({plain:true})
 };
 
 export const getAllLicences = async (where) => {
@@ -88,8 +154,13 @@ export const requestLicences = async (idPersonal) => {
     const personalFullName = p.Apellido + " " + p.Nombre
     const parameters = await Parametros.findOne({ where: { Id:1 }, attributes: ["EMail2"]})
     const email = parameters.EMail2
-    const title = 'Solicitud de Licencias ' +  personalFullName
-	const body = '<BODY><FONT FACE="arial">'+personalFullName+' ha enviado una solicitud de aprobaci&oacute;n de licencias.</FONT></BODY>';
+    const subject = 'Solicitud de Licencias ' +  personalFullName
+    const text = subject
+    const placeholders = {
+        personalFullName,
+    }
+    const html = replacePlaceholders(placeholders, requestLicencesTemplateHtml)
+    sendEmail(email, subject, html, text)
     return p
 };
 
@@ -154,3 +225,72 @@ async function calcularDiasGozados(anioConsulta, personalId) {
 
     return diasFuncion;
 }
+
+export const create = async (staffData) => {
+    // Establecemos la fecha de alta
+    staffData.FechaAlta = new Date().toISOString().split('T')[0];
+    
+    // Obtenemos el siguiente ID
+    const maxId = await Personal.max('Id');
+    staffData.Id = maxId + 1;
+    
+    // Convertimos nombre y apellido a mayúsculas
+    staffData.Nombre = staffData.Nombre.toUpperCase();
+    staffData.Apellido = staffData.Apellido.toUpperCase();
+    
+    const newStaff = await Personal.create(staffData);
+    
+    // Recuperamos el personal creado con sus relaciones
+    const createdStaff = await Personal.findByPk(newStaff.Id, {
+        include: [{ model: Puesto, as: "puesto" }]
+    });
+
+    return createdStaff.get({ plain: true });
+};
+
+export const update = async (staffId, staffData) => {
+    const staff = await Personal.findByPk(staffId);
+    if (!staff) {
+        throw new Error('Personal no encontrado');
+    }
+
+    // Convertimos nombre y apellido a mayúsculas si se proporcionan
+    if (staffData.Nombre) {
+        staffData.Nombre = staffData.Nombre.toUpperCase();
+    }
+    if (staffData.Apellido) {
+        staffData.Apellido = staffData.Apellido.toUpperCase();
+    }
+
+    await Personal.update(staffData, { where: { Id: staffId }});
+    
+    // Recuperamos el personal actualizado con sus relaciones
+    const updatedStaff = await Personal.findByPk(staffId, {
+        include: [{ model: Puesto, as: "puesto" }]
+    });
+
+    return updatedStaff.get({ plain: true });
+};
+
+export const deleteById = async (staffId) => {
+    const staff = await Personal.findByPk(staffId);
+    if (!staff) {
+        throw new Error('Personal no encontrado');
+    }
+
+    if (staffId === EMPTY_PERSONAL) {
+        throw new Error('No se puede eliminar el personal por defecto');
+    }
+
+    // Soft delete: actualizamos la fecha de baja
+    const fechaBaja = new Date().toISOString().split('T')[0];
+    await Personal.update(
+        { FechaBaja: fechaBaja },
+        { where: { Id: staffId }}
+    );
+
+    const deletedStaff = await Personal.findByPk(staffId, {
+        include: [{ model: Puesto, as: "puesto" }]
+    });
+    return deletedStaff.get({ plain: true });
+};

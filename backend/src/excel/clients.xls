@@ -1,0 +1,9 @@
+<table border=1>
+    <tr>
+        <th>Razón Social</th>
+        <th>Id </th>
+        <th>CUIT </th>
+        <th>Teléfonos</th>
+    </tr>
+    {clients}
+</table>

@@ -1,5 +1,5 @@
 import * as usersService from "../services/usersService.js";
-import { toLowerCaseRelations } from "../utils/functions.js";
+import { toLowerCaseRelations, toPascalCaseRelations } from "../utils/functions.js";
 
 export default {
   /**
@@ -31,13 +31,27 @@ export default {
   },
 
   /**
-   * /users/create [POST]
+   * /users [POST]
    * @returns 200 and @User
    */
   create: async (req, res, next) => {
     try {
-      const createdUser = await usersService.create(req.body);
-      res.status(200).json(createdUser);
+      const createdUser = await usersService.create(toPascalCaseRelations(req.body));
+      res.status(200).json(toLowerCaseRelations(createdUser));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /users/{username}/change-password [POST]
+   * @returns 200 and @User
+   */
+  changePasswordAsAdmin: async (req, res, next) => {
+    try {
+      const { newPassword } = req.body;
+      await usersService.changePasswordAsAdmin(newPassword, req.params.username);
+      res.status(204).send();
     } catch (e) {
       next(e);
     }
@@ -57,26 +71,13 @@ export default {
   },
 
   /**
-   * /users/{id} [PUT]
-   * @returns 200 and @User
+   * /users/{username} [DELETE]
+   * @returns 200 updated user
    */
-  update: async (req, res, next) => {
+  deleteByUsername: async (req, res, next) => {
     try {
-      const updatedUser = await usersService.update(req.params.id, req.body);
-      res.status(200).json(toLowerCaseRelations(updatedUser));
-    } catch (e) {
-      next(e);
-    }
-  },
-
-  /**
-   * /users/{id} [DELETE]
-   * @returns 204 no content
-   */
-  deleteById: async (req, res, next) => {
-    try {
-      await usersService.deleteById(req.params.id);
-      res.status(204).send();
+      const user = await usersService.deleteByUsername(req.params.username);
+      res.status(200).json(toLowerCaseRelations(user));
     } catch (e) {
       next(e);
     }

@@ -1,0 +1,57 @@
+<table border=1 style="font-size:10px">
+    <tr>
+        <th>Estado</th>
+        <th>Fecha Estado</th>
+        <th>Numero </th>
+        <th>Titular </th>
+        <th>Alta </th>
+        <th>Cliente </th>
+        <th>T.Pasajero</th>
+        <th>Pasajero</th>
+        <th>Documento</th>
+        <th>Telefono</th>
+        <th>T.Transporte</th>
+        <th>Empresas</th>
+        <th>Boletos</th>
+        <th>F.Emision</th>
+        <th>Precio</th>
+    </tr>
+    {orders}
+</table>
+
+<table border=0>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <th align='right'><font color=blue>Total Precio:</font></th>
+        <td align='right'>{totalPrice}</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <th align='right'><font color=blue>Cant.Ordenes:</font></th>
+        <td align='right'>{totalAmount}</td>
+    </tr>
+</table>

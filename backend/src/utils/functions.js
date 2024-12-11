@@ -34,6 +34,29 @@ export function useLikeOperation(where) {
   return where
 }
 
+export function replacePlaceholders(placeholders, html) {
+  const placeHoldersKeys = Object.keys(placeholders)
+  for (const key of placeHoldersKeys) {
+      const regex = new RegExp(`{${key}}`, 'g');
+      html = html.replace(regex, placeholders[key]);
+  }
+  return html
+}
+
+
+export function toUpperCase(str) {
+  try {
+    return str.toUpperCase()
+  } catch {
+    return ''
+  }
+}
+
+export function splitByComma(obj, key) {
+  if (key in obj && obj[key].includes(','))
+    obj[key] = obj[key].split(',')
+}
+
 export function stringifyDate(date) {
   if (!(date instanceof Date)) {
     return null

@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
-import { Curso, CursoTemas, Sector } from "../../db/index.js"
-import { filterAttributes } from "../../utils/functions.js";
+import { Curso, CursoTemas, Sector, CursosProgramacion, Personal } from "../../db/index.js"
+import { filterAttributes, replaceFields } from "../../utils/functions.js";
 
 export const getAll = async (where) => {
 	const { chkActivo } = where 
@@ -19,7 +19,19 @@ export const getAll = async (where) => {
 	return courses.map(c => c.get({ plain: true }))
 };
 
-export const getAllCursoTemas = async (where) => {
+export const getAllCursosProgramacion = async () => {
+	const cursosProgramacion = await CursosProgramacion.findAll({ include: [
+		{ model: Personal, as: 'cursosProgramacionPersonal' },
+		{ model: Curso, as: 'cursosProgramacionCurso' }] })
+	return replaceFields({cursosProgramacionPersonal: 'personal', cursosProgramacionCurso: 'curso'}, cursosProgramacion.map(c => c.get({ plain: true })))
+};
+
+export const deleteCursoProgramacion = async (id) => {
+	const cursoProgramacion = await CursosProgramacion.findOne({ where: { Id: id }})
+	return cursoProgramacion.destroy()
+};
+
+export const getAllCursoTemas = async () => {
 	const cursoTemas = await CursoTemas.findAll({ where: { Id: {[Op.ne]: 0} }})
 	return cursoTemas.map(c => c.get({ plain: true }))
 };

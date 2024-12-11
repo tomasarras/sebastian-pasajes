@@ -11,7 +11,7 @@ export const validateOrder = [
   
   check('derivation').notEmpty(),
   check('fatherNumber').default(0).isInt(),
-  check('observations').notEmpty(),
+  check('observations').default("").isString(),
   check('passengerType').notEmpty()
     .isIn([PASSENGER_TYPES.HOLDER, PASSENGER_TYPES.COMPANION]),
   check('transportType').notEmpty(),

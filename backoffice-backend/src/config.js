@@ -24,6 +24,16 @@ const config = {
         'production': process.env['PROD_ORIGIN'] ?? 'none'
     },
 
+    mail: {
+      host: process.env.EMAIL_SMTP_HOST,
+      port: process.env.EMAIL_SMTP_PORT,
+      auth: {
+        user: process.env.EMAIL_SMTP_USER,
+        pass: process.env.EMAIL_SMTP_PASSWORD,
+      },
+      from: process.env.EMAIL_SMTP_FROM,
+    },
+
     db: {
         username: process.env.DATABASE_USER,
         password: process.env.DATABASE_PASSWORD,

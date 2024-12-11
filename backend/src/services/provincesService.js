@@ -4,11 +4,11 @@ import { Op } from "sequelize";
 import { EMPTY_PROVINCE } from "../utils/constants.js";
 import { throwErrorIfNotExists } from "../utils/functions.js";
 
-async function checkNameNotExists(provinceParam) {
+async function checkNameNotExists(provinceParam, provinceId) {
     if (provinceParam.name == undefined) return
     const provinceName = provinceParam.name
     const provinceByName = await Province.findOne({ where: { name: provinceName }})
-    if (provinceByName)
+    if (provinceByName && provinceByName.id != provinceId)
         throw { message: `province with name ${provinceName} already exists` , statusCode: StatusCodes.BAD_REQUEST }
 }
 
@@ -26,14 +26,13 @@ export const getAll = async () => {
 export const create = async (provinceParam) => {
     await checkNameNotExists(provinceParam)
     const province = await Province.create(provinceParam)
-    return province.get({ plain: true })
+    return getById(province.id)
 };
 
 export const update = async (provinceId, provinceParam) => {
-    await checkNameNotExists(provinceParam)
+    await checkNameNotExists(provinceParam, provinceId)
     await Province.update(provinceParam, { where: { id: provinceId }})
-    const updatedProvince = await Province.findByPk(provinceId)
-    return updatedProvince.get({ plain: true })
+    return getById(provinceId)
 };
 
 export const deleteById = async (id) => {

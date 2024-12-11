@@ -1,7 +1,31 @@
 import { StatusCodes } from "http-status-codes";
 import * as ordersService from "../services/ordersService.js";
-import { ROLES, STATUSES } from "../utils/constants.js";
-import { toLowerCaseRelations } from "../utils/functions.js";
+import { ROLES, STATUS_ID_TO_TRANSLATED_NAME, STATUSES, STATUSES_VALUES } from "../utils/constants.js";
+import { replacePlaceholders, splitByComma, toLowerCaseRelations, toUpperCase } from "../utils/functions.js";
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const planillaOrdersPath = path.join(__dirname, '../', 'excel', 'planilla.xls');
+let planillaOrdersTemplate;
+fs.readFile(planillaOrdersPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading the EXCEL file:', err);
+    return;
+  }
+  planillaOrdersTemplate = data
+});
+
+const excelOrdersPath = path.join(__dirname, '../', 'excel', 'excel.xls');
+let excelOrdersTemplate;
+fs.readFile(excelOrdersPath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading the EXCEL file:', err);
+    return;
+  }
+  excelOrdersTemplate = data
+});
 
 function throwErrorIfNotExists(order) {
   if (!order)
@@ -25,12 +49,119 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const orders = await ordersService.getAll(req.query, req.user);
+      const params = req.query
+      splitByComma(params, "status")
+      splitByComma(params, "transportType")
+      splitByComma(params, "passengerType")
+      const orders = await ordersService.getAll(params, req.user);
       res.status(200).json(toLowerCaseRelations(orders));
     } catch (e) {
       next(e);
     }
   },
+
+  /**
+   * /to-planilla [GET]
+   * @returns
+   */
+  toPlanilla: async (req, res, next) => {
+    try {
+      const params = req.query
+      splitByComma(params, "status")
+      splitByComma(params, "transportType")
+      splitByComma(params, "passengerType")
+      const orders = await ordersService.getAll(params, req.user);
+      const totalPrice = orders.reduce((acc, order) => acc + parseFloat(order.price), 0);
+      let ordersExcel = '';
+      for (let order of orders) {
+        ordersExcel += `<tr>\n`
+        ordersExcel += `<td>${STATUS_ID_TO_TRANSLATED_NAME[order.statusId] || ''}</td>\n`
+        ordersExcel += `<td>Nro ${order.number || ''}</td>\n`
+        ordersExcel += `<td>${order.registrationDate || ''}</td>\n`
+        ordersExcel += `<td>${order.passengerType == 'companion' ? 'Acompañante' : 'Titular'}</td>\n`
+        ordersExcel += `<td>${order.firstName || ''} ${order.lastName || ''}</td>\n`
+        ordersExcel += `<td>${toUpperCase(order.documentType)} ${order.document || ''}</td>\n`
+        ordersExcel += `<td>${order.transportType || ''}</td>\n`
+        ordersExcel += `<td></td>\n`
+        ordersExcel += `<td>${order.tickets || ''}</td>\n`
+        ordersExcel += order.issueDate != null ? `<td>${order.issueDate || ''}</td>\n` : `<td></td>\n`
+        ordersExcel += order.price != '0.00' ? `<td align='right'>${order.price}</td>\n` : `<td></td>\n`
+        ordersExcel += '</tr>\n'
+      }
+      const placeholders = {
+        orders: ordersExcel,
+        totalPrice,
+        totalAmount: orders.length,
+      }
+      const excel = replacePlaceholders(placeholders, planillaOrdersTemplate)
+      res.setHeader('Content-Type', 'application/vnd.ms-excel');
+      res.setHeader('Content-Disposition', 'attachment; filename="archivo.xls"');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.send(excel);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /to-excel [GET]
+   * @returns
+   */
+  toExcel: async (req, res, next) => {
+    try {
+      const params = req.query
+      splitByComma(params, "status")
+      splitByComma(params, "transportType")
+      splitByComma(params, "passengerType")
+      const orders = await ordersService.getAll(params, req.user);
+      const totalPrice = orders.reduce((acc, order) => acc + parseFloat(order.price), 0);
+      let ordersExcel = '';
+      for (let order of orders) {
+        const orderByStatusId = {
+          [STATUSES_VALUES.OPEN]: order.registrationDate,
+          [STATUSES_VALUES.AUTHORIZED]: order.authorizeDate,
+          [STATUSES_VALUES.CLOSED]: order.targetDate,
+          [STATUSES_VALUES.REJECTED]: order.targetDate,
+          [STATUSES_VALUES.REJECTED_FROM_OPEN]: order.targetDate,
+          [STATUSES_VALUES.CANCELED]: order.targetDate,
+        }
+        const dateByStatus = orderByStatusId[order.statusId]
+        const businessName = order?.Client?.businessName || ''
+        ordersExcel += `<tr>\n`
+        ordersExcel += `<td>${STATUS_ID_TO_TRANSLATED_NAME[order.statusId] || ''}</td>\n`
+        ordersExcel += `<td>${dateByStatus || ''}</td>\n`
+        ordersExcel += `<td>Nro ${order.number || ''}</td>\n`
+        ordersExcel += `<td>Nro ${order.root || ''}</td>\n`
+        ordersExcel += `<td>${order.registrationDate || ''}</td>\n`
+        ordersExcel += `<td>${businessName || ''}</td>\n`
+        ordersExcel += `<td>${order.passengerType == 'companion' ? 'Acompañante' : 'Titular'}</td>\n`
+        ordersExcel += `<td>${order.firstName || ''} ${order.lastName || ''}</td>\n`
+        ordersExcel += `<td>${toUpperCase(order.documentType)} ${order.document || ''}</td>\n`
+        ordersExcel += `<td>${order.phones || ''}</td>\n`
+        ordersExcel += `<td>${order.transportType || ''}</td>\n`
+        ordersExcel += `<td></td>\n`
+        ordersExcel += `<td>${order.tickets || ''}</td>\n`
+        ordersExcel += order.issueDate != null ? `<td>${order.issueDate || ''}</td>\n` : `<td></td>\n`
+        ordersExcel += order.price != '0.00' ? `<td align='right'>${order.price}</td>\n` : `<td></td>\n`
+        ordersExcel += '</tr>\n'
+      }
+      const placeholders = {
+        orders: ordersExcel,
+        totalPrice,
+        totalAmount: orders.length,
+      }
+      const excel = replacePlaceholders(placeholders, excelOrdersTemplate)
+      res.setHeader('Content-Type', 'application/vnd.ms-excel');
+      res.setHeader('Content-Disposition', 'attachment; filename="archivo.xls"');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.send(excel);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 
   /**
    * /orders [POST]
@@ -44,7 +175,7 @@ export default {
     } catch (e) {
       next(e);
     }
-  }, 
+  },
 
   /**
    * /orders/{id} [PUT]
@@ -57,7 +188,6 @@ export default {
       const order = await ordersService.getById(req.params.id)
       throwErrorIfNotExists(order)
       checkAuthorizerPermission(order, user);
-      checkApplicantPermission(order, user)
       checkApplicantPermission(order, user)
       const updatedOrder = await ordersService.update(req.params.id, req.body, user);
       res.status(200).json(toLowerCaseRelations(updatedOrder));
@@ -119,7 +249,7 @@ export default {
       order = await ordersService.authorize(order, req.user);
       order = await ordersService.getById(req.params.id);
       order = await ordersService.completeOrderData(order)
-      res.status(200).json(order);
+      res.status(200).json(toLowerCaseRelations(order));
     } catch (e) {
       next(e);
     }
@@ -138,7 +268,7 @@ export default {
       order = await ordersService.close(order, req.user);
       order = await ordersService.getById(req.params.id);
       order = await ordersService.completeOrderData(order)
-      res.status(200).json(order);
+      res.status(200).json(toLowerCaseRelations(order));
     } catch (e) {
       next(e);
     }
@@ -157,7 +287,7 @@ export default {
       order = await ordersService.reject(order, req.user);
       order = await ordersService.getById(req.params.id);
       order = await ordersService.completeOrderData(order)
-      res.status(200).json(order);
+      res.status(200).json(toLowerCaseRelations(order));
     } catch (e) {
       next(e);
     }
@@ -176,7 +306,7 @@ export default {
       order = await ordersService.cancel(order, req.user);
       order = await ordersService.getById(req.params.id);
       order = await ordersService.completeOrderData(order)
-      res.status(200).json(order);
+      res.status(200).json(toLowerCaseRelations(order));
     } catch (e) {
       next(e);
     }
@@ -195,7 +325,7 @@ export default {
       order = await ordersService.open(order);
       order = await ordersService.getById(req.params.id);
       order = await ordersService.completeOrderData(order)
-      res.status(200).json(order);
+      res.status(200).json(toLowerCaseRelations(order));
     } catch (e) {
       next(e);
     }

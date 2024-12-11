@@ -4,11 +4,11 @@ import { Op } from "sequelize";
 import { EMPTY_LOCATION, EMPTY_PROVINCE } from "../utils/constants.js";
 import { throwErrorIfNotExists } from "../utils/functions.js";
 
-async function checkNameNotExists(locationParam) {
+async function checkNameNotExists(locationParam, locationId) {
     if (locationParam.name == undefined) return
     const locationName = locationParam.name
     const locationByName = await Location.findOne({ where: { name: locationName }})
-    if (locationByName)
+    if (locationByName && locationByName.id != locationId)
         throw { message: `location with name ${locationName} already exists` , statusCode: StatusCodes.BAD_REQUEST }
 }
 
@@ -29,14 +29,15 @@ export const create = async (locationParam) => {
         locationParam.provinceId = EMPTY_PROVINCE
     await checkNameNotExists(locationParam)
     const location = await Location.create(locationParam)
-    return location.get({ plain: true })
+    return getById(location.id)
 };
 
 export const update = async (locationId, locationParam) => {
-    await checkNameNotExists(locationParam)
+    await checkNameNotExists(locationParam, locationId)
+    if (locationParam.provinceId === null || locationParam.provinceId === undefined)
+        locationParam.provinceId = EMPTY_LOCATION
     await Location.update(locationParam, { where: { id: locationId }})
-    const updatedLocation = await Location.findByPk(locationId)
-    return updatedLocation.get({ plain: true })
+    return getById(locationId)
 };
 
 export const deleteById = async (id) => {

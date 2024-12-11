@@ -20,3 +20,57 @@ export const getAll = async (where) => {
 	const providers = await Proveedor.findAll({ where })
 	return providers.map(p => p.get({plain:true}))
 };
+
+export const create = async (providerData) => {
+    // Establecemos la fecha de alta
+    providerData.FechaAlta = new Date().toISOString().split('T')[0];
+    // Obtenemos el siguiente ID
+    const maxId = await Proveedor.max('Id');
+    providerData.Id = maxId + 1;
+    
+    // Convertimos nombre y apellido a mayúsculas
+    providerData.Nombre = providerData.Nombre.toUpperCase();
+    if (providerData.Apellido) {
+        providerData.Apellido = providerData.Apellido.toUpperCase();
+    }
+    
+    const newProvider = await Proveedor.create(providerData);
+    return newProvider.get({ plain: true });
+};
+
+export const update = async (providerId, providerData) => {
+    const provider = await Proveedor.findByPk(providerId);
+    if (!provider) {
+        throw new Error('Proveedor no encontrado');
+    }
+
+    // Convertimos nombre y apellido a mayúsculas si se proporcionan
+    if (providerData.Nombre) {
+        providerData.Nombre = providerData.Nombre.toUpperCase();
+    }
+    if (providerData.Apellido) {
+        providerData.Apellido = providerData.Apellido.toUpperCase();
+    }
+
+    await Proveedor.update(providerData, { where: { Id: providerId }});
+    
+    const updatedProvider = await Proveedor.findByPk(providerId);
+    return updatedProvider.get({ plain: true });
+};
+
+export const deleteById = async (providerId) => {
+    const provider = await Proveedor.findByPk(providerId);
+    if (!provider) {
+        throw new Error('Proveedor no encontrado');
+    }
+
+    // Soft delete: actualizamos la fecha de baja
+    const fechaBaja = new Date().toISOString().split('T')[0];
+    await Proveedor.update(
+        { FechaBaja: fechaBaja },
+        { where: { Id: providerId }}
+    );
+
+    const deletedProvider = await Proveedor.findByPk(providerId);
+    return deletedProvider.get({ plain: true });
+};

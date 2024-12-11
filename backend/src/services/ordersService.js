@@ -1,7 +1,7 @@
 import { Op, fn, col } from 'sequelize';
 import { Client, Order, Status, User, Company, Passenger } from "../db/index.js"
 import { AGENCY_CLIENT_ID, CLIENTS_GROUPS, PASSENGER_TYPES, ROLES, ROLES_VALUES, STATUSES, STATUSES_VALUES } from "../utils/constants.js";
-import { filterAttributes, stringifyDate } from "../utils/functions.js";
+import { filterAttributes, replacePlaceholders, stringifyDate } from "../utils/functions.js";
 import { sendEmail } from './emailService.js';
 import fs from 'fs'
 import path from 'path'
@@ -10,6 +10,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const newOrderAdminTemplatePath = path.join(__dirname, '../', 'mail', 'new_order_admin_template.html');
 const newOrderClientTemplatePath = path.join(__dirname, '../', 'mail', 'new_order_client_template.html');
+const authorizedOrderAdminTemplatePath = path.join(__dirname, '../', 'mail', 'authorized_order_admin_template.html');
+const reopenOrderTemplatePath = path.join(__dirname, '../', 'mail', 'reopen_order_template.html');
+let authorizedOrderAdminTemplateHtml;
+fs.readFile(authorizedOrderAdminTemplatePath, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading the HTML file:', err);
+        return;
+    }
+    authorizedOrderAdminTemplateHtml = data
+});
+let reopenOrderTemplateHtml;
+fs.readFile(reopenOrderTemplatePath, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading the HTML file:', err);
+        return;
+    }
+    reopenOrderTemplateHtml = data
+});
 let newOrderAdminTemplateHtml;
 fs.readFile(newOrderAdminTemplatePath, 'utf8', (err, data) => {
     if (err) {
@@ -26,19 +44,11 @@ fs.readFile(newOrderClientTemplatePath, 'utf8', (err, data) => {
     }
     newOrderClientTemplateHtml = data
 });
-function replacePlaceholders(placeholders, html) {
-    const placeHoldersKeys = Object.keys(placeholders)
-    for (const key of placeHoldersKeys) {
-        const regex = new RegExp(`{${key}}`, 'g');
-        html = html.replace(regex, placeholders[key]);
-    }
-    return html
-}
 
 async function createPassangerIfNotExists(passenger) {
     passenger.id = 0
-    const { documentType, document } = passenger
-    const count = await Passenger.count({ where: { documentType, document } });
+    const { documentType, document, clientId } = passenger
+    const count = await Passenger.count({ where: { documentType, document, clientId  } });
     if (count > 0) return
     const createdPassenger = await Passenger.create(passenger)
     return createdPassenger
@@ -84,7 +94,7 @@ const getNewOrderValues = (orderParam, clientId) => {
 
 export const getAll = async (where, user) => {
     const { from, to, status } = where
-    const whereConditionsToKeep = ["number", "passengerType", "transportType", "clientId"]
+    const whereConditionsToKeep = ["number", "status", "firstName", "lastName", "document", "passengerType", "transportType", "clientId"]
     where = filterAttributes(where, whereConditionsToKeep)
     const isEmptyWhere = (Object.keys(where).length == 0) && from == undefined && to == undefined && status == undefined
     where = isEmptyWhere ? getDefaultWhere(user) : where
@@ -110,7 +120,7 @@ export const getAll = async (where, user) => {
         where['$Status.reserved_name$'] = status
     }
     let dateField;
-    if ((status == null || status == undefined) || status == STATUSES.OPEN) {
+    if ((status == null || status == undefined) || status.includes(STATUSES.OPEN)) {
         dateField = "registrationDate"
     } else if (status == STATUSES.AUTHORIZED) {
         dateField = "authorizeDate"
@@ -124,6 +134,13 @@ export const getAll = async (where, user) => {
     } else if (to) {
         where[dateField] = { [Op.lte]: to }
     }
+    if (where.firstName) {
+        where.firstName = { [Op.like]: `%${where.firstName}%` }
+    }
+    if (where.lastName) {
+        where.lastName = { [Op.like]: `%${where.lastName}%` }
+    }
+    delete where.status
 	const orders = await Order.findAll({ 
         where,
         include: [Client, { model: Status, attributes: ['name'] },
@@ -188,7 +205,8 @@ export const create = async (orderParam, user) => {
         const placeholders = {
             orderNumber: orderParam.number.toString().padStart(6, '0'),
             passengerFullName: fullName,
-            bussinessName: user.client.businessName
+            bussinessName: user.client.businessName,
+            id: createdOrder.id,
         }
         const html = replacePlaceholders(placeholders, newOrderAdminTemplateHtml)
         sendEmail(email, subject, html, text)
@@ -206,7 +224,8 @@ export const create = async (orderParam, user) => {
         const userEmails = users.map(user => user.get({plain:true}).email)
         const subject = formatSubjectEmail(orderParam.number, user.client.businessName, fullName)
         const placeholders = {
-            passengerFullName: fullName
+            passengerFullName: fullName,
+            id: createdOrder.id,
         }
         const html = replacePlaceholders(placeholders, newOrderClientTemplateHtml)
         const text = 'Le informamos que se ha generado una orden de pasaje para el/la Sr/Sra '+fullName+' y la misma se encuentra pendiente de su autorización'
@@ -244,8 +263,8 @@ export const completeOrderData = async (order) => {
     })
     order = formatOrder(order)
     order.companions = companions.map(companion => {
-        const { number, registrationDate, firstName, lastName, documentType, document, transportType, phones } = companion
-        return { firstName, lastName, documentType, phones, document, transportType, status: companion.Status.reservedName, number, registrationDate, businessName: companion.Client.name, }
+        const { id, number, registrationDate, firstName, lastName, documentType, document, transportType, phones } = companion
+        return { id, firstName, lastName, documentType, phones, document, transportType, status: companion.Status.reservedName, number, registrationDate, businessName: companion.Client.name, }
     })
     return order
 };
@@ -276,8 +295,15 @@ export const authorize = async (order, user) => {
     const [company] = await Company.findAll()
     const email = company.emailNotification
     const subject = formatSubjectEmail(order.number, order.Client.businessName, fullName)
-    const body = "Orden Autorizada"
-    //sendEmail(email, subject, body); TODO
+    const placeholders = {
+        orderNumber: order.number,
+        passengerFullName: `${order.firstName} ${order.lastName}`,
+        bussinessName: user.client.businessName,
+        id: order.id,
+    }
+    const html = replacePlaceholders(placeholders, authorizedOrderAdminTemplateHtml)
+    const text = 'Orden Autorizada'
+    sendEmail(email, subject, html, text)
 };
 
 export const reject = async (order, user) => {
@@ -287,7 +313,7 @@ export const reject = async (order, user) => {
     await Order.update({
         statusId: rejectedStatus,
         agentUserId: user.id,
-        targetDate: new Date() // TODO: current date and time
+        targetDate: new Date()
       }, {
         where: {
             [Op.or]: [
@@ -302,7 +328,7 @@ export const cancel = async (order, user) => {
     await Order.update({
         statusId: STATUSES_VALUES.CANCELED,
         agentUserId: user.id,
-        targetDate: new Date() //TODO: 
+        targetDate: new Date()
       }, {
         where: {
             [Op.or]: [
@@ -317,7 +343,7 @@ export const close = async (order, user) => {
     await Order.update({
         statusId: STATUSES_VALUES.CLOSED,
         agentUserId: user.id,
-        targetDate: new Date() //TODO: 
+        targetDate: new Date()
       }, {
         where: {
             [Op.or]: [
@@ -346,7 +372,12 @@ export const open = async (order) => {
         const [company] = await Company.findAll()
         const email = company.emailNotification
         const subject = formatSubjectEmail(order.number, order.Client.businessName, fullName)
-        const body = "Se Abre Orden Rechazada de Cliente que Reserva";
-        //sendEmail(email, subject, body); TODO
+        const text = "Se Abre Orden Rechazada de Cliente que Reserva";
+        const placeholders = {
+            orderNumber: order.number,
+            id: order.id,
+        }
+        const html = replacePlaceholders(placeholders, reopenOrderTemplateHtml)
+        sendEmail(email, subject, html, text)
     }
 };

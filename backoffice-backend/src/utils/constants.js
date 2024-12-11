@@ -8,6 +8,16 @@ export const STATUSES_VALUES = {
     REJECTED_FROM_OPEN: 7,
 }
 
+export const LICENCES_STATUS = {
+    REQUESTED: 0,
+    APPROVED: 1,
+}
+
+export const ORDER_PAYMENT_STATUS_IDS = {
+    PENDING: 1,
+    PAID: 2,
+}
+
 export const STATUSES = {
     NOT_ASSIGNED: "NOT_ASSIGNED",
     OPEN: "OPEN",
@@ -18,23 +28,6 @@ export const STATUSES = {
     REJECTED_FROM_OPEN: "REJECTED_FROM_OPEN",
 }
 
-export const ROLES = {
-    UNASSIGNED: "ROLE_UNASSIGNED",
-    APPLICANT: "ROLE_APPLICANT",
-    AUTHORIZER: "ROLE_AUTHORIZER",
-    AGENT: "ROLE_AGENT",
-    ADMIN: "ROLE_ADMIN",
-    AUDITOR: "ROLE_AUDITOR",
-}
-
-export const ROLES_VALUES = {
-    UNASSIGNED: 1,
-    APPLICANT: 2,
-    AUTHORIZER: 3,
-    AGENT: 4,
-    ADMIN: 5,
-    AUDITOR: 6,
-}
 export const EMPTY_CLIENT = 0
 export const EMPTY_PROVIDER = 0
 export const EMPTY_PERSONAL = 0
@@ -47,4 +40,31 @@ export const CLIENTS_GROUPS = {
 export const PASSENGER_TYPES = {
     HOLDER: "holder",
     COMPANION: "companion",
+}
+
+export const USER_PROFILES_IDS = {
+    1: 'WEBMASTER',
+    2: 'ADMIN',
+    3: 'ENCUESTA SATISFACCION',
+    9: 'VENDEDOR',
+}
+
+export const USER_PROFILES_NAMES = {
+    'WEBMASTER' : 1,
+    'ADMIN': 2,
+    'ENCUESTA SATISFACCION': 3,
+    'VENDEDOR': 9,
+}
+
+export const USER_PROFILES = {
+    'WEBMASTER' : 'WEBMASTER',
+    'ADMIN': 'ADMIN',
+    'ENCUESTA_SATISFACCION': 'ENCUESTA SATISFACCION',
+    'VENDEDOR': 'VENDEDOR',
+}
+
+export const ISO_DOC_ESTADO = {
+    OBSOLETO: 6,
+    APROBADO: 4,
+    ELABORADO: 1,
 }

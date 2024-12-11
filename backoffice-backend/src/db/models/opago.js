@@ -1,6 +1,6 @@
-import { DataTypes } from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
 
-const opago = (sequelize, Estado, Personal, Operador, Usuario) => {
+const opago = (sequelize) => {
   const Opago = sequelize.define('Opago', {
     Id: {
       type: DataTypes.INTEGER,
@@ -10,12 +10,12 @@ const opago = (sequelize, Estado, Personal, Operador, Usuario) => {
     Fecha: {
       type: DataTypes.DATEONLY,
       allowNull: false,
-      defaultValue: '0000-00-00'
+      defaultValue: Sequelize.literal('0000-00-00'),
     },
     FechaP: {
       type: DataTypes.DATEONLY,
       allowNull: false,
-      defaultValue: '0000-00-00',
+      defaultValue: Sequelize.literal('0000-00-00'),
       field: "FechaP"
     },
     IdEstado: {

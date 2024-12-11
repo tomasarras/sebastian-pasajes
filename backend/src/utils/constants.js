@@ -52,3 +52,13 @@ export const PASSENGER_TYPES = {
     HOLDER: "holder",
     COMPANION: "companion",
 }
+
+export const STATUS_ID_TO_TRANSLATED_NAME = {
+    1: 'Sin asignar',
+    2: 'Abierta',
+    3: 'Autorizada',
+    4: 'Cerrada',
+    5: 'Rechazada',
+    6: 'Cancelada',
+    7: 'Rechazada',
+}

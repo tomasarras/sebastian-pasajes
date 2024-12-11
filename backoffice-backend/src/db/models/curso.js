@@ -24,13 +24,13 @@ const curso = (sequelize) => {
       allowNull: false
     },
     FechaAlta: {
-        field:"FechaAlta",
+      field:"FechaAlta",
       type: DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: '0000-00-00'
     },
     FechaBaja: {
-        field:"FechaBaja",
+      field:"FechaBaja",
       type: DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: '0000-00-00'
@@ -56,7 +56,7 @@ const curso = (sequelize) => {
       allowNull: false
     },
     TipoP: {
-        field:"TipoP",
+      field:"TipoP",
       type: DataTypes.CHAR(1),
       allowNull: false
     },
@@ -65,7 +65,7 @@ const curso = (sequelize) => {
       allowNull: false
     },
     IdTema: {
-        field:"IdTema",
+      field:"IdTema",
       type: DataTypes.INTEGER,
       allowNull: false
     }

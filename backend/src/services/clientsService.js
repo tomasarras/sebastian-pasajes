@@ -4,16 +4,16 @@ import { Client, ClientGroup, Location } from "../db/index.js"
 import { AGENCY_CLIENT_ID, EMPTY_AGENCY_ID, EMPTY_GROUP, EMPTY_LOCATION } from "../utils/constants.js";
 import { filterAttributes, throwErrorIfNotExists, useLikeOperation } from "../utils/functions.js";
 
-async function checkBusinessNameNotExists(clientParam) {
+async function checkBusinessNameNotExists(clientParam, clientId) {
     if (clientParam.businessName == undefined) return
     const businessName = clientParam.businessName
     const clientByBusinessName = await Client.findOne({ where: { businessName }})
-    if (clientByBusinessName)
+    if (clientByBusinessName && clientByBusinessName.id != clientId)
         throw { message: `client with business name ${businessName} already exists` , statusCode: StatusCodes.BAD_REQUEST }
 }
 
 export const create = async (clientParam) => {
-    checkBusinessNameNotExists(clientParam)
+    await checkBusinessNameNotExists(clientParam)
     if (clientParam.groupId == null) {
         clientParam.groupId = EMPTY_GROUP
     }
@@ -21,14 +21,19 @@ export const create = async (clientParam) => {
         clientParam.locationId = EMPTY_LOCATION
     }
     const client = await Client.create(clientParam)
-    return client.get({ plain: true })
+    return getById(client.id)
 };
 
 export const update = async (clientId, clientParam) => {
-    checkBusinessNameNotExists(clientParam)
+    await checkBusinessNameNotExists(clientParam, clientId)
+    if (clientParam.groupId == null) {
+        clientParam.groupId = EMPTY_GROUP
+    }
+    if (clientParam.locationId == null) {
+        clientParam.locationId = EMPTY_LOCATION
+    }
     await Client.update(clientParam, { where: { id: clientId }})
-    const updatedClient = await Client.findByPk(clientId)
-    return updatedClient.get({ plain: true })
+    return getById(clientId)
 };
 
 export const getById = async (id) => {

@@ -8,7 +8,7 @@ const isoAudiProg = (sequelize) => {
       primaryKey: true
     },
     IdSector: {
-        field: "IdSector",
+      field: "IdSector",
       type: DataTypes.INTEGER,
       allowNull: false
     },

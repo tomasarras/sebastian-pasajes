@@ -55,16 +55,15 @@ function createJWT(user) {
 	return { token }
 }
 
-async function checkUsernameAvailable(username) {
+async function checkUsernameAvailable(username, userId) {
 	if (username == undefined) return
-	const userByUsename = await User.findOne({where: { username } })
-	if (userByUsename)
+	const userByUsername = await User.findOne({where: { username } })
+	if (userByUsername && userByUsername.id != userId)
 		throw { message: `user with username ${username} already exists`, statusCode: StatusCodes.BAD_REQUEST }
 }
 
 export const login = async (username, password) => {
-	//TODO: check if user is active
-	const userDb = await User.findOne({ where: { username }, include: [Profile, { model: Client, include: [ClientGroup] }]});
+	const userDb = await User.findOne({ where: { username, inactive: 0 }, include: [Profile, { model: Client, include: [ClientGroup] }]});
 	if (userDb == null) {
 		invalidUsernameOrPassoword()
 	}
@@ -90,6 +89,12 @@ export const changePassword = async (currentPassword, newPassword, user) => {
 	if (!match) {
 		invalidUsernameOrPassoword()
 	}
+	userDb.password = await hashPassword(newPassword);
+	await userDb.save();
+};
+
+export const changePasswordAsAdmin = async (newPassword, username) => {
+	const userDb = await User.findOne({ where: { username } });
 	userDb.password = await hashPassword(newPassword);
 	await userDb.save();
 };
@@ -134,7 +139,7 @@ export const getAll = async () => {
 };
 
 export const update = async (userId, userParam) => {
-    await checkUsernameAvailable(userParam.username)
+    await checkUsernameAvailable(userParam.username, userId)
 	if (userParam.password) {
 		userParam.password = await hashPassword(userParam.password);
 	}

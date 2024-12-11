@@ -8,6 +8,8 @@ const router = express.Router();
 
 const allRolesExceptAuditor = [ROLES.UNASSIGNED, ROLES.APPLICANT, ROLES.AUTHORIZER, ROLES.AGENT, ROLES.ADMIN]
 
+router.get("/to-planilla", verifyToken, controller.toPlanilla);
+router.get("/to-excel", verifyToken, controller.toExcel);
 router.get("/", verifyToken, controller.getAll);
 router.post("/", validateOrder, verifyToken, withPermissions(allRolesExceptAuditor), controller.create);
 router.put("/:id", verifyToken, withPermissions(allRolesExceptAuditor), controller.update);

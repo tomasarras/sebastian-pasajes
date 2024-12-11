@@ -38,7 +38,54 @@ export const getAll = async (where) => {
 };
 
 export const update = async (clientId, clientParam) => {
-    await Cliente.update(clientParam, { where: { id: clientId }})
+    await Cliente.update(clientParam, { where: { Id: clientId }})
     const updatedClient = await Cliente.findByPk(clientId)
     return updatedClient.get({ plain: true })
+};
+
+export const create = async (clientData) => {
+    // Aseguramos que la fecha de alta sea la actual
+    clientData.FechaAlta = new Date().toISOString().split('T')[0];
+    clientData.Nombre = clientData.Nombre.toUpperCase()
+    clientData.Apellido = clientData.Apellido.toUpperCase()
+    const maxId = await Cliente.max("Id")
+    clientData.Id = maxId +1
+    
+    const newClient = await Cliente.create(clientData);
+    
+    // Recuperamos el cliente creado con sus relaciones
+    const clienteCreado = await Cliente.findByPk(newClient.Id, {
+        include: [
+            { model: Localidad, as: 'localidad' },
+            { model: Actividad, as: 'actividad' },
+            { model: CondicionIva, as: 'condicionIva' }
+        ]
+    });
+
+    return deleteEmptyEntities([clienteCreado])[0];
+};
+
+export const deleteById = async (clientId) => {
+    const client = await Cliente.findByPk(clientId);
+    if (!client) {
+        throw new Error('Cliente no encontrado');
+    }
+
+    // Soft delete: actualizamos la fecha de baja
+    const fechaBaja = new Date().toISOString().split('T')[0];
+    await Cliente.update(
+        { FechaBaja: fechaBaja },
+        { where: { Id: clientId }}
+    );
+
+    // Recuperamos el cliente actualizado con sus relaciones
+    const deletedClient = await Cliente.findByPk(clientId, {
+        include: [
+            { model: Localidad, as: 'localidad' },
+            { model: Actividad, as: 'actividad' },
+            { model: CondicionIva, as: 'condicionIva' }
+        ]
+    });
+
+    return deleteEmptyEntities([deletedClient])[0];
 };

@@ -11,6 +11,15 @@ export const replaceFields = (fieldsToReplace, array) => {
   return array
 }
 
+export function replacePlaceholders(placeholders, html) {
+  const placeHoldersKeys = Object.keys(placeholders)
+  for (const key of placeHoldersKeys) {
+      const regex = new RegExp(`{${key}}`, 'g');
+      html = html.replace(regex, placeholders[key]);
+  }
+  return html
+}
+
 export const newId = async (entity) => {
   const entityDb = await entity.findOne({
     attributes: ['Id'],          // Solo seleccionar el campo 'id'
@@ -22,6 +31,8 @@ export const newId = async (entity) => {
 export const toLowerCaseRelations = (obj) => {
     if (Array.isArray(obj)) {
       return obj.map(toLowerCaseRelations);
+    } else if (obj instanceof Date) {
+      return obj;
     } else if (obj !== null && typeof obj === 'object') {
       return Object.keys(obj).reduce((acc, key) => {
         const lowerCaseKey = key.charAt(0).toLowerCase() + key.slice(1);
@@ -37,6 +48,14 @@ export const today = () => {
   const today = new Date();
   return today.toISOString().split('T')[0];
 }
+
+export const formatDate = (date) => {
+  let [year, month, day] = date.split("-")
+  month = parseInt(month) -1
+  day = parseInt(day)
+  return new Date(year, month, day)
+}
+
 export const toPascalCaseRelations = (obj) => {
   if (Array.isArray(obj)) {
     return obj.map(toPascalCaseRelations);

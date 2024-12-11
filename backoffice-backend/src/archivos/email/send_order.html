@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden de pago</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .header {
+            text-align: center;
+        }
+        .header img {
+            width: 250px;
+            height: 80px;
+        }
+        h1 {
+            font-size: 2.3rem;
+            color: #333333;
+            text-align: center;
+        }
+        p {
+            font-size: 1rem;
+            color: #666666;
+            text-align: center;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+          <img src="https://i.imgur.com/Hs6MSHw.png" alt="logo">
+        </div>
+        <h1>Orden de pago</h1>
+        <P>Estimado/s: {nombreOperador} <P>SEBASTIAN & CO EVyT le informa que el día {fechaP}, se ha cursado una transferencia a su cuenta bancaria para aplicar a la siguiente reserva:<BR><BR><BR>Cod./Nro: {NFO}.<BR><BR>Pasajero/s: {cliente}<BR><BR>Importe: {transferValue}<BR><BR>Vendedor/a: {vendedor}<BR><BR><BR>Adjunto al presente e-mail encontrará comprobante de dicha transacción.<BR><BR>Para cualquier consulta al respecto, por favor dirigirse por e-mail a administracion@sebastianviajes.tur.ar - REF:OP {orderId}<BR><BR>Muchas gracias<BR><BR><BR><SMALL>SEBASTIAN & Co. EVyT - Leg. 8580<BR>Santa Fe N° 64 - Neuquén<BR>Tel.: (0299) 4486028 / 4486806<BR>E-mail: administracion@sebastianviajes.tur.ar<BR>Web: www.sebastianviajes.tur.ar<BR><BR><BR><I><B>POR FAVOR NO RESPONDA ESTE EMAIL</B></I></SMALL><BR><BR></P>
+    </div>
+</body>
+</html>

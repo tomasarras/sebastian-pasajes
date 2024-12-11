@@ -1,10 +1,13 @@
 import express from "express";
 import controller from "../controllers/clientController.js";
-//import verifyToken from "../middleware/validateToken.js";
+import verifyToken from "../middleware/validateToken.js";
+import onlyAdministrators from "../middleware/onlyAdministrators.js";
 
 const router = express.Router();
 
-//TODO: solo accede si no es perfil 1 ni 2, es decir 3 en adelante
-router.get("/", controller.getAll);
+router.get("/", verifyToken, onlyAdministrators, controller.getAll);
+router.post("/", verifyToken, onlyAdministrators, controller.create);
+router.put("/:id", verifyToken, onlyAdministrators, controller.update);
+router.delete("/:id", verifyToken, onlyAdministrators, controller.deleteById);
 
 export default router;

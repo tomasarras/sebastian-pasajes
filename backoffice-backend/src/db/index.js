@@ -20,7 +20,7 @@ const sslConfig = config.db.sslConnection ? {
 const sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
   host: config.db.host,
   port: config.db.port,
-  dialect: config.db.dialect,
+  dialect: "mysql",
   ...sslConfig,
   operatorsAliases: "0",
   //logging: false,
@@ -34,6 +34,10 @@ const sequelize = new Sequelize(config.db.database, config.db.username, config.d
     acquire: config.db.pool.acquire,
     idle: config.db.pool.idle,
   },
+  dialectOptions: {
+    dateStrings: true, // Trata las fechas como cadenas de texto
+    typeCast: true     // Convierte las fechas a cadenas
+  }
 });
 
 const basename = path.basename(__filename);
@@ -53,10 +57,10 @@ for (const modelName of onlyJsFileNames) {
 modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
-const { Usuarios, Provincia, Sector, Personal, Perfil, Puesto, Noticia, Cliente, Localidad, Actividad, CondicionIva, Opago, Proveedor, OpagoEstado,
-  IsoNc,IsoNcTipo, IsoNcOrigen, IsoNcEstado, IsoAudiProg, Curso, CursoTemas, IsoEvalEv, IsoEvalEvc, IsoEvalAdm, IsoIndicadores, IsoMinutas, IsoReclamosc, IsoReclamost,
-  IsoRg, IsoTr, IsoCriterios, Formadores, IsoDocTipo, IsoProcesos, IsoEncCor, IsoEncIssn, IsoEncTur, IsoEncTurr, PasajesDev, PersonalLicencias, LicenciasTipo,
-  Feriados, PersonalLicxAnio, Parametros } = sequelize.models;
+const { Usuarios, Provincia, Sector, Personal, Perfil, Puesto, Noticia, Cliente, Localidad, Actividad, CondicionIva, Opago, OpagoArchivos, Proveedor, OpagoEstado,
+  IsoNc,IsoNcTipo, IsoNcOrigen, IsoNcEstado, IsoNcAuditoria, IsoNcAudicambios, IsoAudiProg, Curso, CursoTemas, IsoEvalEv, IsoEvalEvc, IsoEvalAdm, IsoIndicadores, IsoMinutas, IsoReclamosc, IsoReclamost,
+  IsoRg, IsoTr, IsoCriterios, Formadores, IsoDoc, IsoDocEstados, IsoDocTipo, IsoProcesos, IsoDocDist, IsoEncCor, IsoEncIssn, IsoEncTur, IsoEncTurr, PasajesDev, PersonalLicencias, LicenciasTipo,
+  Feriados, PersonalLicxAnio, Parametros, CursosProgramacion } = sequelize.models;
 Cliente.belongsTo(Localidad, { foreignKey: 'IdLocalidad', as: 'localidad' });
 Cliente.belongsTo(Actividad, { foreignKey: 'IdActividad', as: 'actividad' });
 Cliente.belongsTo(CondicionIva, { foreignKey: 'IdIva', as: 'condicionIva' });
@@ -87,6 +91,18 @@ IsoNc.belongsTo(Personal, { foreignKey: 'IdRCausa', as: 'causa' });
 IsoNc.belongsTo(Personal, { foreignKey: 'IdRAccion', as: 'accion' });
 IsoNc.belongsTo(Personal, { foreignKey: 'IdRVA', as: 'va' });
 IsoNc.belongsTo(Personal, { foreignKey: 'IdRVEF', as: 'vef' });
+CursosProgramacion.belongsTo(Personal, { foreignKey: 'IdPersonal', as: 'cursosProgramacionPersonal' });
+CursosProgramacion.belongsTo(Curso, { foreignKey: 'IdCurso', as: 'cursosProgramacionCurso' });
+IsoDoc.belongsTo(IsoDocTipo, { foreignKey: 'IdTipoDoc', as: 'isoDocIsoDocTipo' });
+IsoDoc.belongsTo(IsoDocEstados, { foreignKey: 'IdEstado', as: 'isoDocIsoDocEstados' });
+IsoDoc.belongsTo(IsoProcesos, { foreignKey: 'IdProc', as: 'isoDocIsoDocProcesos' });
+//IsoDoc.belongsTo(IsoDocDist, { foreignKey: 'Id', as: 'isoDocIsoDocDist' });
+IsoDoc.hasMany(IsoDocDist, { foreignKey: 'IdDoc', as: 'isoDocIsoDocDist' });
+Opago.hasMany(OpagoArchivos, { foreignKey: 'IdEntidad', as: 'opagoArchivos' });
+IsoDocDist.belongsTo(IsoDoc, { foreignKey: 'IdDoc', as: 'isoDocDistIsoDoc' });
+IsoNcAuditoria.belongsTo(IsoNcAudicambios, { foreignKey: 'IdCambio', as: 'isoNcAuditoriaIsoNcAudicambios' })
+IsoNcAuditoria.belongsTo(IsoNc, { foreignKey: 'IdNC', as: 'isoNcAuditoriaIsoNC' })
+IsoNcAuditoria.belongsTo(Usuarios, { foreignKey: 'IdUsuario', as: 'isoNcAuditoriaUsuarios' })
 IsoAudiProg.belongsTo(Sector, { foreignKey: 'IdSector', as: 'sector' });
 IsoEvalEv.belongsTo(Personal, { foreignKey: 'IdPuesto', as: 'puesto' })
 IsoEvalEv.belongsTo(Puesto, { foreignKey: 'IdPuesto', as: 'isoEvalPuesto' })
@@ -113,7 +129,7 @@ IsoEncTurr.belongsTo(Personal, { foreignKey: 'IdPersonal', as: 'isoEncTurrPerson
 PasajesDev.belongsTo(Personal, { foreignKey: 'IdPersonal', as: 'pasajesDevPersonal' })
 PersonalLicencias.belongsTo(Personal, { foreignKey: 'IdPersonal', as: 'personalLicenciasPersonal' })
 PersonalLicencias.belongsTo(LicenciasTipo, { foreignKey: 'IdLic', as: 'personalLicenciasPersonalTipo' })
-
+Parametros.belongsTo(Localidad, { foreignKey: 'IdLocalidad', as: 'parametrosLocalidad' });
 export {
   sequelize,
   Usuarios,
@@ -126,6 +142,7 @@ export {
   CondicionIva,
   Opago,
   OpagoEstado,
+  OpagoArchivos,
   Proveedor,
   Puesto,
   Provincia,
@@ -133,6 +150,8 @@ export {
   IsoNc,
   IsoNcTipo,
   IsoNcOrigen,
+  IsoNcAuditoria,
+  IsoNcAudicambios,
   IsoNcEstado,
   IsoAudiProg,
   Curso,
@@ -160,4 +179,8 @@ export {
   Feriados,
   PersonalLicxAnio,
   Parametros,
+  CursosProgramacion,
+  IsoDoc,
+  IsoDocEstados,
+  IsoDocDist,
 };

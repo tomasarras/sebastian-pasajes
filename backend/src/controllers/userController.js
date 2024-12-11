@@ -31,6 +31,20 @@ export default {
   },
 
   /**
+   * /users/{username}/change-password [POST]
+   * @returns 200
+   */
+  changePasswordAsAdmin: async (req, res, next) => {
+    try {
+      const { newPassword } = req.body;
+      await usersService.changePasswordAsAdmin(newPassword, req.params.username);
+      res.status(204).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /users/create [POST]
    * @returns 200 and @User
    */

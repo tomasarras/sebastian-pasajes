@@ -10,6 +10,7 @@ const router = express.Router();
 
 router.post("/login", controller.login);
 router.post("/change-password", verifyToken, check("currentPassword").notEmpty(),passwordValidator("newPassword"), controller.changePassword);
+router.post("/:username/change-password", verifyToken, onlyAgencyAndAdministrators(), passwordValidator("newPassword"), controller.changePasswordAsAdmin);
 router.post("/create", verifyToken, onlyAgencyAndAdministrators(), userValidator(), passwordValidator("password"), controller.create);
 router.get("/", verifyToken, onlyAgencyAndAdministrators(), controller.getAll);
 router.delete("/:id", verifyToken, onlyAgencyAndAdministrators(), controller.deleteById);

@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
 
 const usuarios = (sequelize) => {
   const Usuarios = sequelize.define('Usuarios', {
@@ -34,7 +34,7 @@ const usuarios = (sequelize) => {
     FechaBaja: {
       type: DataTypes.DATEONLY,
       allowNull: false,
-      defaultValue: '0000-00-00',
+      defaultValue: Sequelize.literal('0000-00-00'),
       field: "FechaBaja"
     }
   }, {
