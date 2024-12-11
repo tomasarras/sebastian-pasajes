@@ -6,7 +6,7 @@
                 "targets": {
                     "node": "current"
                 },
-                "module": false
+                "modules": false
             }
         ]
     ]
