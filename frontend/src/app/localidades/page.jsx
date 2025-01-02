@@ -17,7 +17,7 @@ import ModalCreateLocation from "../components/modals/ModalCreateLocation";
 
 export default function Localidades() {
   const locations = useLocations();
-  const { fetchLocations } = useContext(Context)
+  const { fetchLocations, updateLocation, createLocation } = useContext(Context)
   const createLocationModal = useModal()
   const deleteLocationModal = useModal()
   const editLocationModal = useModal()
@@ -64,7 +64,7 @@ export default function Localidades() {
       {
         name: 'Acciones',
         maxWidth: '20%',
-        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon />} onClick={() => openDeleteModal(row)} /></div>
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary"/>} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /></div>
       },
     ];
     return newColumns;
@@ -93,8 +93,8 @@ export default function Localidades() {
             )
           }
         </div>
-        <ModalCreateLocation onSubmit={create} {...createLocationModal}/>
-        <ModalCreateLocation location={selectedLocation} onSubmit={edit} {...editLocationModal}/>
+        <ModalCreateLocation onSubmit={createLocation} {...createLocationModal}/>
+        <ModalCreateLocation location={selectedLocation} onSubmit={updateLocation} {...editLocationModal}/>
         <GenericModalDelete onDelete={handleOnDelete} label={selectedLocation?.name} type={"localidad"} id={selectedLocation?.id} {...deleteLocationModal}/>
       </Container>
     </>

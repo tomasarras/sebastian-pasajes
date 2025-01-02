@@ -10,10 +10,12 @@ import ModalCreateUser from "../components/modals/ModalCreateUser";
 import { Context } from "../context/Context";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import KeyIcon from '@mui/icons-material/Key';
 import TableActionButton from "../components/buttons/tableActionButton";
 import ModalDeleteUser from "../components/modals/ModalDeleteUser";
 import ModalEditUser from "../components/modals/ModalEditUser";
 import useUsers from "../hooks/useUsers";
+import ModalChangeUserPassword from "../components/modals/ModalChangeUserPassword";
 
 export default function Usuarios() {
   const createUserModal = useModal()
@@ -21,10 +23,16 @@ export default function Usuarios() {
   const [selectedUser, setSelectedUser] = useState({});
   const deleteUserModal = useModal()
   const editUserModal = useModal()
+  const changePasswordModal = useModal()
 
   const openDeleteModal = (user) => {
     setSelectedUser(user);
     deleteUserModal.open();
+  }
+
+  const openChangePasswordModal = (user) => {
+    setSelectedUser(user);
+    changePasswordModal.open();
   }
 
   const openEditModal = (user) => {
@@ -72,7 +80,7 @@ export default function Usuarios() {
       {
         name: 'Acciones',
         maxWidth: '20%',
-        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary" />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /></div>
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary" />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /><TableActionButton actionIcon={<KeyIcon />} onClick={() => openChangePasswordModal(row)} /></div>
       },
     ];
     return newColumns;
@@ -94,12 +102,19 @@ export default function Usuarios() {
                     striped
                     responsive
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    conditionalRowStyles={[
+                      {
+                        when: row => row.inactive == 1,
+                        style: { color: 'gray' },
+                      },
+                    ]}
                   />
                 </div>
             </div>
             <ModalCreateUser {...createUserModal}></ModalCreateUser>
             <ModalEditUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...editUserModal}></ModalEditUser>
             <ModalDeleteUser user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...deleteUserModal}></ModalDeleteUser>
+            <ModalChangeUserPassword user={selectedUser} cleanSelectedUser={() => setSelectedUser({})} {...changePasswordModal}></ModalChangeUserPassword>
         </Container>
     </>
   )

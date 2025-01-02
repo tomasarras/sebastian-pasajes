@@ -25,13 +25,9 @@ export default function ModalCreateClient({ client, onSubmit, ...props }) {
       const localClient = JSON.parse(JSON.stringify(client));
       if (localClient.locationId == 1) {
         localClient.locationId = "no-selected"
-      } else {
-        localClient.locationId = localClient.location.name
       }
       if (localClient.groupId == 1) {
         localClient.groupId = "no-selected"
-      } else {
-        localClient.groupId = localClient.clientGroup.name
       }
       setLocalClient(localClient)
     }
@@ -44,15 +40,10 @@ export default function ModalCreateClient({ client, onSubmit, ...props }) {
   }, [selectedLocation, locations])
 
   const handleOnSubmit = async (values, { setSubmitting, resetForm }) => {
-    if (values.groupId == 'no-selected') {
+    if (values.groupId == 'no-selected' || values.groupId == '')
       values.groupId = null
-    } else {
-      values.groupId = groups.find(group => group.name == values.groupId).id
-    }
-    if (values.locationId == 'no-selected') {
+    if (values.locationId == 'no-selected' || values.locationId == '') {
       values.locationId = null
-    } else {
-      values.locationId = locations.find(location => location.name == values.locationId).id
     }
     await onSubmit(values)
     setSubmitting(false)
@@ -94,12 +85,21 @@ export default function ModalCreateClient({ client, onSubmit, ...props }) {
               options={locations}
               placeholder="Seleccionar"
               getOptionLabel={(location) => location.name}
+              getOptionValue={(location) => location.id}
               onChange={setSelectedLocation}
             />
             <div className={`mt-1 ${!selectedLocationObject?.province && 'invisible'}`}>Provincia de {selectedLocationObject?.province?.name}<span className={`${selectedLocationObject?.postalCode == undefined && 'hidden'}`}>, codigo postal {selectedLocationObject?.postalCode}</span></div>
           </div>
           <FormikStyledField  className="mb-4" name="phones" label="Teléfonos" />
-          <FormikStyledSelect className="mb-4" name="groupId" label="Grupo" options={groups} getOptionLabel={group => group.name} placeholder="Seleccionar" />
+          <FormikStyledSelect 
+            className="mb-4"
+            name="groupId"
+            label="Grupo"
+            options={groups}
+            getOptionLabel={group => group.name}
+            getOptionValue={group => group.id}
+            placeholder="Seleccionar"
+          />
           <FormikStyledRadio className="mb-4" name="action" label="Reserva" options={[{ label: "Si", value: "SR" }, { label: "No", value: "NR" }]} />
           <FormikStyledRadio className="mb-4" name="immediate" label="Inmediato" options={[{ label: "Si", value: "S" }, { label: "No", value: "N" }]} />
           <FormikStyledRadio className="mb-4" name="mailAuto" label="Mail autorizante" options={[{ label: "Si", value: "1" }, { label: "No", value: "0" }]} />

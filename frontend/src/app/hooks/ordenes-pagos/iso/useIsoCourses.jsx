@@ -11,5 +11,5 @@ export default function useIsoCourses() {
       fetchIsoCourses()
   }, [])
   
-  return isoCourses
+  return { isoCourses, fetchIsoCourses }
 }

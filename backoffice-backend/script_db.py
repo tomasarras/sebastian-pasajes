@@ -104,6 +104,9 @@ def main():
 
         # Usuarios
         rename_column(cursor, "Usuarios", "Password", "Password", "CHAR(128)")
+        sql_insert_query = "INSERT INTO perfiles (Id, Nombre) VALUES (%s, %s)"
+        valores = (4, 'VENTAS ADMINISTRACION')
+        cursor.execute(sql_insert_query, valores)
         # clientes parametros
 
         # Confirmar cambios

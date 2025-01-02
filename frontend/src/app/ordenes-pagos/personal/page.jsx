@@ -1,4 +1,5 @@
 "use client"
+import SecondaryButton from "@/app/components/buttons/secondaryButton";
 import CommonInput from "@/app/components/commonInput";
 import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
@@ -7,14 +8,72 @@ import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreat
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreatePersonal from "@/app/components/ordenes-pago/modals/ModalCreatePersonal";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
-import Table from "@/app/components/table";
+import Table from "@/app/components/table/ordenes-pago";
+import { Context } from "@/app/context/OPContext";
+import useFilterModal from "@/app/hooks/ordenes-pagos/useFilterModal";
 import usePersonals from "@/app/hooks/ordenes-pagos/usePersonals";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
+import { FILTER_MODAL_FIELD_TYPE } from "@/app/utils/constants";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+
+const additionalColumnsForExcel = [
+  {
+    name: 'Número',
+    selector: row => row.id,
+    hidden: true,
+  },
+  {
+    name: 'Nombre',
+    selector: row => row.nombre + " " + row.apellido,
+    hidden: true,
+  },
+  {
+    name: "Alta",
+    selector: row => row?.fechaAlta,
+    hidden: true,
+  },
+  {
+    name: "Baja",
+    selector: row => row?.fechaBaja !== '0000-00-00' ? row.fechaBaja : '',
+    hidden: true,
+  },
+  {
+    name: "Identificación",
+    selector: row => row?.tipoIdentificacion + ": " + row.identificacion,
+    hidden: true,
+  },
+  {
+    name: 'Documento',
+    selector: row => row.tipoDocumento + ": " + row.documento,
+    hidden: true,
+  },
+  {
+    name: 'Email',
+    selector: row => row.eMail,
+    hidden: true,
+  },
+]
+
+const filterFields = [
+  {
+    label: "Nombre",
+    name: "Nombre",
+    type: FILTER_MODAL_FIELD_TYPE.INPUT,
+  },
+]
 
 export default function OrdenesPagoPersonal() {
-  const personals = usePersonals()
+  const { deletePersonal, fetchPersonals } = useContext(Context) 
+  const [filters, setFilters] = useState(null)
+  const [personals, setPersonals] = useState([])
+  const router = useRouter();
+  const handleOnSubmitFilter = async (filters) => {
+    setFilters(filters)
+  }
+  const { onOpenFilterModal, filterModal } = useFilterModal({ fields: filterFields, entityName: "personal", onApplyFilter: handleOnSubmitFilter })
+  const defaultPersonals = usePersonals()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -24,10 +83,23 @@ export default function OrdenesPagoPersonal() {
     actionColumn,
   } = useCRUDModals("personal")
 
-
   const handleOnDelete = async () => {
-    //TODO
+    deletePersonal(selectedEntity.id)
   }
+
+  const fetchData = async () => {
+    if (filters == null) {
+      setPersonals(defaultPersonals)
+    } else {
+      const personals = await fetchPersonals(filters)
+      setPersonals(personals)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+
+  }, [filters, defaultPersonals])
 
   const columns = useMemo(() => {
     const newColumns = [
@@ -36,30 +108,35 @@ export default function OrdenesPagoPersonal() {
         sortable: true,
         searchable: false,
         selector: row => row.id,
+        noExportableColumn: true,
       },
       {
         name: 'Apellido',
         sortable: true,
         searchable: false,
-        selector: row => row.nombre,
+        selector: row => row.apellido,
+        noExportableColumn: true,
       },
       {
         name: 'Nombre',
         sortable: true,
         searchable: false,
-        selector: row => row.apellido,
+        selector: row => row.nombre,
+        noExportableColumn: true,
       },
       {
         name: 'Documento',
         sortable: true,
         searchable: false,
         selector: row => row.documento,
+        noExportableColumn: true,
       },
       {
         name: 'CUIT/CUIL',
         sortable: true,
         searchable: false,
         selector: row => row.identificacion,
+        noExportableColumn: true,
       },
       {
         name: 'Puesto',
@@ -73,18 +150,33 @@ export default function OrdenesPagoPersonal() {
         searchable: false,
         selector: row => row.eMail,
       },
-      actionColumn
+      actionColumn,
+      ...additionalColumnsForExcel,
     ];
     return newColumns;
   }, [personals]); 
 
+  const headerButtons = 
+    <Link href="/ordenes-pagos/personal/tablas">
+      <SecondaryButton className="mr-2" size="sm" actionText={"Tablas"} />
+    </Link>
+  ;
+
+  const redirectToOrderDetails = personal => router.push(`/ordenes-pagos/personal/${personal.id}`)
+
   return (
   <Container>
     <div className="shadow rounded-lg bg-white p-2 md:p-4">
-      <MainHeader mainTitle="Personal" {...mainHeaderProps} />
+      <MainHeader 
+        mainTitle="Personal" 
+        headerButton={headerButtons}
+        onOpenFilterModal={onOpenFilterModal}
+        {...mainHeaderProps} 
+      />
       <hr/>
       <div className="py-8 md:py-16">
         <Table
+          onRowClicked={redirectToOrderDetails}
           className="shadow"
           columns={columns}
           data={personals}
@@ -96,7 +188,8 @@ export default function OrdenesPagoPersonal() {
     </div>
     <ModalCreatePersonal {...createModalProps} />
     <ModalCreatePersonal personal={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    {filterModal}
+    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.nombre} {...deleteModalProps}/>
   </Container>
   )
 }

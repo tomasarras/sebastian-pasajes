@@ -6,7 +6,7 @@ import MainHeader from "@/app/components/MainHeader";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModalCreateActivity from "@/app/components/ordenes-pago/modals/ModalCreateActivity";
-import Table from "@/app/components/table";
+import Table from "@/app/components/table/ordenes-pago";
 import useModal from "@/app/hooks/useModal";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";

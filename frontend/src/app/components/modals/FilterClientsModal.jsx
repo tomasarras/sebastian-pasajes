@@ -8,6 +8,7 @@ import FormikStyledSelect from "../form/FormikStyledSelect"
 import useLocations from "@/app/hooks/useLocations"
 import { useEffect, useState } from "react"
 import useGroups from "@/app/hooks/useGroups"
+import { removeEmptyOrNullValues } from "@/app/utils/utils"
 
 export default function FilterClientsModal({ onApplyFilter, ...props }) {
   const locations = useLocations()
@@ -18,17 +19,22 @@ export default function FilterClientsModal({ onApplyFilter, ...props }) {
     if (values.groupId == 'no-selected') {
       values.groupId = null
     } else {
-      values.groupId = groups.find(group => group.name == values.groupId).id
+      const group = groups.find(group => group.name == values.groupId)
+      values.groupId = {
+        value: group.id,
+        renderValue: group.name,
+      }
     }
     if (values.locationId == 'no-selected') {
       values.locationId = null
     } else {
-      values.locationId = locations.find(location => location.name == values.locationId).id
+      const location = locations.find(location => location.name == values.locationId)
+      values.locationId = {
+        value: location.id,
+        renderValue: location.name,
+      }
     }
-    Object.keys(values).forEach(key => {
-      if (values[key] == null || values[key] == '')
-        delete values[key]
-    })
+    removeEmptyOrNullValues(values)
     await onApplyFilter(values)
     setSubmitting(false)
     props.close()

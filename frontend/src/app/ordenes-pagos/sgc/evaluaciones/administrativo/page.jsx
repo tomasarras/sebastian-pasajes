@@ -2,12 +2,13 @@
 import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
-import ModalCreateCourse from "@/app/components/ordenes-pago/modals/ModalCreateCourse";
+import ModalCreateEvAdm from "@/app/components/ordenes-pago/modals/ModalCreateEvAdm";
 import Table from "@/app/components/table";
 import useIsoEvaluacionAdministrativo from "@/app/hooks/ordenes-pagos/iso/useIsoEvaluacionAdministrativo";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import { formatDate } from "@/app/utils/utils";
 import React, { useMemo, useState } from "react";
+import { removeEvaluationAdministrativo, newEvaluationAdministrativo, updateEvaluationAdministrativo } from "@/app/services/ordenes-pagos/iso/isoEvaluacionesService";
 
 export default function OrdenesPagoEvaluacionesAdministrativo() {
   const { 
@@ -18,10 +19,33 @@ export default function OrdenesPagoEvaluacionesAdministrativo() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("evaluacion administrativo")
-  const evaluacionesAdministrativas = useIsoEvaluacionAdministrativo()
+  const {isoEvaluacionesAdministrativo, fetchIsoEvaluacionesAdministrativo} = useIsoEvaluacionAdministrativo()
 
   const handleOnDelete = async () => {
-    //TODO
+    await removeEvaluationAdministrativo(selectedEntity.id);
+    changeAlertStatusAndMessage(true, 'success', 'Evaluación administrativa eliminada exitosamente!');
+    await fetchIsoEvaluacionesAdministrativo();
+  }
+
+  
+  const createEv = async (en) => {
+    try {
+      await newEvaluationAdministrativo(en)
+      changeAlertStatusAndMessage(true, 'success', 'Evaluación administrativa creada exitosamente!');
+    } catch (error) {
+      console.error('Error al agregar:', error);
+      changeAlertStatusAndMessage(true, 'error', 'Error al crear la evaluación administrativa');
+    }
+  }
+
+  const editEv = async (ev) => {
+    try {
+      await updateEvaluationAdministrativo(ev)
+      changeAlertStatusAndMessage(true, 'success', 'Evaluación administrativa editada exitosamente!');
+    } catch (error) {
+      console.error('Error al agregar:', error);
+      changeAlertStatusAndMessage(true, 'error', 'Error al editar evaluación administrativa');
+    }
   }
 
   const getResultado = row => {
@@ -78,7 +102,7 @@ export default function OrdenesPagoEvaluacionesAdministrativo() {
       actionColumn
     ];
     return newColumns;
-  }, [evaluacionesAdministrativas]); 
+  }, [isoEvaluacionesAdministrativo]); 
 
   return (
   <Container>
@@ -89,16 +113,16 @@ export default function OrdenesPagoEvaluacionesAdministrativo() {
         <Table
           className="shadow"
           columns={columns}
-          data={evaluacionesAdministrativas}
+          data={isoEvaluacionesAdministrativo}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
         />
       </div>
     </div>
-    <ModalCreateCourse {...createModalProps} />
-    <ModalCreateCourse course={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <ModalCreateEvAdm onSubmit={(ev) => createEv(ev)} {...createModalProps} />
+    <ModalCreateEvAdm onSubmit={(ev) => editEv(ev)} evAdm={selectedEntity} {...editModalProps} />
+    <GenericModalDelete id={selectedEntity?.id} onDelete={handleOnDelete} label="la evaluación administrativa" {...deleteModalProps}/>
   </Container>
   )
 }

@@ -26,6 +26,36 @@ export const STATUS_NAME_TO_ID = {
   REJECTED_FROM_OPEN: 7,
 }
 
+export const STATUS_ID_TO_CONSTANT_NAME = {
+  1: "UNASSIGNED",
+  2: "OPEN",
+  3: "AUTHORIZED",
+  4: "CLOSED",
+  5: "REJECTED",
+  6: "CANCELLED",
+  7: "REJECTED_FROM_OPEN",
+}
+
+export const STATUS_COLORS = {
+  UNASSIGNED: "#000000",
+  OPEN: "#FFD35F",
+  CLOSED: "#54BEFC",
+  REJECTED: "#9C4FAB",
+  REJECTED_FROM_OPEN: "#9C4FAB",
+  AUTHORIZED: "#57911A",
+  CANCELLED: "#BF4438",
+}
+
+export const ORDER_STATUS_NAME = {
+  UNASSIGNED: "UNASSIGNED",
+  OPEN: "OPEN",
+  AUTHORIZED: "AUTHORIZED",
+  CLOSED: "CLOSED",
+  REJECTED: "REJECTED",
+  CANCELLED: "CANCELLED",
+  REJECTED_FROM_OPEN: "REJECTED_FROM_OPEN",
+}
+
 export const STATUS_ID_TO_NAME = {
   1: 'Sin asignar',
   2: 'Abierta',
@@ -33,15 +63,50 @@ export const STATUS_ID_TO_NAME = {
   4: 'Cerrada',
   5: 'Rechazada',
   6: 'Cancelada',
-  7: 'Rechazada (desde abierta)',
+  7: 'Rechazada',
 }
 
+export const getTodayDatePicker = () => {
+  const date = new Date()
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() +1,
+    day: date.getDate(),
+  }
+}
 export const datePickerDateToString = (date) => {
   if (!date) return ''
   date.month = date.month < 10 ? '0' + date.month : date.month 
   date.day = date.day < 10 ? '0' + date.day : date.day 
   return `${date.year}-${date.month}-${date.day}`
 }
+
+export const dateToPickerFormat = (date) => {
+  console.log(date);
+  
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+  };
+}
+
+export const dateToYYYYMMDD = (date) => {
+  if (!date) return ''
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export const removeEmptyOrNullValues = (obj) => {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] == null || obj[key] == '')
+      delete obj[key]
+  })
+}
+
+export const isAgency = authData => authData && authData.client.id == 2
 
 export const evaluarEncuesta = (encuesta) => {
   switch (encuesta) {
@@ -91,9 +156,19 @@ export const compareDates = (f1, f2) => {
   return 0;
 };
 
+export const stringDateToDate = (dateString) => {
+  let [year, month, day] = dateString.split("-")
+  month = parseInt(month) -1
+  day = parseInt(day)
+  return new Date(year, month, day)
+}
+
 export const formatDate = (date) => {
   if (date === '0000-00-00') return ''
-  if (typeof date === 'string') date = new Date(date)
+  if (date === undefined) return ''
+  if (typeof date === 'string') {
+    date = stringDateToDate(date)
+  }
   return date.toLocaleDateString('es-ES', {
     day: '2-digit',
     month: '2-digit',

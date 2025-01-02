@@ -29,16 +29,19 @@ import useToggle from '../hooks/useToggle';
 import Link from 'next/link';
 import { OPProvider } from '../context/OPContext';
 import OPSnackBar from './opSnackBar';
+import { USER_ROLE } from '../utils/constants';
 
 export default function OPLayout({ children }) {
 	const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 	const userData = useAuth()
 	const router = useRouter();
-	//const { isAdmin, logout } = useContext(Context);
 	const modalUserAccount = useModal()
 	const [isOpenSgc, toggleSgc] = useToggle();
 	const [isOpenGeneral, toggleGeneral] = useToggle();
-
+	const isAdmin = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER].includes(userData?.role);
+	const isVendedor = [USER_ROLE.VENDEDOR, USER_ROLE.ADMIN, USER_ROLE.WEBMASTER].includes(userData?.role);
+	const isVentasAdmin = [USER_ROLE.VENDEDOR_ADMINISTRADOR].includes(userData?.role);
+	const isEncuestas = [USER_ROLE.ENCUSTA_SATISFACCION, USER_ROLE.ADMIN, USER_ROLE.WEBMASTER].includes(userData?.role);
 	
 
 	const closeSession = () => {
@@ -120,17 +123,18 @@ export default function OPLayout({ children }) {
 						</div>
 						<div className="py-4 md:pb-4 md:pt-0 px-2">
 							<ul className="space-y-3">
-								<li><NavItem className={`${pathname === '/ordenes-pagos/clientes' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<HandshakeIcon />} href="/ordenes-pagos/clientes" navText="Clientes" /></li>
-								<li><NavItem className={`${pathname === '/ordenes-pagos/ordenes' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<ReceiptLongIcon />} href="/ordenes-pagos/ordenes" navText="Ordenes pago" /></li>
-								<li><NavItem className={`${pathname === '/ordenes-pagos/operadores' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<SupportAgentIcon />} href="/ordenes-pagos/operadores" navText="Operadores" /></li>
-								<li><NavItem className={`${pathname === '/ordenes-pagos/pasajes' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<AirplaneTicketIcon />} href="/ordenes-pagos/pasajes" navText="Pasajes" /></li>
-								<li><NavItem className={`${pathname === '/ordenes-pagos/personal' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<SupervisorAccountIcon />} href="/ordenes-pagos/personal" navText="Personal" /></li>
-								<li>
+								{isAdmin && <li><NavItem className={`${pathname === '/ordenes-pagos/clientes' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<HandshakeIcon />} href="/ordenes-pagos/clientes" navText="Clientes" /></li>}
+								{(isVendedor || isVentasAdmin) && <li><NavItem className={`${pathname === '/ordenes-pagos/ordenes' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<ReceiptLongIcon />} href="/ordenes-pagos/ordenes" navText="Ordenes pago" /></li>}
+								{(isAdmin || isVentasAdmin) && <li><NavItem className={`${pathname === '/ordenes-pagos/operadores' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<SupportAgentIcon />} href="/ordenes-pagos/operadores" navText="Operadores" /></li>}
+								{isVendedor && <li><NavItem className={`${pathname === '/ordenes-pagos/pasajes' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<AirplaneTicketIcon />} href="/ordenes-pagos/pasajes" navText="Pasajes" /></li>}
+								{isAdmin && <li><NavItem className={`${pathname === '/ordenes-pagos/personal' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<SupervisorAccountIcon />} href="/ordenes-pagos/personal" navText="Personal" /></li>}
+								<li className={isVentasAdmin && 'hidden'}>
 									<button onClick={toggleSgc} className='w-full'>
 										<NavItem className={`${pathname && pathname.includes('sgc') ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} icon={<SettingsIcon />} href={pathname} endIcon={isOpenSgc ? <ExpandLess /> : <ExpandMore />} navText="SGC" />	
 									</button>
 									<Collapse in={isOpenSgc} timeout="auto" unmountOnExit>
 										<List component="div" disablePadding>
+											{isAdmin && <>
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/acciones' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/acciones" navText="Acciones" />	
 											</ListItemButton>
@@ -140,12 +144,16 @@ export default function OPLayout({ children }) {
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/capacitaciones' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/capacitaciones" navText="Capacitaciones" />	
 											</ListItemButton>
+											</>}
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/documentos' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/documentos" navText="Documentos" />	
 											</ListItemButton>
+											{isEncuestas &&
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/encuestas' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/encuestas" navText="Encuestas" />	
 											</ListItemButton>
+											}
+											{isAdmin && <>
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/evaluaciones' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/evaluaciones" navText="Evaluaciones" />	
 											</ListItemButton>
@@ -155,27 +163,34 @@ export default function OPLayout({ children }) {
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/minutas' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/minutas" navText="Minutas" />	
 											</ListItemButton>
+											</>}
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/reclamos' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/reclamos" navText="Reclamos" />	
 											</ListItemButton>
+											{isVendedor &&
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/reporte-guardia' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/reporte-guardia" navText="Reporte Guardia" />	
 											</ListItemButton>
+											}
+											{isAdmin && <>
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/tiempo-respuesta' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/tiempo-respuesta" navText="T. Respuesta" />	
 											</ListItemButton>
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleSgc}>
 												<NavItem className={`${pathname === '/ordenes-pagos/sgc/tablas' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/sgc/tablas" navText="Tablas" />	
 											</ListItemButton>
+											</>}
 										</List>
 									</Collapse>
 								</li>
+								{isAdmin && 
 								<li>
 									<button onClick={toggleGeneral} className='w-full'>
 										<NavItem className={`${pathname && pathname.includes('general') ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} icon={<SettingsIcon />} href={pathname} endIcon={isOpenGeneral ? <ExpandLess /> : <ExpandMore />} navText="General" />	
 									</button>
 									<Collapse in={isOpenGeneral} timeout="auto" unmountOnExit>
 										<List component="div" disablePadding>
+											
 											<ListItemButton sx={{ pl: 4 }} onClick={toggleGeneral}>
 												<NavItem className={`${pathname === '/ordenes-pagos/general/licencias' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white w-full`} href="/ordenes-pagos/general/licencias" navText="Licencias" />	
 											</ListItemButton>
@@ -191,7 +206,8 @@ export default function OPLayout({ children }) {
 										</List>
 									</Collapse>
 								</li>
-								<li><NavItem className={`${pathname === '/ordenes-pagos/tablas' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<BackupTableIcon />} href="/ordenes-pagos/tablas" navText="Tablas" /></li>
+								}
+								{isVendedor &&<li><NavItem className={`${pathname === '/ordenes-pagos/tablas' ? 'op-sidebar-selected' : 'op-sidebar-hover'} text-white`} icon={<BackupTableIcon />} href="/ordenes-pagos/tablas" navText="Tablas" /></li>}
 							</ul>
 						</div>
 					</div>

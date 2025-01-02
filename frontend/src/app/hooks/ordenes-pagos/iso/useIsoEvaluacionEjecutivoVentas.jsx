@@ -11,5 +11,5 @@ export default function useIsoEvaluacionEjecutivoVentas() {
       fetchIsoEvaluacionesVentas()
   }, [])
   
-  return isoEvaluacionesVentas
+  return {isoEvaluacionesVentas, fetchIsoEvaluacionesVentas}
 }

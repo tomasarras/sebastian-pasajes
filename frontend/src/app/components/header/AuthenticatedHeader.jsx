@@ -4,18 +4,15 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import useAuth from '@/app/hooks/useAuth';
 import useModal from '@/app/hooks/useModal';
-import { useRouter } from 'next/navigation';
 import ModalUserAccount from '../modals/ModalUserAccount';
 
 const AuthenticatedHeader = ({ onClickOpenSidebar }) => {
 	const userData = useAuth()
 	const modalUserAccount = useModal()
-	const router = useRouter();
 
 	const closeSession = () => {
 		localStorage.removeItem('accessToken');
 		localStorage.removeItem('userInfo');
-		router.push('/login');
 	};
 
 
@@ -51,9 +48,9 @@ const AuthenticatedHeader = ({ onClickOpenSidebar }) => {
 											</div>
 										</MenuItem>
 										<MenuItem>
-											<div onClick={closeSession} className="cursor-pointer block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900">
+											<a href='/login' onClick={closeSession} className="cursor-pointer block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900">
 												Salir
-											</div>
+											</a>
 										</MenuItem>
 									</div>
 								</MenuItems>

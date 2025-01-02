@@ -16,6 +16,7 @@ import useCRUDModals from "@/app/hooks/useCRUDModals";
 import { evaluarEncuesta, formatDate } from "@/app/utils/utils";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
+import { removeEvaluationEjecutivoVentasCoorporativo } from "@/app/services/ordenes-pagos/iso/isoEvaluacionesService";
 
 export default function OrdenesPagoEvaluacionesEjecutivoVentasCoorporativo() {
   const { 
@@ -26,10 +27,13 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentasCoorporativo() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("ejecutivo venta coorporativo")
-  const evaluacionesEjecutivoVentasCoorporativo = useIsoEvaluacionEjecutivoVentasCoorporativo()
+  const {isoEvaluacionesVentasCoorporativo, fetchIsoEvaluacionesVentasCoorporativo} = useIsoEvaluacionEjecutivoVentasCoorporativo()
+
 
   const handleOnDelete = async () => {
-    //TODO
+    await removeEvaluationEjecutivoVentasCoorporativo(selectedEntity.id);
+    changeAlertStatusAndMessage(true, 'success', 'Evaluación de ejecutivo de ventas corporativo eliminada exitosamente!');
+    await fetchIsoEvaluacionesVentasCoorporativo();
   }
 
   const getResultado = row => {
@@ -86,7 +90,7 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentasCoorporativo() {
       actionColumn
     ];
     return newColumns;
-  }, [evaluacionesEjecutivoVentasCoorporativo]); 
+  }, [isoEvaluacionesVentasCoorporativo]); 
 
   return (
   <Container>
@@ -97,7 +101,7 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentasCoorporativo() {
         <Table
           className="shadow"
           columns={columns}
-          data={evaluacionesEjecutivoVentasCoorporativo}
+          data={isoEvaluacionesVentasCoorporativo}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -106,7 +110,7 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentasCoorporativo() {
     </div>
     <ModalCreateCourse {...createModalProps} />
     <ModalCreateCourse course={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <GenericModalDelete id={selectedEntity?.id} onDelete={handleOnDelete} label="la evaluación de ejecutivo de ventas corporativo" {...deleteModalProps}/>
   </Container>
   )
 }

@@ -5,6 +5,7 @@ export default function TableActionButton({ actionIcon, onClick, tooltipText }) 
   return (
     <>
       <button
+        type='button'
         onClick={onClick}
         className="p-1 mx-1 transform hover:scale-110"
         data-tooltip-id="my-tooltip" 

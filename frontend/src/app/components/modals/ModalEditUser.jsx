@@ -1,5 +1,5 @@
 "use client"
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Modal from "./modal"
 import { Formik, Form } from 'formik';
 import FormikStyledField from "../form/FormikStyledField";
@@ -9,12 +9,10 @@ import FormikStyledRadio from "../form/FormikStyledRadio";
 import SecondaryButton from "../buttons/secondaryButton";
 import { updateUser } from "@/app/services/userService";  // Aquí asumo que tienes un servicio para actualizar usuarios
 import CommonLabel from "../commonLabel";
-import useClients from "@/app/hooks/useClients";
 import { Context } from "@/app/context/Context";
 import { createUserValidationSchema } from "@/app/validationSchemas/createUserValidationSchema"; // Asumo que la validación es similar
 
 export default function ModalEditUser({ user, cleanSelectedUser, ...props }) {
-  const clients = useClients();
   const { fetchUsers, changeAlertStatusAndMessage } = useContext(Context);
 
   const documentTypes = [
@@ -23,15 +21,11 @@ export default function ModalEditUser({ user, cleanSelectedUser, ...props }) {
   ];
 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
-    if (values.clientId == undefined || values.clientId == 'no-selected') {
-      values.client = CLIENT_AGENCY_ID;
-    } else {
-      values.clientId = clients.find(client => client.businessName === values.clientId).id;
-    }
-
-    values.role = `ROLE_${values.role}`;
     values.inactive = values.inactive === 'true';
     delete values.passwordConfirmation;
+    if (values.password == '') {
+      delete values.password
+    }
 
     // Llamada a la función de actualizar usuario
     await updateUser(user.id, values);
@@ -55,14 +49,13 @@ export default function ModalEditUser({ user, cleanSelectedUser, ...props }) {
           document: user.document,
           email: user.email,
           phones: user.phones,
-          clientId: user.clientId || "no-selected",
-          role: user.role ? user.role.replace("ROLE_", "") : PROFILES_VALUES.UNASSIGNED,
+          client: user?.client?.id || "no-selected",
+          role: user.profile ? user.profile.role.replace("ROLE_", "") : PROFILES_VALUES.UNASSIGNED,
           username: user.username,
           password: "", // No mostramos la clave actual
           passwordConfirmation: "",
           inactive: user.inactive ? "true" : "false",
         }}
-        validationSchema={createUserValidationSchema}
         onSubmit={onSubmit}
       >
         {({ isSubmitting }) => (
@@ -80,21 +73,12 @@ export default function ModalEditUser({ user, cleanSelectedUser, ...props }) {
 
             <FormikStyledField className="mb-4" name="email" label="Email" type="email" />
             <FormikStyledField className="mb-4" name="phones" label="Teléfonos" />
-            <FormikStyledSelect
-              className="mb-4"
-              name="clientId"
-              label="Cliente"
-              options={clients}
-              placeholder="Seleccionar"
-              getOptionLabel={(client) => client.businessName}
-            />
-            <FormikStyledSelect className="mb-4" name="role" label="Perfil" options={PROFILES} />
             <FormikStyledField className="mb-4" name="username" label="Usuario" />
             <FormikStyledField className="mb-4" name="password" label="Clave (dejar en blanco si no se va a cambiar)" type="password" />
             <FormikStyledField className="mb-4" name="passwordConfirmation" label="Confirmar clave" type="password" />
             <FormikStyledRadio className="mb-4" name="inactive" label="Inactivo" options={[{ label: "Si", value: "true" }, { label: "No", value: "false" }]} />
             <div className="w-full flex justify-end">
-              <SecondaryButton type="submit" actionText="Editar Usuario" disabled={isSubmitting} />
+              <SecondaryButton type="submit" actionText="Guardar cambios" disabled={isSubmitting} />
             </div>
           </Form>
         )}

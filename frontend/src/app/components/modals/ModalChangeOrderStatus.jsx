@@ -10,10 +10,43 @@ import OrderColor from "../orderColor"
 import PrimaryButton from "../buttons/primaryButton"
 import SecondaryButton from "../buttons/secondaryButton"
 import { STATUS_NAME_TO_ID } from "@/app/utils/utils"
+import { useContext } from "react"
+import { Context } from "@/app/context/Context"
 
-export default function ModalChangeOrderStatus({ order, ...props }) {
-
+export default function ModalChangeOrderStatus({ order, onChangeOrder, ...props }) {
+  const { authorizeOrder, rejectOrder, closeOrder, cancelOrder, openOrder } = useContext(Context)
   const userData = useAuth()
+
+  const handleAuthorizeOrder = async () => {
+    const updatedOrder = await authorizeOrder(order)
+    onChangeOrder(updatedOrder)
+    props.close()
+  }
+
+  const handleRejectOrder = async () => {
+    const updatedOrder = await rejectOrder(order)
+    onChangeOrder(updatedOrder)
+    props.close()
+  }
+
+  const handleCloseOrder = async () => {
+    const updatedOrder = await closeOrder(order)
+    onChangeOrder(updatedOrder)
+    props.close()
+  }
+
+  const handleCancelOrder = async () => {
+    const updatedOrder = await cancelOrder(order)
+    onChangeOrder(updatedOrder)
+    props.close()
+  }
+
+  const handleOpenOrder = async () => {
+    const updatedOrder = await openOrder(order)
+    onChangeOrder(updatedOrder)
+    props.close()
+  }
+
 
   const canUserAuthorizeOrder = () => userData.isAuthorizer && order.statusId == STATUS_NAME_TO_ID.OPEN
   const canUserOpenOrder = () => (userData.isAuthorizer || userData.isApplicant) && (order.statusId == STATUS_NAME_TO_ID.REJECTED || order.statusId == STATUS_NAME_TO_ID.REJECTED_FROM_OPEN)
@@ -57,11 +90,11 @@ export default function ModalChangeOrderStatus({ order, ...props }) {
           </div>
         </div>
         <div className="w-full mt-2 grid grid-cols-1 gap-4">
-          <SecondaryButton className={`w-full ${canUserAuthorizeOrder() ? "" : "hidden"}`} actionText={"Autorizar"} />
-          <SecondaryButton className={`w-full ${canUserRejectOrder() ? "" : "hidden"}`} actionText={"Rechazar"} />
-          <SecondaryButton className={`w-full ${canUserCloseOrder() ? "" : "hidden"}`} actionText={"Cerrar"} />
-          <SecondaryButton className={`w-full ${canUserCancelOrder() ? "" : "hidden"}`} actionText={"Anular"} />
-          <SecondaryButton className={`w-full ${canUserOpenOrder() ? "" : "hidden"}`} actionText={"Anular"} />
+          <SecondaryButton className={`w-full ${canUserAuthorizeOrder() ? "" : "hidden"}`} actionText={"Autorizar"} onClick={() => handleAuthorizeOrder(order)} />
+          <SecondaryButton className={`w-full ${canUserRejectOrder() ? "" : "hidden"}`} actionText={"Rechazar"} onClick={() => handleRejectOrder(order)} />
+          <SecondaryButton className={`w-full ${canUserCloseOrder() ? "" : "hidden"}`} actionText={"Cerrar"} onClick={() => handleCloseOrder(order)} />
+          <SecondaryButton className={`w-full ${canUserCancelOrder() ? "" : "hidden"}`} actionText={"Anular"} onClick={() => handleCancelOrder(order)} />
+          <SecondaryButton className={`w-full ${canUserOpenOrder() ? "" : "hidden"}`} actionText={"Abrir"} onClick={() => handleOpenOrder(order)} />
         </div>
       </div>
     }

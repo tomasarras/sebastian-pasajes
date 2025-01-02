@@ -6,14 +6,62 @@ import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreateOperator";
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
-import Table from "@/app/components/table";
+import Table from "@/app/components/table/ordenes-pago";
+import { Context } from "@/app/context/OPContext";
+import useFilterModal from "@/app/hooks/ordenes-pagos/useFilterModal";
 import useProviders from "@/app/hooks/ordenes-pagos/useProviders";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
+import { FILTER_MODAL_FIELD_TYPE } from "@/app/utils/constants";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+
+const additionalColumnsForExcel = [
+  {
+    name: "CBU",
+    selector: row => "CBU: " + row?.cBU,
+    hidden: true,
+  },
+  {
+    name: "EMail",
+    selector: row => row.eMail,
+    hidden: true,
+  },
+  {
+    name: 'CUIT',
+    sortable: true,
+    searchable: false,
+    selector: row => row.tipoIdentificacion + ": " + row.identificacion,
+    hidden: true,
+  },
+  {
+    name: "Alta",
+    selector: row => row?.fechaAlta,
+    hidden: true,
+  },
+  {
+    name: "Baja",
+    selector: row => row?.fechaBaja !== '0000-00-00' ? row.fechaBaja : "",
+    hidden: true,
+  },
+]
+
+const filterFields = [
+  {
+    label: "Nombre",
+    name: "Nombre",
+    type: FILTER_MODAL_FIELD_TYPE.INPUT,
+  },
+]
 
 export default function OrdenesPagoOperadores() {
-  const providers = useProviders()
+  const [filters, setFilters] = useState(null)
+  const [providers, setProviders] = useState([])
+  const handleOnSubmitFilter = async (filters) => {
+    setFilters(filters)
+  }
+  const { fetchProviders, deleteProvider } = useContext(Context)
+  const { onOpenFilterModal, filterModal } = useFilterModal({ fields: filterFields, entityName: "operador", onApplyFilter: handleOnSubmitFilter })
+  const defaultProviders = useProviders()
   const { 
     mainHeaderProps,
     createModalProps,
@@ -22,17 +70,24 @@ export default function OrdenesPagoOperadores() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("operador")
-  const operators = [{
-    id: '000206',
-    name: "Aero SRL",
-    razonSocial: 'Aero SRL',
-    cuit: '30-70736214-2',
-    cbu: '0720099120000000252818',
-    
-  }]
+
+  const fetchData = async () => {
+    if (filters == null) {
+      setProviders(defaultProviders)
+    } else {
+      const providers = await fetchProviders(filters)
+      setProviders(providers)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+
+  }, [filters, defaultProviders])
+  
 
   const handleOnDelete = async () => {
-    //TODO
+    deleteProvider(selectedEntity.id)
   }
 
   const columns = useMemo(() => {
@@ -60,6 +115,7 @@ export default function OrdenesPagoOperadores() {
         sortable: true,
         searchable: false,
         selector: row => row.identificacion,
+        noExportableColumn: true,
       },
       {
         name: 'CBU',
@@ -67,7 +123,8 @@ export default function OrdenesPagoOperadores() {
         searchable: false,
         selector: row => row.cBU,
       },
-      actionColumn
+      actionColumn,
+      ...additionalColumnsForExcel,
     ];
     return newColumns;
   }, [providers]); 
@@ -75,7 +132,7 @@ export default function OrdenesPagoOperadores() {
   return (
   <Container>
     <div className="shadow rounded-lg bg-white p-2 md:p-4">
-      <MainHeader mainTitle="Operadores" {...mainHeaderProps} />
+      <MainHeader onOpenFilterModal={onOpenFilterModal} mainTitle="Operadores" {...mainHeaderProps} />
       <hr/>
       <div className="py-8 md:py-16">
         <Table
@@ -90,7 +147,8 @@ export default function OrdenesPagoOperadores() {
     </div>
     <ModalCreateOperator {...createModalProps} />
     <ModalCreateOperator operator={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.nombre} {...deleteModalProps}/>
+    {filterModal}
   </Container>
   )
 }

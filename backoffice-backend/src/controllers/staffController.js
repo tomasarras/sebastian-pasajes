@@ -164,6 +164,31 @@ export default {
   },
 
   /**
+   * /staff/licences/year [POST]
+   * @returns 200 with @StaffLicence
+   */
+  newLicenceByYear: async (req, res, next) => {
+    try {
+      const licence = await staffService.newLicenceByYear(toPascalCaseRelations(req.body));
+      res.status(200).json(toLowerCaseRelations(licence));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /staff/licences/year/{id} [DELETE]
+   */
+  deleteLicenceByYear: async (req, res, next) => {
+    try {
+      const licence = await staffService.deleteLicenceByYear(req.params.id);
+      res.status(200).json(toLowerCaseRelations(licence));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /staff/licences/{id} [DELETE]
    * @returns 204
    */
@@ -251,6 +276,15 @@ export default {
     try {
       const deletedStaff = await staffService.deleteById(req.params.id);
       res.status(200).json(toLowerCaseRelations(deletedStaff));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  getById: async (req, res, next) => {
+    try {
+      const staff = await staffService.getById(req.params.id);
+      res.status(200).json(toLowerCaseRelations(staff));
     } catch (e) {
       next(e);
     }

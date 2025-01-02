@@ -11,5 +11,5 @@ export default function useIsoEvaluacionAdministrativo() {
       fetchIsoEvaluacionesAdministrativo()
   }, [])
   
-  return isoEvaluacionesAdministrativo
+  return {isoEvaluacionesAdministrativo, fetchIsoEvaluacionesAdministrativo}
 }

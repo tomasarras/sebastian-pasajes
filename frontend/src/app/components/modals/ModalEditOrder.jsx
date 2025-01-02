@@ -132,8 +132,8 @@ export default function ModalEditOrder({ order, cleanSelectedOrder, ...props }) 
             </Section>
             <Section title="Datos del boleto">
               <FormikStyledRadio className="mb-4" name="transportType" label="Transporte" options={[{ label: "Avión", value: "Avion" }, { label: "Omnibus", value: "Omnibus" }]} />
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="flex flex-col">
+              <div className="grid gap-4">
+                <div className="grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="text-center"><h3 className="text-black mb-2">Ida</h3></div>
                   <FormikStyledField className="mb-4" name="departureDateFrom" label="Desde" />
                   <FormikStyledField className="mb-4" name="departureDateUntil" label="Hasta" />
@@ -147,7 +147,7 @@ export default function ModalEditOrder({ order, cleanSelectedOrder, ...props }) 
                   </div>
                   <FormikStyledField name="departureDateHour" label="Hora" />
                 </div>
-                <div className="flex flex-col">
+                <div className="grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="text-center"><h3 className="text-black mb-2">Regreso</h3></div>
                   <FormikStyledField className="mb-4" name="returnDateFrom" label="Desde" />
                   <FormikStyledField className="mb-4" name="returnDateUntil" label="Hasta" />

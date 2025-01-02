@@ -1,6 +1,7 @@
 "use client"
 
 import { Context } from "@/app/context/OPContext";
+import { ISO_NC_STATUS_IDS } from "@/app/utils/constants";
 import { useContext, useEffect } from "react";
 
 export default function useIsoNcs() {
@@ -8,8 +9,10 @@ export default function useIsoNcs() {
 
   useEffect(() => {
     if (!alreadyFetchedIsoNcs)
-      fetchIsoNcs()
+      fetchIsoNcs({
+        IdEstado: ISO_NC_STATUS_IDS.OPEN
+      })
   }, [])
   
-  return isoNcs
+  return { isoNcs, fetchIsoNcs }
 }

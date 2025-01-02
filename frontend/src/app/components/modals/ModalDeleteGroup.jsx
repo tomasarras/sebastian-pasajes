@@ -1,11 +1,10 @@
 "use client"
 import React, { useContext } from "react";
 import Modal from "./modal"
-import { deleteGroup } from "@/app/services/groupService";
 import { Context } from "../../context/Context";
 
 export default function ModalDeleteGroup({ group, cleanSelectedGroup, ...props }) {
-  const { changeAlertStatusAndMessage, fetchGroups } = useContext(Context);
+  const { changeAlertStatusAndMessage, fetchGroups, deleteGroup } = useContext(Context);
 
   const handleOnDelete = async () => {
     await deleteGroup(group.id);

@@ -4,9 +4,8 @@ import Container from "../components/Container";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MainHeader from "../components/MainHeader";
-import { deleteClient } from "@/app/services/clientService";
+import { deleteClient, downloadExcel } from "@/app/services/clientService";
 import { tableCustomStyles } from "../../../utils";
-import { createClient, editClient } from "@/app/services/clientService";
 import Table from "../components/table";
 import useModal from "../hooks/useModal";
 import ModalCreateClient from "../components/modals/ModalCreateClient";
@@ -18,6 +17,8 @@ import { Context } from "../context/Context";
 import AddItemButton from "../components/buttons/addItemButton";
 import FilterClientsModal from "../components/modals/FilterClientsModal";
 import TableFilters from "../components/table/tableFilters";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ExportToExcelButton from "../components/buttons/exportToExcelButton";
 
 export default function Clientes() {
   const clients = useClients();
@@ -28,7 +29,7 @@ export default function Clientes() {
   const [selectedClient, setSelectedClient] = useState(null)
   const [filterOptions, setFilterOptions] = useState(null)
   const [filteredClients, setFilteredClients] = useState(null)
-  const { fetchClients } = useContext(Context)
+  const { fetchClients, createClient, editClient } = useContext(Context)
 
   const openDeleteModal = (client) => {
     setSelectedClient(client);
@@ -47,22 +48,22 @@ export default function Clientes() {
     editClientModal.open();
   }
 
-  const updateFiterClients = async () => {
-    const data = await fetchClients(filterOptions)
-    console.log("receibed", data, filterOptions);
+  const updateFiterClients = async () => {    
+    const parsedFilters = { ...filterOptions }
+    if (parsedFilters.locationId) {
+      parsedFilters.locationId = parsedFilters.locationId.value
+    }
+    if (parsedFilters.groupId) {
+      parsedFilters.groupId = parsedFilters.groupId.value
+    }
+    const data = await fetchClients(parsedFilters)
     setFilteredClients(data)
   }
   
   useEffect(() => {
     updateFiterClients()
-  }, [filterOptions])
-
-  useEffect(() => {
-    console.log("df", filteredClients);
-  }, [filteredClients])
+  }, [filterOptions])  
   
-  
-
   const columns = useMemo(() => {
     const newColumns = [
       {
@@ -102,6 +103,14 @@ export default function Clientes() {
     return newColumns;
   }, [clients]); 
 
+  const handleExcelExport = async () => {
+    try {
+      await downloadExcel(filterOptions);
+    } catch (error) {
+      console.error('Error al exportar a Excel:', error);
+    }
+  };
+
   return (
     <>
         <Container>
@@ -124,6 +133,9 @@ export default function Clientes() {
                     responsive
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                   />
+                  <div className="mt-4 flex justify-end gap-2">
+                    <ExportToExcelButton onClick={handleExcelExport}/>
+                  </div>
                 </div>
             </div>
         </Container>

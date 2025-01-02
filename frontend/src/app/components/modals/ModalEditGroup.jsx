@@ -5,12 +5,11 @@ import { Formik, Form } from 'formik';
 import FormikStyledField from "../form/FormikStyledField";
 import SecondaryButton from "../buttons/secondaryButton";
 import { createGroupValidationSchema } from "@/app/validationSchemas/createGroupValidationSchema";
-import { editGroup } from "@/app/services/groupService";
 import { Group } from "@mui/icons-material";
 import { Context } from "../../context/Context";
 
 export default function ModalEditGroup({group, cleanSelectedGroup, ...props}) {
-  const { changeAlertStatusAndMessage, fetchGroups } = useContext(Context);
+  const { changeAlertStatusAndMessage, fetchGroups, editGroup } = useContext(Context);
   
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
     await editGroup(group.id, values.name);
@@ -36,7 +35,7 @@ export default function ModalEditGroup({group, cleanSelectedGroup, ...props}) {
         <Form className="mt-4">
           <FormikStyledField className="mb-4" name="name" label="Nombre" />
           <div className="w-full flex justify-end">
-            <SecondaryButton className="w-full" type="submit" actionText="Editar Grupo" disabled={isSubmitting}/>
+            <SecondaryButton className="w-full" type="submit" actionText="Guardar cambios" disabled={isSubmitting}/>
           </div>
         </Form>
       )}

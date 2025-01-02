@@ -1,19 +1,81 @@
 "use client"
-import CommonInput from "@/app/components/commonInput";
 import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
-import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreateOperator";
-import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
-import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
-import Table from "@/app/components/table";
+import ModalCreateClient from "@/app/components/modals/ordenes-pagos/ModalCreateClient";
+import Table from "@/app/components/table/ordenes-pago";
 import useClients from "@/app/hooks/ordenes-pagos/useClients.jsx";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
-import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
+import * as clientsService from '../../services/ordenes-pagos/clientsService'
+import { Context } from "@/app/context/OPContext";
+
+const additionalColumnsForExcel = [
+  {
+    name: "Nombre Fantasía",
+    selector: row => row?.apellido,
+    hidden: true,
+  },
+  {
+    name: "Alta",
+    selector: row => row?.fechaAlta,
+    hidden: true,
+  },
+  {
+    name: "Baja",
+    selector: row => row?.fechaBaja !== '0000-00-00' ? row.fechaBaja : '',
+    hidden: true,
+  },
+  {
+    name: "Identificación",
+    selector: row => row?.tipoIdentificacion + ": " + row?.identificacion,
+    hidden: true,
+  },
+  {
+    name: "Cond.IVA",
+    selector: row => row?.condicionIva?.nombre,
+    hidden: true,
+  },
+  {
+    name: "Dirección",
+    selector: row => row?.direccion,
+    hidden: true,
+  },
+  {
+    name: "Provincia",
+    selector: row => row?.provincia,
+    hidden: true,
+  },
+  {
+    name: "CP",
+    selector: row => row?.cP,
+    hidden: true,
+  },
+  {
+    name: "EMail",
+    selector: row => row?.email,
+    hidden: true,
+  },
+  {
+    name: "Actividad",
+    selector: row => row?.actividad?.nombre,
+    hidden: true,
+  },
+  {
+    name: "Observaciones",
+    selector: row => row?.obs,
+    hidden: true,
+  },
+  // {//TODO: hacer en algun momento (no en este sprint, es largo se tiene que devolver del back)
+  //   name: "Teléfonos",
+  //   selector: row => row?.email,
+  //   hidden: true,
+  // },
+]
 
 export default function OrdenesPagoClientes() {
   const clients = useClients()
+  const { deleteClient } = useContext(Context)
 
   const { 
     mainHeaderProps,
@@ -26,7 +88,7 @@ export default function OrdenesPagoClientes() {
   
 
   const handleOnDelete = async () => {
-    //TODO
+    deleteClient(selectedEntity.id)
   }
 
   const columns = useMemo(() => {
@@ -54,6 +116,7 @@ export default function OrdenesPagoClientes() {
         sortable: true,
         searchable: false,
         selector: row => row.identificacion,
+        noExportableColumn: true,
       },
       {
         name: 'Localidad',
@@ -67,7 +130,8 @@ export default function OrdenesPagoClientes() {
         searchable: false,
         selector: row => row?.condicionIva?.nombre,
       },
-      actionColumn
+      actionColumn,
+      ...additionalColumnsForExcel,
     ];
     return newColumns;
   }, [clients]); 
@@ -88,9 +152,9 @@ export default function OrdenesPagoClientes() {
         />
       </div>
     </div>
-    <ModalCreateOperator {...createModalProps} />
-    <ModalCreateOperator operator={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <ModalCreateClient {...createModalProps} />
+    <ModalCreateClient client={selectedEntity} {...editModalProps} />
+    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.nombre} {...deleteModalProps}/>
   </Container>
   )
 }

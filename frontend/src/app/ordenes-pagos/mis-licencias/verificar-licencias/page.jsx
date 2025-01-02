@@ -77,6 +77,7 @@ export default function OrdenesPagosVerificarLicencias() {
 				title="Licencias"
 				className="shadow"
 				columns={columns}
+				noDataComponent="No hay licencias"
 				data={data}
 				striped
 				responsive

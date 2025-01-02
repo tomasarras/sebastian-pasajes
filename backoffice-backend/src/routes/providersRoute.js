@@ -6,9 +6,9 @@ import { USER_PROFILES } from "../utils/constants.js";
 
 const router = express.Router();
 
-router.get("/", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENDEDOR]), controller.getAll);
-router.post("/", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER]), controller.create);
-router.put("/:id", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER]), controller.update);
-router.delete("/:id", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER]), controller.deleteById);
+router.get("/", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENDEDOR, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.getAll);
+router.post("/", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.create);
+router.put("/:id", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.update);
+router.delete("/:id", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.deleteById);
 
 export default router;

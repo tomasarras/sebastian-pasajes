@@ -13,6 +13,10 @@ const order = (sequelize) => {
       allowNull: false,
       field: 'client_id'
     },
+    email: {
+      type: DataTypes.STRING(255),
+      field: 'email'
+    },
     number: {
       type: DataTypes.INTEGER,
       allowNull: false

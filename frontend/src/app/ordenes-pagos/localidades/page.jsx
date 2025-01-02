@@ -4,7 +4,7 @@ import CommonInput from "@/app/components/commonInput";
 import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
-import Table from "@/app/components/table";
+import Table from "@/app/components/table/ordenes-pago";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
@@ -12,16 +12,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import ModalCreateLocality from "@/app/components/ordenes-pago/modals/ModalCreateLocality";
 import useProvinces from "@/app/hooks/ordenes-pagos/useProvinces";
+import useLocations from "@/app/hooks/ordenes-pagos/useLocations";
 
 export default function OrdenesPagoLocalidades() {
   const provinces = useProvinces()
-  const [localities, setLocalities] = useState([])
-
-  useEffect(() => {
-    let localities = []
-    provinces.forEach(province => localities = [...localities, ...province.localidades])
-    setLocalities(localities)
-  }, [provinces])
+  const localities = useLocations()
   
   const { 
     mainHeaderProps,

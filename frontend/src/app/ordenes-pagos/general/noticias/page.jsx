@@ -19,7 +19,7 @@ export default function OrdenesPagoNoticias() {
     currentNew.urgente = currentNew.urgente ? 'S' : 'N' 
 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
-    values.urgente = values.urgente === 'S'
+    values.urgente = values.urgente === 'S'    
     await updateCurrentNew(values)
     changeAlertStatusAndMessage(true, 'success', 'Noticia actualizada exitosamente!');
     setSubmitting(false)

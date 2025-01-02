@@ -15,6 +15,7 @@ import useCRUDModals from "@/app/hooks/useCRUDModals";
 import { formatDate } from "@/app/utils/utils";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
+import { remove } from "@/app/services/ordenes-pagos/iso/isoIndicadoresService";
 
 export default function OrdenesPagoIndicadores() {
   const { 
@@ -25,10 +26,12 @@ export default function OrdenesPagoIndicadores() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("indicador")
-  const indicadores = useIsoIndicadores()
+  const {isoIndicadores, fetchIsoIndicadores} = useIsoIndicadores()
 
   const handleOnDelete = async () => {
-    //TODO
+    await remove(selectedEntity.id);
+    changeAlertStatusAndMessage(true, 'success', 'Indicador eliminado exitosamente!');
+    await fetchIsoIndicadores();
   }
 
   const columns = useMemo(() => {
@@ -54,7 +57,7 @@ export default function OrdenesPagoIndicadores() {
       actionColumn
     ];
     return newColumns;
-  }, [indicadores]); 
+  }, [isoIndicadores]); 
 
   return (
   <Container>
@@ -65,7 +68,7 @@ export default function OrdenesPagoIndicadores() {
         <Table
           className="shadow"
           columns={columns}
-          data={indicadores}
+          data={isoIndicadores}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -74,7 +77,7 @@ export default function OrdenesPagoIndicadores() {
     </div>
     <ModalCreateCourse {...createModalProps} />
     <ModalCreateCourse course={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <GenericModalDelete id={selectedEntity?.id} onDelete={handleOnDelete} label="el indicador" {...deleteModalProps}/>
   </Container>
   )
 }

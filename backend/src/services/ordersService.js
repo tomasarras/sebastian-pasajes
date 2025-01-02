@@ -2,6 +2,7 @@ import { Op, fn, col } from 'sequelize';
 import { Client, Order, Status, User, Company, Passenger } from "../db/index.js"
 import { AGENCY_CLIENT_ID, CLIENTS_GROUPS, PASSENGER_TYPES, ROLES, ROLES_VALUES, STATUSES, STATUSES_VALUES } from "../utils/constants.js";
 import { filterAttributes, replacePlaceholders, stringifyDate } from "../utils/functions.js";
+import PDFDocument from 'pdfkit'
 import { sendEmail } from './emailService.js';
 import fs from 'fs'
 import path from 'path'
@@ -9,6 +10,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const newOrderAdminTemplatePath = path.join(__dirname, '../', 'mail', 'new_order_admin_template.html');
+const logoPath = path.join(__dirname, '../', 'assets', 'Logo2.jpg');
 const newOrderClientTemplatePath = path.join(__dirname, '../', 'mail', 'new_order_client_template.html');
 const authorizedOrderAdminTemplatePath = path.join(__dirname, '../', 'mail', 'authorized_order_admin_template.html');
 const reopenOrderTemplatePath = path.join(__dirname, '../', 'mail', 'reopen_order_template.html');
@@ -48,8 +50,13 @@ fs.readFile(newOrderClientTemplatePath, 'utf8', (err, data) => {
 async function createPassangerIfNotExists(passenger) {
     passenger.id = 0
     const { documentType, document, clientId } = passenger
-    const count = await Passenger.count({ where: { documentType, document, clientId  } });
-    if (count > 0) return
+    const p = await Passenger.findOne({ where: { documentType, document, clientId  } });
+    if (p && p.email == '' && passenger.email && passenger.email != '') { // Existe pasajero y no tiene email, se lo agrego
+        p.email = passenger.email
+        p.save()
+        return
+    }
+    if (p) return // Existe pasajero con un email, no lo creo
     const createdPassenger = await Passenger.create(passenger)
     return createdPassenger
 }
@@ -87,8 +94,8 @@ const getNewOrderValues = (orderParam, clientId) => {
         const { observationAgent, companies, tickets, issueDate, price } = orderParam;
         return { observationAgent, companies, tickets, issueDate, price };
     } else {
-        const { observations, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureFrom, departureTo, departureDate, departureDateHour, returnFrom, returnTo, returnDate, returnDateHour } = orderParam;
-        return { observations, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureFrom, departureTo, departureDate, departureDateHour, returnFrom, returnTo, returnDate, returnDateHour };
+        const { observations, email, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureFrom, departureTo, departureDate, departureDateHour, returnFrom, returnTo, returnDate, returnDateHour } = orderParam;
+        return { observations, email, derivations, firstName, lastName, documentType, document, nationality, phones, birthdate, transportType, departureFrom, departureTo, departureDate, departureDateHour, returnFrom, returnTo, returnDate, returnDateHour };
     }
 };
 
@@ -209,7 +216,7 @@ export const create = async (orderParam, user) => {
             id: createdOrder.id,
         }
         const html = replacePlaceholders(placeholders, newOrderAdminTemplateHtml)
-        sendEmail(email, subject, html, text)
+        //sendEmail(email, subject, html, text) // envio de email al crear desactivado a pedido de Nicolas. Descomentar esta linea para enviar.
         passenger.clientId = user.client.id
         passenger.registrationDate = orderParam.registrationDate
         createPassangerIfNotExists(passenger);
@@ -238,15 +245,122 @@ export const create = async (orderParam, user) => {
             fatherOrder.save()
         }
     }
-    return createdOrder.get({ plain: true })
+    const or = await getById(createdOrder.id)
+    return completeOrderData(or)
 };
 
 export const update = async (orderId, orderParam, user) => {
     const newOrderValues = getNewOrderValues(orderParam, user.client.id);
     await Order.update(newOrderValues, { where: { id: orderId } });
-    const updatedOrder = await Order.findByPk(orderId)
-    return updatedOrder.get({ plain: true })
+    const updatedOrder = await getById(orderId)
+    return completeOrderData(updatedOrder)
 };
+
+export const downloadPdf = async (orderId, res) => {
+    try {
+        const order = await getById(orderId)
+        const solicitante = await User.findByPk(order.applicantUserId, { attributes: ['firstName', 'lastName'] });
+        const autorizante = await User.findByPk(order.authorizerUserId, { attributes: ['firstName', 'lastName'] });
+
+        const pdf = new PDFDocument({ margin: 25 });
+        pdf.pipe(res);
+
+        // Encabezado
+        pdf.rect(23, 12, 570, 80).stroke();
+        pdf.image(logoPath, 30, 14, { width: 150 });
+        pdf.font('Helvetica-Bold').fontSize(14).text('ORDEN DE PASAJE', { align: 'center' });
+
+        pdf.font('Helvetica-Bold').fontSize(10)
+            .text(`${order.Client?.businessName || ''}`, { align: 'right' })
+            .text(`N°: ${order.number.toString().padStart(6, '0')}`, { align: 'right' });
+
+        pdf.text(`Fecha: ${formatDate(order.registrationDate)}`, { align: 'right' });
+        pdf.font('Helvetica')
+            .text(`Rogamos emitir pasaje según los siguientes datos:`, { align: 'left' });
+
+        pdf.moveDown();
+        pdf.rect(23, 93, 570, 80).stroke();
+        pdf.font('Helvetica-Bold').text('Datos del Pasajero:', { underline: true });
+        pdf.font("Helvetica");
+        
+        let col1LeftPos = 25;
+        let colTop = 125;
+        let colWidth = 250;
+        let col2Width = colWidth + 50;
+        let col2LeftPos = colWidth + col1LeftPos + 40;
+        pdf.text(`Apellido y Nombres:        ${order.lastName} ${order.firstName}`, col1LeftPos, colTop, {width: colWidth})
+        pdf.text(`Tipo:                               ${order.passengerType == 'holder' ? 'Titular' : 'Acompañante'}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(`${order.documentType}:                                 ${order.document}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Nacionalidad:                 ${order.nationality}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(`Teléfono de Contacto:     ${order.phones}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Fecha de Nacimiento:    ${formatDate(order.birthdate)} - ${calculateAge(order.birthdate)} años`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(``, 25, colTop);
+        pdf.moveDown();
+        colTop = 184;
+        col2LeftPos = colWidth + col1LeftPos + 40;
+        pdf.font('Helvetica-Bold').text('Datos del Boleto:', col1LeftPos, colTop, { width: colWidth, underline: true });
+        pdf.font("Helvetica").text(`Tipo:                               ${order.transportType}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(`Ida Desde:                      ${order.departureFrom || ''}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Ida Fecha:                      ${formatDate(order.departureDate)}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(`Ida Hasta:                       ${order.departureTo || ''}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Ida Hora:                        ${order.departureDateHour || ''}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(`Regreso Desde:              ${order.returnFrom || ''}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Regreso Fecha:             ${formatDate(order.returnDate)}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        pdf.text(`Regreso Hasta:               ${order.returnTo || ''}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Regreso Hora:               ${order.returnDateHour || ''}`, col2LeftPos, colTop, {width: col2Width});
+        colTop += 16
+        colTop += 8
+        pdf.rect(23, 173, 570, 90).stroke();
+        pdf.text(``, 25, colTop);
+        pdf.moveDown();
+        pdf.font("Helvetica-Bold").text('Observaciones:', col1LeftPos, colTop, { width: 100, underline: true });
+        pdf.font("Helvetica").text(order.observations || 'Sin observaciones.', 135, colTop);
+        pdf.rect(23, 263, 570, 75).stroke();
+        
+        colTop += 72
+        pdf.font('Helvetica-Bold').text('Datos del Solicitante:', col1LeftPos, colTop, { underline: true });
+        colTop += 16
+        pdf.font('Helvetica')
+        pdf.text(`Apellido y Nombres:        ${solicitante ? `${solicitante.lastName} ${solicitante.firstName}` : ''}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Deriv./Exped.: ${order.derivations || ''}`, col2LeftPos, colTop, {width: colWidth});
+        pdf.rect(23, 338, 570, 40).stroke();
+
+        colTop += 24
+        pdf.font('Helvetica-Bold').text('Datos del Autorizante:', col1LeftPos, colTop, { underline: true });
+        pdf.font('Helvetica')
+        colTop += 16
+        pdf.text(`Apellido y Nombres:        ${autorizante ? `${autorizante.lastName} ${autorizante.firstName}` : ''}`, col1LeftPos, colTop, {width: colWidth});
+        pdf.text(`Fecha Autorización: ${formatDate(order.authorizeDate)}`, col2LeftPos, colTop, {width: colWidth});
+        pdf.rect(23, 378, 570, 40).stroke();
+        
+        colTop += 24
+        pdf.font('Helvetica-Bold').text('Para ser completado por Sebastian & Co:', col1LeftPos, colTop, { underline: true });
+        pdf.font('Helvetica')
+        pdf.text(`Empresa de Transporte: ${order.companies || ''}`);
+        pdf.text(`N° de Boleto/Tkt: ${order.tickets || ''}`);
+        pdf.text(`Fecha Emisión: ${formatDate(order.issueDate)}`);
+        pdf.text(`Total OP $: ${order.price || ''}`);
+        pdf.rect(23, 418, 570, 65).stroke();
+        
+        colTop += 64
+        pdf.font('Helvetica-Bold').text('Observaciones del Agente:', col1LeftPos, colTop, { width: colWidth, underline: true });
+        pdf.font('Helvetica')
+        pdf.text(order.observationAgent || 'Sin observaciones.', 160, colTop, { width: colWidth });
+        pdf.rect(23, colTop-4, 570, 65).stroke();
+
+        pdf.end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al generar el PDF');
+    }
+}
 
 export const getById = (orderId) => Order.findByPk(orderId, { include: [
     Client,
@@ -381,3 +495,14 @@ export const open = async (order) => {
         sendEmail(email, subject, html, text)
     }
 };
+
+function formatDate(date) {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('es-AR');
+}
+
+function calculateAge(date) {
+    if (!date) return '';
+    const diff = new Date() - new Date(date);
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+}

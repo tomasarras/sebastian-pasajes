@@ -139,13 +139,13 @@ export const getAll = async () => {
 };
 
 export const update = async (userId, userParam) => {
-    await checkUsernameAvailable(userParam.username, userId)
+	await checkUsernameAvailable(userParam.username, userId)
 	if (userParam.password) {
 		userParam.password = await hashPassword(userParam.password);
 	}
-    await User.update(userParam, { where: { id: userId }})
-    let updatedUser = await User.findByPk(userId)
-    updatedUser = updatedUser.get({ plain: true })
+	await User.update(userParam, { where: { id: userId }})
+	let updatedUser = await User.findByPk(userId)
+	updatedUser = updatedUser.get({ plain: true })
 	delete updatedUser.password
 	return updatedUser
 };

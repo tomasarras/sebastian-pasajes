@@ -8,6 +8,7 @@ import useAuth from '@/app/hooks/ordenes-pagos/useAuth'
 import useMyLicencias from '@/app/hooks/ordenes-pagos/useMyLicencias'
 import * as personalsService from '@/app/services/ordenes-pagos/personalsService'
 import Link from 'next/link'
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import React, { useContext, useEffect, useState } from 'react'
 
 const OrdenesPagosMisLicencias = () => {
@@ -53,13 +54,13 @@ const OrdenesPagosMisLicencias = () => {
       <div className="shadow rounded-lg bg-white p-2 md:p-4">
 				<CalendarYearSelector selectedYear={selectedYear} setSelectedYear={setSelectedYear}/>
 				<YearCalendar datesToHighlight={datesToHighlight} year={selectedYear} onChange={handleOnSelectLicence}/>
-				<Link href={`/ordenes-pagos/mis-licencias/verificar-licencias?personal=${auth?.idPersonal}`}>Ver dias disponibles</Link>
+				<Link className='flex items-center mt-2' href={`/ordenes-pagos/mis-licencias/verificar-licencias?personal=${auth?.idPersonal}`}>Ver dias disponibles <div className='ml-2 rounded-full bg-yellow-200 w-4 h-4 flex justify-center items-center'><QuestionMarkIcon className='w-4 h-4'/></div></Link>
 
 				
-				<p>Las licencias deben comenzar el dia lunes, en caso que sea feriado el 1º dia habil siguiente</p>
-				<p>Para seleccionar o borrar un dia, haga click en el dia correspondiente del calendario</p>
-				<p>Los dias aprobados no podrán modificarse</p>
-        <PrimaryButton className="min-w-32" actionText="Enviar pedido" onClick={sendRequest}/>
+				<p className='mt-4'>Las <span className="text-green-600">licencias</span> deben comenzar el dia <span className='font-semibold'>lunes</span>, en caso que sea feriado el 1º dia habil siguiente</p>
+				<p>Para <span className='font-semibold'>seleccionar</span> o <span className='font-semibold'>borrar</span> un dia, haga <span className="text-green-600">click</span> en el dia correspondiente del calendario</p>
+				<p>Los dias <span className="text-green-600">aprobados</span> no podrán modificarse</p>
+        <PrimaryButton className="min-w-32 mt-4" actionText="Enviar pedido" onClick={sendRequest}/>
 			</div>
     </Container>
   )

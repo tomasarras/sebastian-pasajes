@@ -13,9 +13,6 @@ export const createOrderValidationSchema = yup.object().shape({
   transportType: yup
     .string()
     .required("Especifique el tipo de transporte"),
-  derivation: yup
-    .string()
-    .required("Por favor indique este campo"),
   phones: yup
     .string()
     .required("Ingrese el telófono de contacto"),

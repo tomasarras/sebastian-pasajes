@@ -8,8 +8,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import LicencesTable from "@/app/components/table/licencesTable";
 import CalendarYearSelector from "@/app/components/ordenes-pago/calendar-year-selector/calendarYearSelector";
 import Link from "next/link";
-
-
+import PrimaryButton from "@/app/components/buttons/ordenes-pago/primaryButton";
+import * as excelService from '../../../services/ordenes-pagos/excelService'
 
 export default function OrdenesPagoLicencias() {
   const [selectedPersonal, setSelectedPersonal] = useState(null)
@@ -64,13 +64,23 @@ export default function OrdenesPagoLicencias() {
     }))
   }, [licences, selectedYear])
 
+  const requestVacationsExcel = () => {
+    excelService.exportRequestLicences(selectedPersonal.id)
+  }
+
   return (
   <Container>
     <div className="shadow rounded-lg bg-white p-2 md:p-4">
       <CalendarYearSelector selectedYear={selectedYear} setSelectedYear={setSelectedYear}/>
-      <div className="mt-2 max-w-64 my-4">
-        <label htmlFor="personal">Personal</label>
-        <SelectPersonal id='personal' name='personal' value={selectedPersonal} onChange={setSelectedPersonal} />
+      <div className="flex justify-between">
+        <div className="mt-2 max-w-64 my-4">
+          <label htmlFor="personal">Personal</label>
+          <SelectPersonal id='personal' name='personal' value={selectedPersonal} onChange={setSelectedPersonal} />
+        </div>
+        <div className="mt-4">
+          <Link href="/ordenes-pagos/mis-licencias/plan"><PrimaryButton className="min-w-32 mr-2" actionText="Exportar"/></Link>
+          <PrimaryButton disabled={selectedPersonal == null} className="min-w-32" actionText="Imprimir pedido" onClick={requestVacationsExcel}/>
+        </div>
       </div>
       <YearCalendar onChange={handleOnChange} year={selectedYear} datesToHighlight={datesToHighlight}/>
       {licencesByYear.length > 0 &&
@@ -82,9 +92,9 @@ export default function OrdenesPagoLicencias() {
       </div>
       }
       
-      <p>Para ver un empleado seleccionar el personal de la lista desplegable</p>
-      <p>Para registrar o borrar un dia, haga click en el dia correspondiente del calendario</p>
-      <p>Para exportar las vacaciones de todo el personal, hacer click en el botón Exportar Todos</p>
+      <p className="mt-2">Para ver un empleado seleccionar el <span className="text-green-600">personal</span> de la lista desplegable</p>
+      <p>Para <span className='font-semibold'>registrar</span> o <span className='font-semibold'>borrar</span> un dia, haga <span className="text-green-600">click</span> en el dia correspondiente del calendario</p>
+      <p>Para exportar las vacaciones de <span className='font-semibold'>todo</span> el personal, hacer click en el botón <span className="text-green-600">Exportar</span> </p>
     </div>
   </Container>
   )

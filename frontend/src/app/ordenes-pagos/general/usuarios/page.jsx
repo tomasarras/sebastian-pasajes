@@ -3,6 +3,7 @@ import CommonInput from "@/app/components/commonInput";
 import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
+import ModalCreateUser from "@/app/components/modals/ordenes-pagos/ModalCreateUser";
 import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreateOperator";
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
@@ -11,21 +12,40 @@ import Table from "@/app/components/table";
 import useUsers from "@/app/hooks/ordenes-pagos/useUsers";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
+import KeyIcon from '@mui/icons-material/Key';
+import TableActionButton from "@/app/components/buttons/tableActionButton";
+import useModal from "@/app/hooks/useModal";
+import ModalChangeUserPassword from "@/app/components/modals/ordenes-pagos/ModalChangeUserPassword";
+import { Context } from "@/app/context/OPContext";
 
 export default function OrdenesPagoUsuarios() {
+  const { deleteUser } = useContext(Context)
   const users = useUsers()
+  const changeUserPasswordModal = useModal()
+  const onClickChangeUserPassword = (user) => {
+    setSelectedEntity(user)
+    changeUserPasswordModal.open()
+  }
+
   const { 
     mainHeaderProps,
     createModalProps,
-    editModalProps,
+    setSelectedEntity,
     deleteModalProps,
     selectedEntity,
     actionColumn,
-  } = useCRUDModals("usuario")
+  } = useCRUDModals("usuario", {
+    enableEdit: false,
+    withActions: row => <TableActionButton
+                          actionIcon={<KeyIcon />} 
+                          onClick={() => onClickChangeUserPassword(row)}
+                          tooltipText="Cambiar contraseña"
+                        />
+  })
 
-  const handleOnDelete = async () => {
-    //TODO
+  const handleOnDelete = () => {
+    deleteUser(selectedEntity?.usuario)
   }
 
   const columns = useMemo(() => {
@@ -78,12 +98,18 @@ export default function OrdenesPagoUsuarios() {
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+          conditionalRowStyles={[
+            {
+              when: row => row.fechaBaja !== "0000-00-00",
+              style: { color: 'gray' },
+            },
+          ]}
         />
       </div>
     </div>
-    <ModalCreateWithSimpleName {...createModalProps} />
-    <ModalCreateWithSimpleName entity={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <ModalCreateUser {...createModalProps} />
+    <ModalChangeUserPassword user={selectedEntity} {...changeUserPasswordModal} />
+    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.personal?.nombre} {...deleteModalProps}/>
   </Container>
   )
 }

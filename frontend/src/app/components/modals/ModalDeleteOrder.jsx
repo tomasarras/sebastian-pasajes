@@ -11,7 +11,7 @@ export default function ModalDeleteOrder({ order, cleanSelectedOrder, ...props }
   const { changeAlertStatusAndMessage, fetchOrders } = useContext(Context);
 
   const handleOnDelete = async () => {
-    await deleteOrder(group.id);
+    await deleteOrder(order.id);
     changeAlertStatusAndMessage(true, 'success', 'Orden eliminada exitosamente!');
     await fetchOrders();
     cleanSelectedOrder();

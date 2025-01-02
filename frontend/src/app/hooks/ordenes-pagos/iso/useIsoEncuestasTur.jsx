@@ -11,5 +11,5 @@ export default function useIsoEncuestasTur() {
       fetchIsoEncuestasTur()
   }, [])
   
-  return isoEncuestasTur
+  return {isoEncuestasTur, fetchIsoEncuestasTur}
 }

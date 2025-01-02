@@ -9,9 +9,20 @@
 .buttonOutline {
   border: 1px solid #8eb1b3;
   color: #8eb1b3;
+  background-color: transparent;
 }
 
 .buttonOutline:hover {
   background-color: #608284;
   color: white;
+}
+
+.button:disabled, .button[disabled] .buttonOutline:disabled, .buttonOutline[disabled]  {
+  background-color: #cccccc;
+  color: #666666;
+}
+
+.button:hover:disabled, .button:hover[disabled], .buttonOutline:hover:disabled, .buttonOutline:hover[disabled] {
+  background-color: #cccccc;
+  color: #666666;
 }

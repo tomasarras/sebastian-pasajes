@@ -14,6 +14,8 @@ import useCRUDModals from "@/app/hooks/useCRUDModals";
 import { formatDate } from "@/app/utils/utils";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
+import { remove, newCourse, update } from "@/app/services/ordenes-pagos/iso/isoCoursesService";
+import SecondaryButton from "@/app/components/buttons/secondaryButton";
 
 export default function OrdenesPagoCapacitaciones() {
   const { 
@@ -24,10 +26,32 @@ export default function OrdenesPagoCapacitaciones() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("curso")
-  const courses = useIsoCourses()
+  const { isoCourses, fetchIsoCourses } = useIsoCourses();
 
   const handleOnDelete = async () => {
-    //TODO
+    await remove(selectedEntity.id);
+    changeAlertStatusAndMessage(true, 'success', 'Capacitación eliminada exitosamente!');
+    await fetchIsoCourses();
+  }
+
+  const createCourse = async (course) => {
+    try {
+      await newCourse(course)
+      changeAlertStatusAndMessage(true, 'success', 'Curso creado exitosamente!');
+    } catch (error) {
+      console.error('Error al agregar:', error);
+      changeAlertStatusAndMessage(true, 'error', 'Error al crear el curso');
+    }
+  }
+
+  const editCourse = async (course) => {
+    try {
+      await update(course)
+      changeAlertStatusAndMessage(true, 'success', 'Curso editado exitosamente!');
+    } catch (error) {
+      console.error('Error al agregar:', error);
+      changeAlertStatusAndMessage(true, 'error', 'Error al editar el curso');
+    }
   }
 
   const columns = useMemo(() => {
@@ -71,27 +95,27 @@ export default function OrdenesPagoCapacitaciones() {
       actionColumn
     ];
     return newColumns;
-  }, [courses]); 
+  }, [isoCourses]); 
 
   return (
   <Container>
     <div className="shadow rounded-lg bg-white p-2 md:p-4">
-      <MainHeader mainTitle="Cursos" {...mainHeaderProps} />
+      <MainHeader headerButton={<Link href="/ordenes-pagos/sgc/capacitaciones/programacion"><SecondaryButton className="mr-2" size="sm" actionText={"Programar"} /></Link>} mainTitle="Cursos" {...mainHeaderProps} />
       <hr/>
       <div className="py-8 md:py-16">
         <Table
           className="shadow"
           columns={columns}
-          data={courses}
+          data={isoCourses}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
         />
       </div>
     </div>
-    <ModalCreateCourse {...createModalProps} />
-    <ModalCreateCourse course={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <ModalCreateCourse onSubmit={(course) => createCourse(course)} {...createModalProps} />
+    <ModalCreateCourse onSubmit={(course) => editCourse(course)} course={selectedEntity} {...editModalProps} />
+    <GenericModalDelete id={selectedEntity?.id} onDelete={handleOnDelete} label="la capacitación" {...deleteModalProps}/>
   </Container>
   )
 }

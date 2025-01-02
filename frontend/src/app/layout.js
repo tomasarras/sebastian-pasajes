@@ -18,9 +18,21 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
   const pathnameIncludesLayout = !['/login', '/email/new-order', '/ordenes-pagos/login'].includes(pathname)
 
+  const getTitle = () => {
+    if (pathname.startsWith('/ordenes-pagos')) {
+      return "Órdenes y Pagos";
+    } else if (pathname === '/login') {
+      return "Iniciar Sesión";
+    } else if (pathname === '/') {
+      return "Sebastián viajes";
+    }
+    return "Sebastián viajes";
+  };
+
   return (
     <html lang="en">
       <head>
+        <title>{getTitle()}</title>
         <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png"></link>
         <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png"></link>
         <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png"></link>

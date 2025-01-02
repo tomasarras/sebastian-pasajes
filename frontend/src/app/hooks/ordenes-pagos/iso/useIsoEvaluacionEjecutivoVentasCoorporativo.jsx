@@ -11,5 +11,5 @@ export default function useIsoEvaluacionEjecutivoVentasCoorporativo() {
       fetchIsoEvaluacionesVentasCoorporativo()
   }, [])
   
-  return isoEvaluacionesVentasCoorporativo
+  return {isoEvaluacionesVentasCoorporativo, fetchIsoEvaluacionesVentasCoorporativo}
 }

@@ -1,34 +1,188 @@
 "use client"
-import CommonInput from "@/app/components/commonInput";
+import TableActionButton from "@/app/components/buttons/tableActionButton";
 import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
-import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
-import Table from "@/app/components/table";
-import useOrders from "@/app/hooks/ordenes-pagos/useOrders";
+import Table from "@/app/components/table/ordenes-pago";
+import { Context } from "@/app/context/OPContext";
+import useAuth from "@/app/hooks/ordenes-pagos/useAuth";
+import useUsers from "@/app/hooks/ordenes-pagos/useUsers";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
-import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import useModal from "@/app/hooks/useModal";
+import { CURRENCY_ID, FILTER_MODAL_FIELD_TYPE, ISO_NC_STATUS_IDS, ORDER_PAYMENT_STATUS_IDS, USER_ROLE } from "@/app/utils/constants";
+import SendIcon from '@mui/icons-material/Send';
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import ModalNotifyOrder from "@/app/components/modals/ordenes-pagos/ModalNotifyOrder";
+import useFilterModal from "@/app/hooks/ordenes-pagos/useFilterModal";
+import usePersonals from "@/app/hooks/ordenes-pagos/usePersonals";
+import { ORDER_STATUS_NAME } from "@/app/utils/utils";
+import * as XLSX from 'xlsx';
+
+const additionalColumnsForExcel = [
+  {
+    name: "Razon Social Op.",
+    selector: row => row?.operador?.apellido,
+    hidden: true,
+  },
+  {
+    name: "CUIT Op.",
+    selector: row => row?.operador?.tipoIdentificacion + ": " + row?.operador?.identificacion,
+    hidden: true,
+  },
+  {
+    name: "Descripción",
+    selector: row => row.des,
+    hidden: true,
+  },
+  {
+    name: "Observaciones",
+    selector: row => row.obs,
+    hidden: true,
+  },
+  {
+    name: "CBU Op.",
+    selector: row => "CBU: "+ row?.operador?.cBU,
+    hidden: true,
+  },
+  {
+    name: "NºFile Aptour",
+    selector: row => row.nFA,
+    hidden: true,
+  },
+  {
+    name: "NºFile Operador",
+    selector: row => row.nFO,
+    hidden: true,
+  }
+]
 
 export default function OrdenesPagoOrdenes() {
-  const orders = useOrders()
+  const personals = usePersonals()
+  const users = useUsers()
+  const [filters, setFilters] = useState(null)
+  const [orders, setOrders] = useState([])
+  const [totalByPesos, setTotalByPesos] = useState('')
+  const [totalByDollars, setTotalByDollars] = useState('')
+  const filterStatuses = [{
+    label: "Pendiente",
+    value: ORDER_PAYMENT_STATUS_IDS.PENDING,
+  },
+  {
+    label: "Pagado",
+    value: ORDER_PAYMENT_STATUS_IDS.PAID,
+  }]
+
+  const filterFields = [{
+    label: "Estado",
+    name: "IdEstado",
+    type: FILTER_MODAL_FIELD_TYPE.SELECT,
+    values: filterStatuses,
+  },
+  {
+    label: "NºFile Aptour",
+    name: "NFA",
+    type: FILTER_MODAL_FIELD_TYPE.INPUT,
+  },
+  {
+    label: "NºFile Operador",
+    name: "NFO",
+    type: FILTER_MODAL_FIELD_TYPE.INPUT,
+  },
+  {
+    label: "NºOP",
+    name: "Id",
+    type: FILTER_MODAL_FIELD_TYPE.INPUT,
+  },
+  {
+    label: "Personal",
+    name: "IdOperador",
+    type: FILTER_MODAL_FIELD_TYPE.SELECT,
+    values: personals,
+    getOptionLabel: personal => personal.apellido + " " + personal.nombre,
+    getOptionValue: personal => personal.id
+  },
+  {
+    label: "Usuario",
+    name: "IdUsuario",
+    type: FILTER_MODAL_FIELD_TYPE.SELECT,
+    values: users,
+    getOptionLabel: user => user.personal.apellido + " " + user.personal.nombre,
+    getOptionValue: user => user.usuario
+  }
+]
+  const handleOnSubmitFilter = async (filters) => {
+    setFilters(filters)
+  }
+
+  const handleFetchOrders = async () => {
+    const orders = await fetchOrders(filters)
+
+    let totalPesos = 0;
+    let totalDollars = 0;
+
+    orders.forEach(item => {
+      const importe = parseFloat(item.importe)
+      if (item.moneda === 0) {
+        totalPesos += importe
+      } else {
+        totalDollars += importe
+      }
+    });
+    setTotalByDollars(formatImporte({ importe: totalPesos, moneda: CURRENCY_ID.DOLLAR }))
+    setTotalByPesos(formatImporte({ importe: totalDollars, moneda: CURRENCY_ID.PESO }))
+
+    setOrders(orders)
+    return orders
+  }
+
+  useEffect(() => {
+    handleFetchOrders()
+  }, [filters])
+
+  const { onOpenFilterModal, filterModal } = useFilterModal({ fields: filterFields, entityName: "ordenes de pago", onApplyFilter: handleOnSubmitFilter })
+  const { deleteOrder, changeAlertStatusAndMessage, fetchOrders } = useContext(Context)
+  const notifyModal = useModal()
+  const userData = useAuth()
+  const isAdmin = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER].includes(userData?.role)
+
+  const openNotifyModal = (order) => {
+    notifyModal.open()
+    setSelectedEntity(order)
+  }
+  
   const { 
     mainHeaderProps,
     createModalProps,
     editModalProps,
     deleteModalProps,
     selectedEntity,
+    setSelectedEntity,
     actionColumn,
-  } = useCRUDModals("orden")
+  } = useCRUDModals("orden", { 
+    conditionalDelete: order => order?.estado?.id == ORDER_PAYMENT_STATUS_IDS.PENDING && isAdmin,
+    withActions: (row) => <TableActionButton 
+                            actionIcon={<SendIcon />} 
+                            onClick={() => openNotifyModal(row)}
+                            tooltipText="Notificar"
+                          />
+  })
   
 
   const handleOnDelete = async () => {
-    //TODO
+    await deleteOrder(selectedEntity.id)
+    updateOrders()
+    changeAlertStatusAndMessage(true, 'error', 'Orden borrada.');
+  }
+
+  const updateOrders = async () => {
+    const orders = await handleFetchOrders(filters)
+    const updatedSelectedEntity = orders.find(o => o.id == selectedEntity.id)
+    setSelectedEntity(updatedSelectedEntity || null)
   }
 
   const formatImporte = opago => {
-    const isDolar = opago.moneda == 1
+    const isDolar = opago.moneda == CURRENCY_ID.DOLLAR
     let formatter = new Intl.NumberFormat('es-CL', {
       style: 'currency',
       currency: 'CLP',
@@ -98,7 +252,7 @@ export default function OrdenesPagoOrdenes() {
         name: 'Estado',
         sortable: true,
         searchable: false,
-        selector: row => row?.estado?.nombre,
+        selector: row => row?.estado?.id == ORDER_PAYMENT_STATUS_IDS.PENDING ? <span className="text-red-500">{row?.estado?.nombre}</span> : <span className="text-green-600">{row?.estado?.nombre}</span>,
       },
       {
         name: 'Importe',
@@ -106,30 +260,49 @@ export default function OrdenesPagoOrdenes() {
         searchable: false,
         selector: row => formatImporte(row),
       },
-      actionColumn
+      actionColumn,
+      ...additionalColumnsForExcel,
     ];
     return newColumns;
   }, [orders]); 
 
+  const onProcessDataToExport = (data) => {
+    const firstRow = data[0]
+    const rowKeys = Object.keys(firstRow)
+    const emptyRow = {}
+    const emptyRow2 = {}
+    rowKeys.forEach(key => emptyRow[key] = "")
+    rowKeys.forEach(key => emptyRow2[key] = "")
+    emptyRow["Importe"] = totalByDollars
+    emptyRow2["Importe"] = totalByPesos
+    data.push(emptyRow)
+    data.push(emptyRow2)
+    return data;
+  }
+
   return (
   <Container>
     <div className="shadow rounded-lg bg-white p-2 md:p-4">
-      <MainHeader mainTitle="Ordenes" {...mainHeaderProps} />
+      <MainHeader mainTitle="Ordenes" onOpenFilterModal={onOpenFilterModal} {...mainHeaderProps} />
       <hr/>
       <div className="py-8 md:py-16">
         <Table
+          onProcessDataToExport={onProcessDataToExport}
           className="shadow"
           columns={columns}
           data={orders}
           striped
           responsive
+          footer={<div className="font-bold mr-4"><div>{totalByDollars}</div><div>{totalByPesos}</div></div>}
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
         />
       </div>
     </div>
     <ModalCreateOrder {...createModalProps} />
-    <ModalCreateOrder order={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <ModalCreateOrder updateOrders={updateOrders} order={selectedEntity} {...editModalProps} />
+    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.id} {...deleteModalProps}/>
+    <ModalNotifyOrder order={selectedEntity} {...notifyModal} />
+    {filterModal}
   </Container>
   )
 }

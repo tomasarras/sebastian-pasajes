@@ -8,6 +8,11 @@ export const changePassword = (currentPassword, newPassword) => {
   axios.post(`/users/change-password`, body)
 }
 
+export const changePasswordAsAdmin = (newPassword, username) => {
+  const body = { newPassword }
+  return axios.post(`/users/${username}/change-password`, body)
+}
+
 export const deleteUser = (userId) => {
   return axios.delete(`/users/${userId}`)
 }

@@ -14,7 +14,7 @@ router.post("/login", controller.login);
 router.post("/change-password", verifyToken, check("currentPassword").notEmpty(),passwordValidator("newPassword"), controller.changePassword);
 router.post("/:username/change-password", verifyToken, onlyAdministrators, passwordValidator("newPassword"), controller.changePasswordAsAdmin);
 router.post("/", verifyToken, onlyAdministrators, userValidator(), passwordValidator("password"), controller.create);
-router.get("/", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENDEDOR]), controller.getAll);
+router.get("/", verifyToken, withPermissions([USER_PROFILES.ADMIN, USER_PROFILES.WEBMASTER, USER_PROFILES.VENDEDOR, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.getAll);
 router.delete("/:username", verifyToken, onlyAdministrators, controller.deleteByUsername);
 
 export default router;

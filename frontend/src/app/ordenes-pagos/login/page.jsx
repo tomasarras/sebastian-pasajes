@@ -28,6 +28,12 @@ export default function OrdenesPagosLogin() {
     }
   }
 
+  const checkPasswordKey = e => {
+    if (e.key === 'Enter') {
+      login()
+    }
+  }
+
   return (
   <div className="bg-gray-75">
     <Header/>
@@ -50,6 +56,7 @@ export default function OrdenesPagosLogin() {
             value={pass}
             name="pass"
             type="password" 
+            onKeyDown={checkPasswordKey}
             placeholder="Contraseña" 
             onChange={(e) => setPass(e.target.value)}
           /></div>}
@@ -57,6 +64,7 @@ export default function OrdenesPagosLogin() {
             value={pass}
             name="pass"
             type="text" 
+            onKeyDown={checkPasswordKey}
             placeholder="Contraseña" 
             onChange={(e) => setPass(e.target.value)}
           /></div>}

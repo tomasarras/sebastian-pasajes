@@ -13,6 +13,7 @@ router.get("/to-excel", verifyToken, controller.toExcel);
 router.get("/", verifyToken, controller.getAll);
 router.post("/", validateOrder, verifyToken, withPermissions(allRolesExceptAuditor), controller.create);
 router.put("/:id", verifyToken, withPermissions(allRolesExceptAuditor), controller.update);
+router.get("/:id/pdf", verifyToken, controller.downloadPdf);
 router.put("/:id/authorize", verifyToken, withPermissions(allRolesExceptAuditor), controller.authorize);
 router.put("/:id/reject", verifyToken, withPermissions(allRolesExceptAuditor), controller.reject);
 router.put("/:id/cancel", verifyToken, withPermissions(allRolesExceptAuditor), controller.cancel);

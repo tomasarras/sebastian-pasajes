@@ -23,7 +23,6 @@ export default function ModalCreateUser(props) {
   ]
 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
-    console.log(clients, 'clients');
     if (values.clientId == undefined || values.clientId == 'no-selected') {
       values.client = CLIENT_AGENCY_ID
     } else {

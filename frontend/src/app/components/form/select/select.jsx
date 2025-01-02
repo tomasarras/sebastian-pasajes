@@ -1,10 +1,10 @@
 "use client"
 
-export default function Select({ options, placeholder, getOptionLabel, ...props }) {
-
+export default function Select({ options, placeholder, value, getOptionLabel, getOptionValue = (item) => item.value, ...props }) {
   if (typeof getOptionLabel == 'function') {
     options = options.map(item => {
       item.label = getOptionLabel(item)
+      item.value = getOptionValue(item)
       return item
     })
   }
@@ -17,7 +17,7 @@ export default function Select({ options, placeholder, getOptionLabel, ...props 
     >
       {placeholder !== undefined && <option value={"no-selected"}>{placeholder}</option>}
       {options.map((option, i) => 
-        <option key={i} value={option.value}>{option.label}</option>
+        <option key={i} selected={option.value == value} value={option.value}>{option.label}</option>
       )}
     </select>)
 }

@@ -8,6 +8,7 @@ import useIsoEvaluacionEjecutivoVentas from "@/app/hooks/ordenes-pagos/iso/useIs
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import { formatDate } from "@/app/utils/utils";
 import React, { useMemo, useState } from "react";
+import { removeEvaluationEjecutivoVentas } from "@/app/services/ordenes-pagos/iso/isoEvaluacionesService";
 
 export default function OrdenesPagoEvaluacionesEjecutivoVentas() {
   const { 
@@ -18,10 +19,12 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentas() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("ejecutivo venta")
-  const evaluacionesEjecutivoVentas = useIsoEvaluacionEjecutivoVentas()
+  const {isoEvaluacionesVentas, fetchIsoEvaluacionesVentas} = useIsoEvaluacionEjecutivoVentas()
 
   const handleOnDelete = async () => {
-    //TODO
+    await removeEvaluationEjecutivoVentas(selectedEntity.id);
+    changeAlertStatusAndMessage(true, 'success', 'Evaluación de ejecutivo de ventas eliminada exitosamente!');
+    await fetchIsoEvaluacionesVentas();
   }
 
   const getResultado = row => {
@@ -78,7 +81,7 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentas() {
       actionColumn
     ];
     return newColumns;
-  }, [evaluacionesEjecutivoVentas]); 
+  }, [isoEvaluacionesVentas]); 
 
   return (
   <Container>
@@ -89,7 +92,7 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentas() {
         <Table
           className="shadow"
           columns={columns}
-          data={evaluacionesEjecutivoVentas}
+          data={isoEvaluacionesVentas}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -98,7 +101,7 @@ export default function OrdenesPagoEvaluacionesEjecutivoVentas() {
     </div>
     <ModalCreateCourse {...createModalProps} />
     <ModalCreateCourse course={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <GenericModalDelete id={selectedEntity?.id} onDelete={handleOnDelete} label="la evaluación de ejecutivo de ventas" {...deleteModalProps}/>
   </Container>
   )
 }

@@ -1,0 +1,30 @@
+export const AGENCY_CLIENT_ID = 2
+export const ISO_NC_STATUS_IDS = {
+  OPEN: 1,
+  CLOSE: 2,
+}
+export const USER_ROLE = {
+  ADMIN: "ADMIN",
+  WEBMASTER: "WEBMASTER",
+  ENCUSTA_SATISFACCION: 'ENCUESTA SATISFACCION',
+  VENDEDOR: 'VENDEDOR',
+  VENDEDOR_ADMINISTRADOR: 'VENTAS ADMINISTRACION',
+}
+export const FILTER_MODAL_FIELD_TYPE = {
+  SELECT: "select",
+  INPUT: "input",
+}
+export const ORDER_PAYMENT_STATUS_IDS = {
+  PENDING: 1,
+  PAID: 2,
+}
+
+export const TICKET_STATUS = {
+  PENDING: "PENDIENTE",
+  APPROVED: "APROBADO",
+}
+
+export const CURRENCY_ID = {
+  PESO: 0,
+  DOLLAR: 1,
+}

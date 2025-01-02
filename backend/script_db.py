@@ -96,6 +96,13 @@ def update_empty_dates_to_null(cursor, table, column):
     query = f"UPDATE {table} SET {column} = null WHERE {column} = '0000-00-00';"
     cursor.execute(query)
 
+def add_column(cursor, table_name, column_name, column_definition, default_value=None):
+    query = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
+    if default_value is not None:
+        query += f" DEFAULT '{default_value}'"
+    query += ";"
+    cursor.execute(query)
+
 def main():
     try:
         # Conectar a la base de datos
@@ -331,6 +338,8 @@ def main():
         update_empty_dates_to_null(cursor, "orders", "authorize_date")
         update_empty_dates_to_null(cursor, "orders", "target_date")
         update_empty_dates_to_null(cursor, "orders", "issue_date")
+        add_column(cursor, "passenger", "email", "CHAR(150)", default_value="")
+        add_column(cursor, "orders", "email", "CHAR(150)", default_value="")
 
         add_statuses(cursor)
         # Confirmar cambios

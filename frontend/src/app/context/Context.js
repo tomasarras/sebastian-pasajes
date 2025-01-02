@@ -7,6 +7,7 @@ import * as groupService from '../services/groupService'
 import * as provinceService from '../services/provinceService'
 import * as userService from '../services/userService'
 import * as ordersService from '../services/ordersService'
+
 import { useRouter, usePathname } from "next/navigation";
 
 export const Context = createContext();
@@ -91,10 +92,124 @@ export const Provider = ({ children }) => {
         return await ordersService.getOrder(id);
     }
 
+    const createOrder = async (order) => {
+        const createdOrder = await ordersService.create(order)
+        setUnfilteredOrders([...unfilteredOrders, createdOrder])
+        return createdOrder
+    }
+
     const fetchOrders = async (props) => {
         const orders = await ordersService.getOrders(props)
         setUnfilteredOrders(orders)
         setAlreadyFetchedOrders(true)
+    }
+
+    const updateOrder = async (orderId, order) => {
+        const updatedOrder = await ordersService.editOrder(orderId, order)
+        setUnfilteredOrders(unfilteredOrders.map(o => o.id === order.id ? updatedOrder : o))
+        changeAlertStatusAndMessage(true, 'success', `Se ha actualizado la orden N°${updatedOrder.number}`);
+        return updatedOrder;
+    }
+
+    const authorizeOrder = async (order) => {
+        const updatedOrder = await ordersService.authorizeOrder(order.id)
+        setUnfilteredOrders(unfilteredOrders.map(o => o.id === order.id ? updatedOrder : o))
+        changeAlertStatusAndMessage(true, 'success', `Se ha autorizado la orden N°${order.number}`);
+        return updatedOrder;
+    }
+    
+    const rejectOrder = async (order) => {
+        const updatedOrder = await ordersService.rejectOrder(order.id)
+        setUnfilteredOrders(unfilteredOrders.map(o => o.id === order.id ? updatedOrder : o))
+        changeAlertStatusAndMessage(true, 'success', `Se ha rechazado la orden N°${order.number}`);
+        return updatedOrder;
+    }
+    
+    const closeOrder = async (order) => {
+        const updatedOrder = await ordersService.closeOrder(order.id)
+        setUnfilteredOrders(unfilteredOrders.map(o => o.id === order.id ? updatedOrder : o))
+        changeAlertStatusAndMessage(true, 'success', `Se ha cerrado la orden N°${order.number}`);
+        return updatedOrder;
+    }
+    
+    const cancelOrder = async (order) => {
+        const updatedOrder = await ordersService.cancelOrder(order.id)
+        setUnfilteredOrders(unfilteredOrders.map(o => o.id === order.id ? updatedOrder : o))
+        changeAlertStatusAndMessage(true, 'success', `Se ha cancelado la orden N°${order.number}`);
+        return updatedOrder;
+    }
+    
+    const openOrder = async (order) => {
+        const updatedOrder = await ordersService.openOrder(order.id)
+        setUnfilteredOrders(unfilteredOrders.map(o => o.id === order.id ? updatedOrder : o))
+        changeAlertStatusAndMessage(true, 'success', `Se ha abierto la orden N°${order.number}`);
+        return updatedOrder;
+    }
+    
+    const updateProvince = async (province) => {
+        const updatedProvince = await provinceService.edit(province)
+        setProvinces(provinces.map(p => p.id === province.id ? updatedProvince : p))
+        changeAlertStatusAndMessage(true, 'success', `Se actualizo la provincia`);
+        return updatedProvince;
+    }
+    
+    const createProvince = async (province) => {
+        const createdProvince = await provinceService.create(province)
+        setProvinces([...provinces, createdProvince])
+        changeAlertStatusAndMessage(true, 'success', `Provincia creada con exito`);
+        return createdProvince;
+    }
+    
+    const updateLocation = async (location) => {
+        const updatedLocation = await locationService.edit(location)
+        setLocations(locations.map(l => l.id === location.id ? updatedLocation : l))
+        changeAlertStatusAndMessage(true, 'success', `Se actualizo la localidad`);
+        return updatedLocation;
+    }
+    
+    const createLocation = async (location) => {
+        const createdLocation = await locationService.create(location)
+        setLocations([...locations, createdLocation])
+        changeAlertStatusAndMessage(true, 'success', `Localidad creada con exito`);
+        return createdLocation;
+    }
+    
+    const createGroup = async (groupName) => {
+        const createdGroup = await groupService.create(groupName)
+        setGroups([...groups, createdGroup])
+        changeAlertStatusAndMessage(true, 'success', `Grupo creado con exito`);
+        return createdGroup;
+    }
+    
+    const editGroup = async (groupId, groupName) => {
+        const updatedGroup = await groupService.editGroup(groupId, groupName)
+        setGroups(groups.map(g => g.id === groupId ? updatedGroup : g))
+        changeAlertStatusAndMessage(true, 'success', `Se actualizo el grupo`);
+        return updatedGroup;
+    }
+    
+    const deleteGroup = async (groupId) => {
+        await groupService.deleteGroup(groupId)
+        setGroups(groups.filter(g => g.id != groupId))
+        changeAlertStatusAndMessage(true, 'success', `Se borro el grupo`);
+    }
+    
+    const createClient = async (client) => {
+        const createdClient = await clientService.createClient(client)
+        setClients([...clients, createdClient])
+        changeAlertStatusAndMessage(true, 'success', `Cliente creado con exito`);
+        return createdClient;
+    }
+    
+    const editClient = async (client) => {
+        const updatedClient = await clientService.editClient(client)
+        setClients(clients.map(c => c.id === updatedClient.id ? updatedClient : c))
+        changeAlertStatusAndMessage(true, 'success', `Se actualizo el cliente`);
+        return updatedClient;
+    }
+    
+    const changeUserPassword = async (newPassword, user) => {
+        return userService.changePasswordAsAdmin(newPassword, user.username)
     }
 
     useEffect(() => {
@@ -105,7 +220,6 @@ export const Provider = ({ children }) => {
             getWelcomeMessage()
         }
     }, [pathname])
-
 
     return (
         <Context.Provider value={{
@@ -134,6 +248,23 @@ export const Provider = ({ children }) => {
             unfilteredOrders,
             fetchOrders,
             alreadyFetchedOrders,
+            authorizeOrder,
+            rejectOrder,
+            closeOrder,
+            cancelOrder,
+            openOrder,
+            createOrder,
+            changeUserPassword,
+            updateProvince,
+            createProvince,
+            updateLocation,
+            createLocation,
+            createGroup,
+            editGroup,
+            deleteGroup,
+            createClient,
+            editClient,
+            updateOrder,
         }}>
             {children}
         </Context.Provider>

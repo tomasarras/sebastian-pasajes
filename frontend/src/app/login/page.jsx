@@ -38,10 +38,16 @@ export default function Login() {
     }
   }
 
+  const checkPasswordKey = e => {
+    if (e.key === 'Enter') {
+      login()
+    }
+  }
+
   return (
     <div className="bg-gray-75 min-h-screen min-w-screen">
       <StaticHeader className="absolute"/>
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="w-4/6 grid grid-cols-2 bg-white shadow rounded">
           <div className="col-span-1 flex items-center justify-center rounded-l">
             <Image src={illustration} alt="ilustracion" />
@@ -60,6 +66,7 @@ export default function Login() {
               value={pass}
               name="pass"
               type="password" 
+              onKeyDown={checkPasswordKey}
               placeholder="Contraseña" 
               onChange={(e) => setPass(e.target.value)}
             /></div>}
@@ -67,7 +74,8 @@ export default function Login() {
               value={pass}
               name="pass"
               type="text" 
-              placeholder="Contraseña" 
+              onKeyDown={checkPasswordKey}
+              placeholder="Contraseña"
               onChange={(e) => setPass(e.target.value)}
             /></div>}
             <div className={`${!isInavlidPasswordOrUsername && 'invisible'} text-red-500 text-sm`}>Usuario o contraseña invalidos</div>

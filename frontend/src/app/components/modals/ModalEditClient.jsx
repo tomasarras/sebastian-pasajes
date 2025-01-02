@@ -23,7 +23,7 @@ export default function ModalEditClient({ client, cleanSelectedClient, ...props}
     props.close()
   }
 
-  return <Modal  title={"Editar Grupo " + group.name} {...props}>
+  return <Modal  title={"Guardar cambios " + group.name} {...props}>
     <Formik
       validateOnChange={false}
       validateOnBlur={false}
@@ -37,7 +37,7 @@ export default function ModalEditClient({ client, cleanSelectedClient, ...props}
         <Form className="mt-4">
           <FormikStyledField className="mb-4" name="name" label="Nombre" />
           <div className="w-full flex justify-end">
-            <SecondaryButton className="w-full" type="submit" actionText="Editar Grupo" disabled={isSubmitting}/>
+            <SecondaryButton className="w-full" type="submit" actionText="Guardar cambios" disabled={isSubmitting}/>
           </div>
         </Form>
       )}

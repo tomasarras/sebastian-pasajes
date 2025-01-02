@@ -4,7 +4,7 @@ import Container from "@/app/components/Container";
 import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateAction from "@/app/components/ordenes-pago/modals/ModalCreateAction";
-import ModalCreateCourse from "@/app/components/ordenes-pago/modals/ModalCreateCourse";
+import ModalCreateEnTurr from "@/app/components/ordenes-pago/modals/ModalCreateEnTurr";
 import ModalCreateOperator from "@/app/components/ordenes-pago/modals/ModalCreateOperator";
 import ModalCreateOrder from "@/app/components/ordenes-pago/modals/ModalCreateOrder";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
@@ -18,6 +18,7 @@ import useCRUDModals from "@/app/hooks/useCRUDModals";
 import { evaluarEncuesta, evaluarEncuestaSAT, formatDate } from "@/app/utils/utils";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
+import { removeTurr, newTurr, updateTurr } from "@/app/services/ordenes-pagos/iso/isoEncuestasService";
 
 export default function OrdenesPagoEncuestasResultadosTurismo() {
   const { 
@@ -28,16 +29,37 @@ export default function OrdenesPagoEncuestasResultadosTurismo() {
     selectedEntity,
     actionColumn,
   } = useCRUDModals("encuesta resultados turismo")
-  const encuestasTurr = useIsoEncuestasTurr()
+  const { isoEncuestasTurr, fetchIsoEncuestasTurr } = useIsoEncuestasTurr();
 
   const handleOnDelete = async () => {
-    //TODO
+    await removeTurr(selectedEntity.id);
+    changeAlertStatusAndMessage(true, 'success', 'Encuesta de turismo eliminada exitosamente!');
+    await fetchIsoEncuestasTurr();
   }
-
 
   const formatTipoEncuesta = row => {
     const { tipoE } = row
     return tipoE == 1 ? 'Satisfacción al cliente' : 'Consultas cerradas'
+  }
+
+  const createTurr = async (en) => {
+    try {
+      await newTurr(en)
+      changeAlertStatusAndMessage(true, 'success', 'Encuesta de turismo creada exitosamente!');
+    } catch (error) {
+      console.error('Error al agregar:', error);
+      changeAlertStatusAndMessage(true, 'error', 'Error al crear la encuesta de turismo');
+    }
+  }
+
+  const editTurr = async (en) => {
+    try {
+      await updateTurr(en)
+      changeAlertStatusAndMessage(true, 'success', 'Encuesta de turismo editada exitosamente!');
+    } catch (error) {
+      console.error('Error al agregar:', error);
+      changeAlertStatusAndMessage(true, 'error', 'Error al editar la encuesta de turismo');
+    }
   }
 
   const columns = useMemo(() => {
@@ -63,7 +85,7 @@ export default function OrdenesPagoEncuestasResultadosTurismo() {
       actionColumn
     ];
     return newColumns;
-  }, [encuestasTurr]); 
+  }, [isoEncuestasTurr]); 
 
   return (
   <Container>
@@ -74,16 +96,16 @@ export default function OrdenesPagoEncuestasResultadosTurismo() {
         <Table
           className="shadow"
           columns={columns}
-          data={encuestasTurr}
+          data={isoEncuestasTurr}
           striped
           responsive
           pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
         />
       </div>
     </div>
-    <ModalCreateCourse {...createModalProps} />
-    <ModalCreateCourse course={selectedEntity} {...editModalProps} />
-    <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.name} {...deleteModalProps}/>
+    <ModalCreateEnTurr onSubmit={(enTurr) => createTurr(enTurr)} {...createModalProps} />
+    <ModalCreateEnTurr onSubmit={(enTurr) => editTurr(enTurr)} enTurr={selectedEntity} {...editModalProps} />
+    <GenericModalDelete id={selectedEntity?.id} onDelete={handleOnDelete} label="la encuesta de turismo" {...deleteModalProps}/>
   </Container>
   )
 }

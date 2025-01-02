@@ -11,5 +11,5 @@ export default function useIsoEncuestasIssn() {
       fetchIsoEncuestasIssn()
   }, [])
   
-  return isoEncuestasIssn
+  return {isoEncuestasIssn, fetchIsoEncuestasIssn}
 }

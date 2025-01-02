@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
+import ExportToExcelButton from "../buttons/exportToExcelButton";
 
-const Table = ({ className = "", columns, onChangePage, data, ...rest }) => {
+const Table = ({ className = "", columns, onChangePage, withExport, onProcessDataToExport, footer, exportFileName, data, ...rest }) => {
   const [dataFiltered, setDataFiltered] = useState(data);
   const [hydrated, setHydrated] = useState(false);
 
@@ -18,16 +19,13 @@ const Table = ({ className = "", columns, onChangePage, data, ...rest }) => {
     return null;
   }
 
-  
-  
-
   return (
     <div>
       <DataTable
         className={className}
-        columns={columns}
+        columns={columns.filter(c => c.hidden == undefined || c.hidden === false)}
         data={dataFiltered}
-        noDataComponent="No hay datos"
+        noDataComponent={rest.noDataComponent || "No hay datos"}
         onChangePage={onChangePage}
         paginationComponentOptions={{
           rowsPerPageText: "Filas por página:",
@@ -38,6 +36,17 @@ const Table = ({ className = "", columns, onChangePage, data, ...rest }) => {
         }}
         {...rest}
       />
+      <div className="flex justify-end mb-4">
+        {footer}
+        {withExport && (
+          <ExportToExcelButton 
+            onProcessDataToExport={onProcessDataToExport}
+            data={dataFiltered} 
+            columns={columns}
+            filename={exportFileName || "archivo"}
+          />
+        )}
+      </div>
     </div>
   );
 };

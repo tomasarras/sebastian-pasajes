@@ -8,6 +8,10 @@ const passenger = (sequelize) => {
       primaryKey: true,
       allowNull: false,
     },
+    email: {
+      type: DataTypes.STRING(255),
+      field: 'email'
+    },
     firstName: {
       type: DataTypes.STRING(30),
       allowNull: false,

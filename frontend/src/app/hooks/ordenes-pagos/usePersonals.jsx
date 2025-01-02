@@ -10,6 +10,6 @@ export default function usePersonals() {
     if (!alreadyFetchedPersonals)
       fetchPersonals()
   }, [])
-  
+    
   return personals
 }

@@ -5,7 +5,7 @@ import MainHeader from "@/app/components/MainHeader";
 import GenericModalDelete from "@/app/components/modals/GenericModalDelete";
 import ModalCreateProvince from "@/app/components/ordenes-pago/modals/ModalCreateProvince";
 import ModalCreateSector from "@/app/components/ordenes-pago/modals/ModalCreateSector";
-import Table from "@/app/components/table";
+import Table from "@/app/components/table/ordenes-pago";
 import useSectors from "@/app/hooks/ordenes-pagos/useSectors";
 import useCRUDModals from "@/app/hooks/useCRUDModals";
 import Link from "next/link";

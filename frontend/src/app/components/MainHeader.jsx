@@ -2,7 +2,7 @@
 import FilterButton from "./buttons/filterButton"
 import SecondaryButton from "./buttons/secondaryButton"
 
-export default function MainHeader({ onOpenFilterModal, withFilter = false, onClickActionText, hiddenActionText = false, ...props}) {
+export default function MainHeader({ headerButton, onOpenFilterModal, withFilter = false, onClickActionText, hiddenActionText = false, ...props}) {
 
   return (
     <>
@@ -10,6 +10,7 @@ export default function MainHeader({ onOpenFilterModal, withFilter = false, onCl
             <h3 className="font-medium">{props.mainTitle}</h3>
             <div className="flex">{props.children}</div>
             <div className="flex">
+              {headerButton}
               {onOpenFilterModal && <FilterButton onClick={onOpenFilterModal} className="mr-4" />}
               {!hiddenActionText && <SecondaryButton size="sm" actionText={props.actionText} onClick={onClickActionText} />}
             </div>

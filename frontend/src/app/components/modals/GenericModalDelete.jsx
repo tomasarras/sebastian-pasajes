@@ -15,7 +15,7 @@ export default function GenericModalDelete({ id, type, label, onDelete, ...props
   return <Modal title={`Eliminar ${type}`} {...props}>
     <div className="max-w-lg">
       <div className="mt-2">
-        <p className="text-sm text-gray-500">¿Desea eliminar el {type} <span className="font-bold">{label}</span>?</p>
+        <p className="text-sm text-gray-500">¿Desea eliminar {label && <span className="font-bold">{label}</span>}?</p>
       </div>
       <div className="bg-gray-50 pt-4 sm:flex sm:flex-row-reverse">
         <button type="button" onClick={handleOnDelete} className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">Eliminar</button>

@@ -9,7 +9,6 @@ export const validateOrder = [
   check('passenger.phones').notEmpty(),
   check('passenger.phones').notEmpty(),
   
-  check('derivation').notEmpty(),
   check('fatherNumber').default(0).isInt(),
   check('observations').default("").isString(),
   check('passengerType').notEmpty()

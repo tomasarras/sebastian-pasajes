@@ -135,6 +135,18 @@ export const newLicence = async ({idPersonal, fecha}) => {
     return response
 };
 
+export const newLicenceByYear = async (licenceByYear) => {
+    licenceByYear.Id = await newId(PersonalLicxAnio);
+	await PersonalLicxAnio.create(licenceByYear)
+    return getById(licenceByYear.IdPersonal)
+};
+
+export const deleteLicenceByYear = async (licenceId) => {
+	const licenceByYear = await PersonalLicxAnio.findOne({ where: { Id: licenceId }})
+    licenceByYear.destroy()
+    return getById(licenceByYear.IdPersonal)
+};
+
 export const deleteLicence = async (idLicence) => {
 	return PersonalLicencias.destroy({ where: { Id: idLicence } })
 };
@@ -143,7 +155,7 @@ export const verifyLicences = async (idPersonal) => {
 	let result = await PersonalLicxAnio.findAll({ where: { IdPersonal: idPersonal } })
     result = result.map(r => r.get({ plain: true }))
     for (let r of result) {
-        r.used = await calcularDiasGozados(r.año, idPersonal)
+        r.used = await calcularDiasGozados(r.Año, idPersonal)
         r.saldo = r.Dias - r.used
     }
     return result
@@ -293,4 +305,14 @@ export const deleteById = async (staffId) => {
         include: [{ model: Puesto, as: "puesto" }]
     });
     return deletedStaff.get({ plain: true });
+};
+
+export const getById = async (staffId) => {
+    let staff = await Personal.findByPk(staffId);
+    if (!staff) {
+        throw new Error('Personal no encontrado');
+    }
+    staff = staff.get({plain: true})
+    staff.licencias = await verifyLicences(staffId)
+    return staff
 };

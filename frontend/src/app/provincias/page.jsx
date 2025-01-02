@@ -6,7 +6,6 @@ import MainHeader from "../components/MainHeader";
 import { tableCustomStyles } from "../../../utils";
 import Table from "../components/table";
 import useModal from "../hooks/useModal";
-import { create, edit } from "@/app/services/provinceService";
 import { deleteById } from "@/app/services/provinceService";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,7 +17,7 @@ import { Context } from "../context/Context";
 
 export default function Provincias() {
   const provinces = useProvinces();
-  const { fetchProvinces } = useContext(Context)
+  const { fetchProvinces, updateProvince, createProvince } = useContext(Context)
   const createProvinceModal = useModal()
   const deleteProvinceModal = useModal()
   const editProvinceModal = useModal()
@@ -52,7 +51,7 @@ export default function Provincias() {
       {
         name: 'Acciones',
         maxWidth: '20%',
-        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon />} onClick={() => openDeleteModal(row)} /></div>
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<EditIcon color="primary" />} onClick={() => openEditModal(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /></div>
       },
     ];
     return newColumns;
@@ -81,8 +80,8 @@ export default function Provincias() {
             )
           }
         </div>
-        <ModalCreateProvince onSubmit={create} {...createProvinceModal}/>
-        <ModalCreateProvince onSubmit={edit} province={selectedProvince} {...editProvinceModal}/>
+        <ModalCreateProvince onSubmit={createProvince} {...createProvinceModal}/>
+        <ModalCreateProvince onSubmit={updateProvince} province={selectedProvince} {...editProvinceModal}/>
         <GenericModalDelete onDelete={handleOnDelete} label={selectedProvince?.name} type={"provincia"} id={selectedProvince?.id} {...deleteProvinceModal}/>
       </Container>
     </>

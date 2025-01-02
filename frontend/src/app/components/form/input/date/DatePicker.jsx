@@ -1,5 +1,5 @@
 "use client"
-import DatePicker from '@hassanmojab/react-modern-calendar-datepicker';
+import DatePicker, { Calendar } from '@hassanmojab/react-modern-calendar-datepicker';
 import Input from '../input';
 
 const spanishLocale = {
@@ -78,7 +78,7 @@ const spanishLocale = {
   isRtl: false,
 }
 
-export default function dateRangePicker({ range = false, ...props }) {
+export default function dateRangePicker({ range = false, calendar = false, ...props }) {
 
   const renderCustomInput = ({ ref }) => {
     let hasSelectedValue = range ? props.value.from && props.value.to : props.value
@@ -92,13 +92,15 @@ export default function dateRangePicker({ range = false, ...props }) {
     />
   }
 
+  const componentProps = {
+    renderInput: renderCustomInput,
+    colorPrimary:"#FAA805",
+    colorPrimaryLight:"#FEEECD",
+    locale:spanishLocale,
+    shouldHighlightWeekends:true,
+    ...props,
+  }
+
   return (
-    <DatePicker
-      renderInput={renderCustomInput}
-      colorPrimary="#FAA805"
-      colorPrimaryLight="#FEEECD"
-      locale={spanishLocale}
-      shouldHighlightWeekends
-      {...props}
-    />)
+    calendar ? <Calendar {...componentProps} /> : <DatePicker {...componentProps}/>)
 }

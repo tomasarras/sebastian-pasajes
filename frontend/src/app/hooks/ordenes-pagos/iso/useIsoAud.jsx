@@ -11,5 +11,5 @@ export default function useIsoAud() {
       fetchIsoAud()
   }, [])
   
-  return isoAud
+  return { isoAud, fetchIsoAud }
 }

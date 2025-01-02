@@ -11,5 +11,5 @@ export default function useIsoIndicadores() {
       fetchIsoIndicadores()
   }, [])
   
-  return isoIndicadores
+  return {isoIndicadores, fetchIsoIndicadores}
 }

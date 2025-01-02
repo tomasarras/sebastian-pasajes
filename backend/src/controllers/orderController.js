@@ -1,8 +1,10 @@
 import { StatusCodes } from "http-status-codes";
 import * as ordersService from "../services/ordersService.js";
 import { ROLES, STATUS_ID_TO_TRANSLATED_NAME, STATUSES, STATUSES_VALUES } from "../utils/constants.js";
-import { replacePlaceholders, splitByComma, toLowerCaseRelations, toUpperCase } from "../utils/functions.js";
+import { getWidthAndHeight, replacePlaceholders, splitByComma, toLowerCaseRelations, toUpperCase } from "../utils/functions.js";
 import fs from 'fs'
+import { JSDOM } from "jsdom";
+import ExcelJS from 'exceljs'
 import path from 'path'
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -94,11 +96,98 @@ export default {
         totalAmount: orders.length,
       }
       const excel = replacePlaceholders(placeholders, planillaOrdersTemplate)
-      res.setHeader('Content-Type', 'application/vnd.ms-excel');
-      res.setHeader('Content-Disposition', 'attachment; filename="archivo.xls"');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.send(excel);
+
+      const dom = new JSDOM(excel);
+      const workbook = new ExcelJS.Workbook();
+      const tables = dom.window.document.querySelectorAll('table');
+      const images = []
+      const worksheet = workbook.addWorksheet("planilla");
+      let actualRow = 0;
+
+      for (let index = 0; index < tables.length; index++) {
+        const table = tables[index]
+        const fontSize = parseInt(table.getAttribute('fontSize')) || 10;
+        const border = parseInt(table.getAttribute('border')) || 0;
+        const rows = table.querySelectorAll('tr');
+  
+        for (let rowIndex = 0; rowIndex < rows.length; rowIndex ++) {
+          const row = rows[rowIndex]
+          const cells = row.querySelectorAll('td, th');
+          const rowData = [];
+          let columnOffset = 0;
+  
+          for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+            const cell = cells[cellIndex]
+            const colIndex = cellIndex + 1 + columnOffset; // Ajustar por celdas combinadas
+            const rawText = cell.innerHTML
+            const isImage = rawText.includes("<img src=")
+            const isBold = rawText.includes("<strong>")
+            const text = cell.textContent.trim();
+            const colspan = parseInt(cell.getAttribute('colspan')) || 1;
+            const rowspan = parseInt(cell.getAttribute('rowspan')) || 1;
+            if (isImage) {
+              const match = rawText.match(/<img.*?src="(.*?)"/);
+              const imageSrc = match[1]
+              const imagePath = path.join(__dirname, '../', '../', imageSrc);
+              let buffer = fs.readFileSync(imagePath);
+              const { width, height } = await getWidthAndHeight(buffer)
+              const imageId = workbook.addImage({
+                buffer: buffer,
+                extension: 'jpeg',
+              })
+              images.push({
+                id: imageId,
+                data: {
+                  tl: { col: colIndex-1, row: actualRow },
+                  ext: { width, height },
+                  editAs: 'oneCell'
+                }
+              })
+              
+              continue
+            }
+            rowData.push({ text, colIndex, colspan, rowspan, isBold, isLastCol: cellIndex+1 == cells.length });
+            columnOffset += colspan - 1; // Ajustar el desplazamiento para las celdas combinadas
+          }
+  
+          const roww = worksheet.getRow(actualRow+1)
+          actualRow++
+          rowData.forEach((cellData) => {
+            const { text, colIndex, isBold, isLastCol } = cellData;
+            const cell = roww.getCell(colIndex)
+            cell.value = text || '';
+            cell.font = { size: fontSize, bold: isBold }
+            if (border != 0) {
+              cell.border = {}
+              if (rowIndex == 0) {
+                cell.border.top = {style:'thin'}
+              }
+              if (colIndex == 1) {
+                cell.border.left = {style:'thin'}
+              }
+              if (isLastCol) {
+                cell.border.right = {style:'thin'}
+              }
+              if (rowIndex +1 == rows.length) {
+                cell.border.bottom = {style:'thin'}
+              }
+            }
+          });
+        }
+      }
+      images.forEach(image => {
+        worksheet.addImage(image.id, image.data)
+      })
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename="tabla_convertida.xlsx"'
+      );
+      await workbook.xlsx.write(res);
+      res.end();
     } catch (e) {
       next(e);
     }
@@ -191,6 +280,18 @@ export default {
       checkApplicantPermission(order, user)
       const updatedOrder = await ordersService.update(req.params.id, req.body, user);
       res.status(200).json(toLowerCaseRelations(updatedOrder));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /orders/{id} [GET]
+   * @returns 200 and pdf @Order
+   */
+  downloadPdf: async (req, res, next) => {
+    try {
+      await ordersService.downloadPdf(req.params.id, res);
     } catch (e) {
       next(e);
     }

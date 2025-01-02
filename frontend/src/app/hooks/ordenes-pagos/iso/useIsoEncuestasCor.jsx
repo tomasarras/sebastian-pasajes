@@ -11,5 +11,5 @@ export default function useIsoEncuestasCor() {
       fetchIsoEncuestasCor()
   }, [])
   
-  return isoEncuestasCor
+  return {isoEncuestasCor, fetchIsoEncuestasCor}
 }

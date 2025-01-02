@@ -11,5 +11,5 @@ export default function useIsoEncuestasTurr() {
       fetchIsoEncuestasTurr()
   }, [])
   
-  return isoEncuestasTurr
+  return { isoEncuestasTurr, fetchIsoEncuestasTurr }
 }

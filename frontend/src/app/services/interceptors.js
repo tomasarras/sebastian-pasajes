@@ -6,7 +6,7 @@ const axiosIntance = axios.create({
 
 axiosIntance.interceptors.response.use((response) => {
     return response.data;
-  }, (error) => {
+  }, (error) => { 
     if (error.response && (error.response.status === 401)) {
       const url = error.request.responseURL
       const urlSplited = url.split('/')

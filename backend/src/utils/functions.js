@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { Op } from 'sequelize';
+import sizeOf from 'image-size'
 
 export const toLowerCaseRelations = (obj) => {
     if (Array.isArray(obj)) {
@@ -67,4 +68,8 @@ export function stringifyDate(date) {
 export function throwErrorIfNotExists(entity, entityName) {
 	if (!entity)
 		throw { statusCode: StatusCodes.NOT_FOUND, message: `${entityName} not found` };
+}
+
+export async function getWidthAndHeight(imageBuffer) {
+  return sizeOf(imageBuffer);
 }

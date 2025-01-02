@@ -16,3 +16,16 @@ export const login = async (username, password) => {
   localStorage.setItem('opAccessToken', token)
   localStorage.setItem('opUserInfo', JSON.stringify(jwtDecode(token)))
 }
+
+export const create = async (user) => {  
+  return axios.post(`/users`, user)
+}
+
+export const changePasswordAsAdmin = (newPassword, username) => {
+  const body = { newPassword }
+  return axios.post(`/users/${username}/change-password`, body)
+}
+
+export const deleteUser = (username) => {
+  return axios.delete(`/users/${username}`)
+}
