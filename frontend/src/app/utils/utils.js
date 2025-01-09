@@ -82,8 +82,6 @@ export const datePickerDateToString = (date) => {
 }
 
 export const dateToPickerFormat = (date) => {
-  console.log(date);
-  
   return {
     year: date.getFullYear(),
     month: date.getMonth() + 1,

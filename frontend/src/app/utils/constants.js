@@ -13,6 +13,7 @@ export const USER_ROLE = {
 export const FILTER_MODAL_FIELD_TYPE = {
   SELECT: "select",
   INPUT: "input",
+  DATE: "date",
 }
 export const ORDER_PAYMENT_STATUS_IDS = {
   PENDING: 1,

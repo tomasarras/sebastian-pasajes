@@ -109,7 +109,17 @@ export default function OrdenesPagoOrdenes() {
     values: users,
     getOptionLabel: user => user.personal.apellido + " " + user.personal.nombre,
     getOptionValue: user => user.usuario
-  }
+  },
+  {
+    label: "Fecha que se registro al sistema",
+    name: "Fecha",
+    type: FILTER_MODAL_FIELD_TYPE.DATE,
+  },
+  {
+    label: "Fecha de pago",
+    name: "FechaP",
+    type: FILTER_MODAL_FIELD_TYPE.DATE,
+  },
 ]
   const handleOnSubmitFilter = async (filters) => {
     setFilters(filters)

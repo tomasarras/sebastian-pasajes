@@ -9,7 +9,7 @@ import FormikStyledField from "../form/FormikStyledField";
 import FormikStyledSelect from "../form/FormikStyledSelect";
 import FormikStyledRadio from "../form/FormikStyledRadio";
 import SecondaryButton from "../buttons/secondaryButton";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 import { getPassengersBy } from "@/app/services/passengerService";
 import useToggle from "@/app/hooks/useToggle";
@@ -28,6 +28,11 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
   const [departureDate, setDepartureDate] = useState(defaultValues.departureDate || null);
   const [disabledPassengerFields, toggleDisabledPassengerFields] = useToggle()
   const [needsCompletePassengerEmail, setNeedsCompletePassengerEmail] = useState(true)
+  const formRef = useRef(null)
+
+  const scrollToTop = () => {
+    formRef.current.scrollTo(0,0)
+  }
 
   const documentTypes = [
     { value: "DNI", label: "DNI" },
@@ -35,34 +40,39 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
   ]
 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
-    values.birthdate = datePickerDateToString(birthdate);
-    values.returnDate = datePickerDateToString(returnDate);
-    values.departureDate = datePickerDateToString(departureDate);
-    values.passenger = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      documentType: values.documentType,
-      document: values.document,
-      nationality: values.nationality,
-      phones: values.phones,
-      birthdate: values.birthdate,
-      email: values.email,
+    try {
+      values.birthdate = datePickerDateToString(birthdate);
+      values.returnDate = datePickerDateToString(returnDate);
+      values.departureDate = datePickerDateToString(departureDate);
+      values.passenger = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        documentType: values.documentType,
+        document: values.document,
+        nationality: values.nationality,
+        phones: values.phones,
+        birthdate: values.birthdate,
+        email: values.email,
+      }
+      delete values.firstName
+      delete values.lastName
+      delete values.documentType
+      delete values.document
+      delete values.nationality
+      delete values.phones
+      delete values.birthdate
+      delete values.email
+      values.passengerType = isCompanion ? 'companion' : 'holder'
+      values.fatherNumber = fatherNumber
+      const createdOrder = await createOrder(values)
+      onCreateOrder(createdOrder)
+      setSubmitting(false)
+      resetForm()
+      props.close()
+    } catch (e) {
+      setSubmitting(false)
+      changeAlertStatusAndMessage(true, 'error', `Error al cargar orden`);
     }
-    delete values.firstName
-    delete values.lastName
-    delete values.documentType
-    delete values.document
-    delete values.nationality
-    delete values.phones
-    delete values.birthdate
-    delete values.email
-    values.passengerType = isCompanion ? 'companion' : 'holder'
-    values.fatherNumber = fatherNumber
-    const createdOrder = await createOrder(values)
-    onCreateOrder(createdOrder)
-    setSubmitting(false)
-    resetForm()
-    props.close()
   }
 
   const completePassenger = async (values, setFieldValue) => {
@@ -106,10 +116,11 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
     return age;
   }
 
-  return <Modal size="2xl" title="Crear Orden" {...props}>
+  return <Modal size="2xl" title="Crear Orden" {...props} innerRef={formRef}>
     <Formik
       validateOnChange={false}
       validateOnBlur={false}
+      onSubmitWithErrors={(v) => console.log("idsahgoiuashgioashfgoiasghoaishgf")}
       initialValues={{
         documentType: defaultValues?.documentType || 'DNI',
         document: defaultValues?.document || '',
@@ -221,7 +232,7 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
             </div>
           </Section>
           <div className="w-full flex justify-end mt-4">
-            <SecondaryButton type="submit" actionText="Crear Orden" disabled={isSubmitting} />
+            <SecondaryButton type="submit" actionText="Crear Orden" onClick={scrollToTop} disabled={isSubmitting || birthdate == null || departureDate == null || returnDate == null} />
           </div>
         </Form>
       )}

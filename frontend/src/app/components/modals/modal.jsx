@@ -1,7 +1,7 @@
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
-export default function Modal({ size = 'lg', children, title, isOpen, close, dialogClassName }) {
+export default function Modal({ size = 'lg', children, title, isOpen, close, dialogClassName, innerRef }) {
   return (
     <Transition show={isOpen}>
       <Dialog className="relative z-50" onClose={close}>
@@ -16,7 +16,7 @@ export default function Modal({ size = 'lg', children, title, isOpen, close, dia
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </TransitionChild>
 
-        <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
+        <div ref={innerRef} className="fixed inset-0 z-50 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild
               enter="ease-out duration-300"

@@ -9,6 +9,8 @@ import FormikStyledSelect from "@/app/components/form/FormikStyledSelect";
 import PrimaryButton from "@/app/components/buttons/ordenes-pago/primaryButton";
 import { FILTER_MODAL_FIELD_TYPE } from "@/app/utils/constants";
 import FormikStyledField from "@/app/components/form/FormikStyledField";
+import { DatePicker } from "@mui/x-date-pickers";
+import FormikStyledDate from "@/app/components/form/FormikStyledDate";
 
 export default function useFilterModal({ fields, entityName, onApplyFilter }) {
   const filterModal = useModal()
@@ -35,6 +37,8 @@ export default function useFilterModal({ fields, entityName, onApplyFilter }) {
             return <FormikStyledSelect key={i} className="mb-4" {...field} options={field.values} placeholder="Seleccionar" />
           } else if (field.type == FILTER_MODAL_FIELD_TYPE.INPUT) {
             return <FormikStyledField key={i} className="mb-4" {...field} />
+          } else if (field.type == FILTER_MODAL_FIELD_TYPE.DATE) {
+            return <FormikStyledDate key={i} className='mb-4' {...field}/>
           }
           return <></>
         })}
