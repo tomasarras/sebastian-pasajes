@@ -42,8 +42,8 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       values.birthdate = datePickerDateToString(birthdate);
-      values.returnDate = datePickerDateToString(returnDate);
-      values.departureDate = datePickerDateToString(departureDate);
+      values.returnDate = returnDate ? datePickerDateToString(returnDate) : null;
+      values.departureDate = departureDate ? datePickerDateToString(departureDate) : null;
       values.passenger = {
         firstName: values.firstName,
         lastName: values.lastName,
@@ -120,7 +120,6 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
     <Formik
       validateOnChange={false}
       validateOnBlur={false}
-      onSubmitWithErrors={(v) => console.log("idsahgoiuashgioashfgoiasghoaishgf")}
       initialValues={{
         documentType: defaultValues?.documentType || 'DNI',
         document: defaultValues?.document || '',
@@ -167,14 +166,13 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
                   <MagnifyingGlassIcon className="w-4 h-4 mr-2" /> Buscar
                 </button>
               </div>
-              <FormikStyledField disabled={disabledPassengerFields} name="firstName" label="Nombres" />
-              <FormikStyledField disabled={disabledPassengerFields} name="lastName" label="Apellido" />
-              <FormikStyledField disabled={disabledPassengerFields} name="phones" label="Teléfono de contacto" />
-              <FormikStyledField disabled={disabledPassengerFields} name="nationality" label="Nacionalidad" />
+              <FormikStyledField name="firstName" label="Nombres" />
+              <FormikStyledField name="lastName" label="Apellido" />
+              <FormikStyledField name="phones" label="Teléfono de contacto" />
+              <FormikStyledField name="nationality" label="Nacionalidad" />
               <div className="w-full">
                 <CommonLabel>Fecha de nacimiento</CommonLabel>
                 <DatePicker
-                  disabled={disabledPassengerFields}
                   value={birthdate}
                   onChange={setBirthdate}
                   inputPlaceholder="Seleccionar fecha"
@@ -232,7 +230,7 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
             </div>
           </Section>
           <div className="w-full flex justify-end mt-4">
-            <SecondaryButton type="submit" actionText="Crear Orden" onClick={scrollToTop} disabled={isSubmitting || birthdate == null || departureDate == null || returnDate == null} />
+            <SecondaryButton type="submit" actionText="Crear Orden" onClick={scrollToTop} disabled={isSubmitting || birthdate == null || departureDate == null} />
           </div>
         </Form>
       )}

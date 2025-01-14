@@ -29,3 +29,5 @@ export const CURRENCY_ID = {
   PESO: 0,
   DOLLAR: 1,
 }
+
+export const APP_VERSION = "1.0.22"

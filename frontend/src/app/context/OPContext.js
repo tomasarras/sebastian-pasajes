@@ -28,6 +28,7 @@ import * as service from '../services/ordenes-pagos/service'
 import * as clientsService from '../services/ordenes-pagos/clientsService'
 import * as parametersService from '../services/ordenes-pagos/parametersService'
 import { useRouter, usePathname } from "next/navigation";
+import { APP_VERSION } from "../utils/constants";
 
 export const Context = createContext();
 
@@ -587,6 +588,11 @@ export const OPProvider = ({ children }) => {
             throw error;
         }
     };
+
+    useEffect(() => {
+        console.log("APP RUNNING IN VERSION="+APP_VERSION);
+    }, [])
+    
 
     const changeUserPassword = async (newPassword, user) => {
         return userService.changePasswordAsAdmin(newPassword, user.usuario)

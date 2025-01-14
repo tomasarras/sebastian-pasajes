@@ -18,10 +18,9 @@ export const validateOrder = [
   check('departureTo').notEmpty(),
   check('departureDate').notEmpty(),
   check('departureDateHour').notEmpty(),
-  check('returnFrom').notEmpty(),
-  check('returnTo').notEmpty(),
-  check('returnDate').notEmpty(),
-  check('returnDateHour').notEmpty(),
+  check('returnFrom').default("").isString(),
+  check('returnTo').default("").isString(),
+  check('returnDateHour').default("").isString(),
   
   (req, res, next) => {
     const errors = validationResult(req);

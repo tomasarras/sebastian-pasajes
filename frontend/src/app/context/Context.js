@@ -9,6 +9,7 @@ import * as userService from '../services/userService'
 import * as ordersService from '../services/ordersService'
 
 import { useRouter, usePathname } from "next/navigation";
+import { APP_VERSION } from "../utils/constants";
 
 export const Context = createContext();
 
@@ -213,6 +214,8 @@ export const Provider = ({ children }) => {
     }
 
     useEffect(() => {
+        console.log("APP RUNNING IN VERSION="+APP_VERSION);
+        
         if (pathname == "/empresa") {
             getCompany()
         }

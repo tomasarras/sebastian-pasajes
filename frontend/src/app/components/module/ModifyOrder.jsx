@@ -79,7 +79,7 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         values.birthdate = datePickerDateToString(birthdate);
-        values.returnDate = datePickerDateToString(returnDate);
+        values.returnDate = returnDate ? datePickerDateToString(returnDate) : null;
         values.departureDate = datePickerDateToString(departureDate);
         values.issueDate = datePickerDateToString(issueDate);
         const updatedOrder = await updateOrder(order.id, values)

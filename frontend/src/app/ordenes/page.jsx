@@ -15,7 +15,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import TableActionButton from "../components/buttons/tableActionButton";
 import CheckIcon from '@mui/icons-material/Check';
 import ModalDeleteOrder from "../components/modals/ModalDeleteOrder";
-import ModalEditOrder from "../components/modals/ModalEditOrder";
 import OrderColor from "../components/orderColor";
 import useAuth from "../hooks/useAuth";
 import { AGENCY_CLIENT_ID } from "../utils/constants";

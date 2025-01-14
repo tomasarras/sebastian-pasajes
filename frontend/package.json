@@ -1,6 +1,6 @@
 {
   "name": "sebastian-viajes",
-  "version": "1.0.2",
+  "version": "1.0.22",
   "private": true,
   "scripts": {
     "dev": "next dev",

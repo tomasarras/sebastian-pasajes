@@ -28,13 +28,4 @@ export const createOrderValidationSchema = yup.object().shape({
   departureDateHour: yup
     .string()
     .required("Ingrese este campo"),
-  returnFrom: yup
-    .string()
-    .required("Ingrese este campo"),
-  returnTo: yup
-    .string()
-    .required("Ingrese este campo"),
-  returnDateHour: yup
-    .string()
-    .required("Ingrese este campo"),
 })
