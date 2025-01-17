@@ -136,7 +136,7 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
         returnTo: defaultValues?.returnTo || '',
         returnDateHour: defaultValues?.returnDateHour || '',
         observations: defaultValues?.observations || '',
-        derivation: defaultValues?.derivation || '',
+        derivations: defaultValues?.derivations || '',
         applicantFirstName: userData?.firstName,
         applicantLastName: userData?.lastName,
       }}
@@ -226,7 +226,7 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormikStyledField disabled className="mb-4" name="applicantFirstName" label="Nombres" />
               <FormikStyledField disabled className="mb-4" name="applicantLastName" label="Apellido" />
-              <FormikStyledField name="derivation" label="Deriv./Exped." />
+              <FormikStyledField name="derivations" label="Deriv./Exped." />
             </div>
           </Section>
           <div className="w-full flex justify-end mt-4">

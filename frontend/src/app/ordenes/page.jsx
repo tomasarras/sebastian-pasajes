@@ -89,6 +89,12 @@ export default function Ordenes() {
         selector: row => row.registrationDate
       },
       {
+        name: 'Titular/Pasajero',
+        sortable: true,
+        searchable: false,
+        selector: row => row.passengerType == 'holder' ? 'Titular' : 'Acompañante'
+      },
+      {
         name: 'Cliente',
         sortable: true,
         searchable: false,

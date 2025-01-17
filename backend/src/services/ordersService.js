@@ -498,6 +498,10 @@ export const open = async (order) => {
 
 function formatDate(date) {
     if (!date) return '';
+    if (date.length == 10) {
+        const [year, month, day] = date.split("-").map(Number);
+        date = new Date(year, month - 1, day);
+    }
     return new Date(date).toLocaleDateString('es-AR');
 }
 

@@ -52,6 +52,7 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
     const [disabledPassengerFields, toggleDisabledPassengerFields] = useToggle()
 
     const canAddCompanion = () => {
+      if (order.passengerType == 'companion') return false
       if (userData === null) return false
       const { isAuditor, isAdmin, isAgent, isAuthorizer, isApplicant } = userData
       if (isAuditor || isAdmin || isAgent) return false
@@ -60,6 +61,8 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
       if ((isAuthorizer || isApplicant) && notAllowedStatuses.includes(order.status)) return false;
       return true
     }
+
+    const canUpdateStatus = () => order.passengerType == 'holder'
 
     const getTranslatedStatus = (statusId) => {
         switch (statusId) {
@@ -163,6 +166,7 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
             >
               Orden
             </Tab>
+            {order.passengerType == 'holder' &&
             <Tab
               className={({ selected }) =>
                 classNames(
@@ -176,6 +180,7 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
             >
               Acompañantes
             </Tab>
+            }
         </Tab.List>
         <Tab.Panels className="mt-2">
             <Tab.Panel>
@@ -353,7 +358,9 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
                         {canAddCompanion() &&
                           <SecondaryButton type="button" actionText="Agregar acompañante" onClick={addCompanionModal.open} />
                         }
-                        <SecondaryButton type="button" actionText="Cambiar estado" onClick={changeStatusModal.open} />
+                        {canUpdateStatus() &&
+                          <SecondaryButton type="button" actionText="Cambiar estado" onClick={changeStatusModal.open} />
+                        }
                         <SecondaryButton type="button" actionText="Descargar PDF" onClick={downloadPdf} />
                       </div>
                     </Section>
@@ -362,7 +369,7 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
               </Formik>
             </Tab.Panel>
             <Tab.Panel className="rounded-lg bg-white p-3 shadow">
-              <OrderCompanionsList order={order}/>
+              <OrderCompanionsList addCompanionButton={canAddCompanion() && <SecondaryButton type="button" actionText="Agregar acompañante" onClick={addCompanionModal.open} />} order={order}/>
             </Tab.Panel>
       
         </Tab.Panels>
@@ -376,6 +383,8 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
         departureDateHour: order.departureDateHour,
         returnFrom: order.returnFrom,
         returnTo: order.returnTo,
+        observations: order.observations,
+        derivations: order.derivations,
         returnDate: returnDate,
         returnDateHour: order.returnDateHour,
       }} fatherNumber={order.id} isCompanion/>

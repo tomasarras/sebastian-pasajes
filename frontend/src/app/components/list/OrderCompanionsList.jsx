@@ -4,7 +4,7 @@ import { linkeableTableCustomStyles } from '../../../../utils'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export const OrderCompanionsList = ({ order }) => {
+export const OrderCompanionsList = ({ order, addCompanionButton }) => {
   const router = useRouter();
   const columns = useMemo(() => {
     const newColumns = [
@@ -50,7 +50,7 @@ export const OrderCompanionsList = ({ order }) => {
 
   const redirectToOrderDetails = order => router.push(`/ordenes/${order.id}`)
 
-  return (
+  return (<><div className='mb-4'>{addCompanionButton}</div>
     <Table
       className="shadow"
       customStyles={linkeableTableCustomStyles}
@@ -61,6 +61,6 @@ export const OrderCompanionsList = ({ order }) => {
       onRowClicked={redirectToOrderDetails}
       responsive
       pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-    />
+    /></>
   )
 }
