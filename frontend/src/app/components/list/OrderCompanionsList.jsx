@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import Table from '../table'
 import { linkeableTableCustomStyles } from '../../../../utils'
-import Link from 'next/link';
+import Link from 'next/link'; 
 import { useRouter } from 'next/navigation';
 
 export const OrderCompanionsList = ({ order, addCompanionButton }) => {

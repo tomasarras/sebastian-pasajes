@@ -62,6 +62,9 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
       delete values.phones
       delete values.birthdate
       delete values.email
+      if (values.derivations == '') {
+        delete values.derivations
+      }
       values.passengerType = isCompanion ? 'companion' : 'holder'
       values.fatherNumber = fatherNumber
       const createdOrder = await createOrder(values)

@@ -81,6 +81,9 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
     ]
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
+        if (values.derivations == '') {
+          delete values.derivations
+        }
         values.birthdate = datePickerDateToString(birthdate);
         values.returnDate = returnDate ? datePickerDateToString(returnDate) : null;
         values.departureDate = datePickerDateToString(departureDate);
