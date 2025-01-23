@@ -128,6 +128,8 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
 
     const downloadPdf = () => {
       ordersService.downloadPdf(order.id)
+      // Download companion orders too
+      order.companions.forEach(companion => ordersService.downloadPdf(companion.id))
     }
 
     const getYears = birthDate => {

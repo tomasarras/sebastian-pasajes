@@ -13,7 +13,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 import { getPassengersBy } from "@/app/services/passengerService";
 import useToggle from "@/app/hooks/useToggle";
-import useAuth from "@/app/hooks/useAuth";
+import useAuth from "@/app/hooks/useAuth"; 
 import Section from "../section/section";
 import CommonLabel from "../commonLabel";
 import { createOrderValidationSchema } from "@/app/validationSchemas/createOrderValidationSchema";
@@ -26,8 +26,6 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
   const userData = useAuth()
   const [returnDate, setReturnDate] = useState(defaultValues.returnDate || null);
   const [departureDate, setDepartureDate] = useState(defaultValues.departureDate || null);
-  const [disabledPassengerFields, toggleDisabledPassengerFields] = useToggle()
-  const [needsCompletePassengerEmail, setNeedsCompletePassengerEmail] = useState(true)
   const formRef = useRef(null)
 
   const scrollToTop = () => {
@@ -91,7 +89,6 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
     setFieldValue("phones", passenger.phones ?? '')
     setFieldValue("nationality", passenger.nationality ?? '')
     setFieldValue("email", passenger.email ?? '')
-    setNeedsCompletePassengerEmail(passenger.email == '')
     if (passenger.birthdate) {
       let [year, month, day] = passenger.birthdate.split('-')
       if (year && month && day) {
@@ -100,9 +97,6 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
         day = parseInt(day)
         setBirthdate({ year, month, day })
       }
-    }
-    if (!disabledPassengerFields) {
-      toggleDisabledPassengerFields()
     }
   }
 
@@ -183,7 +177,7 @@ export default function ModalCreateOrder({ isCompanion = false, onCreateOrder = 
                 />
                 <div className={`mt-1 text-xs ${!birthdate && "invisible"}`}>Edad {getYears(birthdate)} años</div>
               </div>
-              <FormikStyledField disabled={disabledPassengerFields && !needsCompletePassengerEmail} name="email" label="Email" />
+              <FormikStyledField name="email" label="Email" />
             </div>
           </Section>
           <Section title='Datos del boleto'>
