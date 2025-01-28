@@ -288,7 +288,13 @@ export const downloadPdf = async (orderId, res) => {
         let colWidth = 250;
         let col2Width = colWidth + 50;
         let col2LeftPos = colWidth + col1LeftPos + 40;
-        pdf.text(`Apellido y Nombres:        ${order.lastName} ${order.firstName}`, col1LeftPos, colTop, {width: colWidth})
+        const apellidoYNombres = `Apellido y Nombres:        ${order.lastName} ${order.firstName}`
+        const isTooLong = apellidoYNombres.length >= 49
+        if (isTooLong) {
+            pdf.fontSize(8);
+        }
+        pdf.text(apellidoYNombres, col1LeftPos, colTop, {width: colWidth})
+        pdf.fontSize(12);
         pdf.text(`Tipo:                               ${order.passengerType == 'holder' ? 'Titular' : 'Acompañante'}`, col2LeftPos, colTop, {width: col2Width});
         colTop += 16
         pdf.text(`${order.documentType}:                                 ${order.document}`, col1LeftPos, colTop, {width: colWidth});

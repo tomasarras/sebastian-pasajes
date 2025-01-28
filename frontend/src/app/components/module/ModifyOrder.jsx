@@ -25,6 +25,7 @@ import ModalChangeOrderStatus from '../modals/ModalChangeOrderStatus';
 import { OrderCompanionsList } from '../list/OrderCompanionsList';
 import * as ordersService from '../../services/ordersService'
 import { Context } from '@/app/context/Context';
+import Link from 'next/link';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -127,9 +128,9 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
     }
 
     const downloadPdf = () => {
-      ordersService.downloadPdf(order.id)
+      ordersService.downloadPdf(order.id, order.number, order.client.businessName)
       // Download companion orders too
-      order.companions.forEach(companion => ordersService.downloadPdf(companion.id))
+      order.companions.forEach(companion => ordersService.downloadPdf(companion.id, companion.number, order.client.businessName))
     }
 
     const getYears = birthDate => {
@@ -152,7 +153,7 @@ const ModifyOrder = ({ readOnly = false, order, setOrder }) => {
 
     return (
     <div className="p-4 shadow rounded-lg bg-white">
-      <h2 className="flex items-center"><OrderColor statusId={order.statusId}/><span className="ml-2">Orden N°{order.number}</span></h2>
+      <h2 className="flex w-full justify-between"><span className='flex items-center'><OrderColor statusId={order.statusId}/><span className="ml-2">Orden N°{order.number}</span></span>{order.fatherId != 0 && <Link className="font-medium text-blue-600 dark:text-blue-500 hover:underline" href={"/ordenes/" + order.fatherId}>Ver orden titular</Link>}</h2>
       <div className="text-sm mt-1 text-gray-500">La orden se encuentra {STATUS_ID_TO_NAME[order.statusId].toLowerCase()}</div>
       <div className="text-sm mt-1 text-gray-500">Creada en {formatDateWithSlash(order.registrationDate)}</div>
 

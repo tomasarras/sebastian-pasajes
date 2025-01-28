@@ -121,13 +121,13 @@ export default function Ordenes() {
       {
         name: 'Acciones',
         maxWidth: '20%',
-        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<PictureAsPdfIcon />} onClick={() => downloadPdf(row.id)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /><TableActionButton actionIcon={<CheckIcon color="success" />} tooltipText="Editar estado" onClick={() => openEditStatusModal(row)} /></div>
+        cell: row => <div className="flex flex-nowrap"><TableActionButton actionIcon={<PictureAsPdfIcon />} onClick={() => downloadPdf(row)} /><TableActionButton actionIcon={<DeleteIcon color="error" />} onClick={() => openDeleteModal(row)} /><TableActionButton actionIcon={<CheckIcon color="success" />} tooltipText="Editar estado" onClick={() => openEditStatusModal(row)} /></div>
       },
     ];
     return newColumns;
   }, [orders, filteredOrders]); 
 
-  const downloadPdf = orderId => ordersService.downloadPdf(orderId)
+  const downloadPdf = order => ordersService.downloadPdf(order.id, order.number, order.client.businessName)
 
   const handleExcelExport = async () => {
     try {

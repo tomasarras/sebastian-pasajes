@@ -137,7 +137,7 @@ function joinOrderParams(params) {
   return queryParams.join('&')
 }
 
-export const downloadPdf = (orderId) => {
+export const downloadPdf = (orderId, orderNumber, client) => {
   const startDownload = async (url) => {
     const response = await axios({
       url,
@@ -147,7 +147,7 @@ export const downloadPdf = (orderId) => {
     const href = URL.createObjectURL(response);
     const link = document.createElement('a');
     link.href = href;
-    link.setAttribute('download', `orden_${orderId}.pdf`);
+    link.setAttribute('download', `orden_${orderNumber}-${client}.pdf`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
