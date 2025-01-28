@@ -24,7 +24,7 @@ const statusPlaceholders = [{
   },
   {
     label: 'Rechazado',
-    value: ORDER_STATUS_NAME.REJECTED,//TODO REJECTED_FROM_OPEN
+    value: ORDER_STATUS_NAME.REJECTED,
   },
   {
     label: 'Autorizado',
@@ -100,7 +100,7 @@ export default function FilterOrdersModal({ onApplyFilter, ...props }) {
   }
 
   const handleDatePickerChange = (date) => {
-    setRangeRegistrationDate(date); //Si hace solo un click tomar from
+    setRangeRegistrationDate(date);
   };
 
   const handleOnSubmit = async (values, { setSubmitting }) => {
@@ -152,6 +152,7 @@ export default function FilterOrdersModal({ onApplyFilter, ...props }) {
         }
       }
     }
+    setShowDatePicker(false)
     await onApplyFilter(filters)
     setSubmitting(false)
     props.close()
