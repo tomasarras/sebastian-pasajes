@@ -34,7 +34,7 @@ export const getAll = async (where) => {
 	if (where == undefined || Object.keys(where).length == 0)
 		where = { IdEstado: ORDER_PAYMENT_STATUS_IDS.PENDING }
 	const { from, to } = where
-	const whereConditionsToKeep = ["Id", "IdOperador", "IdEstado", "NFA", "NFO", "IdUsuario", "Fecha", "FechaP"]
+	const whereConditionsToKeep = ["Id", "IdOperador", "IdEstado", "NFA", "NFO", "IdUsuario", "FechaP"]
 	where = filterAttributes(where, whereConditionsToKeep)
 	if (from && to) {
 		where.Fecha = {

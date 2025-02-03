@@ -30,4 +30,4 @@ export const CURRENCY_ID = {
   DOLLAR: 1,
 }
 
-export const APP_VERSION = "1.0.26"
+export const APP_VERSION = "1.0.27"

@@ -92,6 +92,7 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
       } else {
         await updateOrder(order.id, values)
       }
+      updateOrders()
       setSubmitting(false);
       resetForm();
       props.close();

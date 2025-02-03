@@ -294,7 +294,7 @@ export const downloadPdf = async (orderId, res) => {
             pdf.fontSize(8);
         }
         pdf.text(apellidoYNombres, col1LeftPos, colTop, {width: colWidth})
-        pdf.fontSize(12);
+        pdf.fontSize(11);
         pdf.text(`Tipo:                               ${order.passengerType == 'holder' ? 'Titular' : 'Acompañante'}`, col2LeftPos, colTop, {width: col2Width});
         colTop += 16
         pdf.text(`${order.documentType}:                                 ${order.document}`, col1LeftPos, colTop, {width: colWidth});
@@ -328,38 +328,38 @@ export const downloadPdf = async (orderId, res) => {
         pdf.moveDown();
         pdf.font("Helvetica-Bold").text('Observaciones:', col1LeftPos, colTop, { width: 100, underline: true });
         pdf.font("Helvetica").text(order.observations || 'Sin observaciones.', 135, colTop);
-        pdf.rect(23, 263, 570, 75).stroke();
+        pdf.rect(23, 263, 570, 105).stroke();
         
-        colTop += 72
+        colTop += 108
         pdf.font('Helvetica-Bold').text('Datos del Solicitante:', col1LeftPos, colTop, { underline: true });
         colTop += 16
         pdf.font('Helvetica')
         pdf.text(`Apellido y Nombres:        ${solicitante ? `${solicitante.lastName} ${solicitante.firstName}` : ''}`, col1LeftPos, colTop, {width: colWidth});
         pdf.text(`Deriv./Exped.: ${order.derivations || ''}`, col2LeftPos, colTop, {width: colWidth});
-        pdf.rect(23, 338, 570, 40).stroke();
+        pdf.rect(23, 368, 570, 60).stroke();
 
-        colTop += 24
+        colTop += 40
         pdf.font('Helvetica-Bold').text('Datos del Autorizante:', col1LeftPos, colTop, { underline: true });
         pdf.font('Helvetica')
         colTop += 16
         pdf.text(`Apellido y Nombres:        ${autorizante ? `${autorizante.lastName} ${autorizante.firstName}` : ''}`, col1LeftPos, colTop, {width: colWidth});
         pdf.text(`Fecha Autorización: ${formatDate(order.authorizeDate)}`, col2LeftPos, colTop, {width: colWidth});
-        pdf.rect(23, 378, 570, 40).stroke();
+        pdf.rect(23, 428, 570, 60).stroke();
         
-        colTop += 24
+        colTop += 40
         pdf.font('Helvetica-Bold').text('Para ser completado por Sebastian & Co:', col1LeftPos, colTop, { underline: true });
         pdf.font('Helvetica')
         pdf.text(`Empresa de Transporte: ${order.companies || ''}`);
         pdf.text(`N° de Boleto/Tkt: ${order.tickets || ''}`);
         pdf.text(`Fecha Emisión: ${formatDate(order.issueDate)}`);
         pdf.text(`Total OP $: ${order.price || ''}`);
-        pdf.rect(23, 418, 570, 65).stroke();
+        pdf.rect(23, 488, 570, 75).stroke();
         
-        colTop += 64
+        colTop += 78
         pdf.font('Helvetica-Bold').text('Observaciones del Agente:', col1LeftPos, colTop, { width: colWidth, underline: true });
         pdf.font('Helvetica')
-        pdf.text(order.observationAgent || 'Sin observaciones.', 160, colTop, { width: colWidth });
-        pdf.rect(23, colTop-4, 570, 65).stroke();
+        pdf.text(order.observationAgent || 'Sin observaciones.', 180, colTop, { width: colWidth });
+        pdf.rect(23, colTop-7, 570, 65).stroke();
 
         pdf.end();
     } catch (error) {

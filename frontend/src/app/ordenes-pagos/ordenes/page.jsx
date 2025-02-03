@@ -15,9 +15,9 @@ import SendIcon from '@mui/icons-material/Send';
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import ModalNotifyOrder from "@/app/components/modals/ordenes-pagos/ModalNotifyOrder";
 import useFilterModal from "@/app/hooks/ordenes-pagos/useFilterModal";
-import usePersonals from "@/app/hooks/ordenes-pagos/usePersonals";
 import { ORDER_STATUS_NAME } from "@/app/utils/utils";
 import * as XLSX from 'xlsx';
+import useProviders from "@/app/hooks/ordenes-pagos/useProviders";
 
 const additionalColumnsForExcel = [
   {
@@ -58,7 +58,7 @@ const additionalColumnsForExcel = [
 ]
 
 export default function OrdenesPagoOrdenes() {
-  const personals = usePersonals()
+  const providers = useProviders()
   const users = useUsers()
   const [filters, setFilters] = useState(null)
   const [orders, setOrders] = useState([])
@@ -95,12 +95,12 @@ export default function OrdenesPagoOrdenes() {
     type: FILTER_MODAL_FIELD_TYPE.INPUT,
   },
   {
-    label: "Personal",
+    label: "Operador",
     name: "IdOperador",
     type: FILTER_MODAL_FIELD_TYPE.SELECT,
-    values: personals,
-    getOptionLabel: personal => personal.apellido + " " + personal.nombre,
-    getOptionValue: personal => personal.id
+    values: providers,
+    getOptionLabel: provider => provider.apellido + " " + provider.nombre,
+    getOptionValue: provider => provider.id
   },
   {
     label: "Usuario",
@@ -111,8 +111,13 @@ export default function OrdenesPagoOrdenes() {
     getOptionValue: user => user.usuario
   },
   {
-    label: "Fecha que se registro al sistema",
-    name: "Fecha",
+    label: "Fecha alta (desde)",
+    name: "from",
+    type: FILTER_MODAL_FIELD_TYPE.DATE,
+  },
+  {
+    label: "Fecha alta (hasta)",
+    name: "to",
     type: FILTER_MODAL_FIELD_TYPE.DATE,
   },
   {
@@ -187,8 +192,11 @@ export default function OrdenesPagoOrdenes() {
 
   const updateOrders = async () => {
     const orders = await handleFetchOrders(filters)
-    const updatedSelectedEntity = orders.find(o => o.id == selectedEntity.id)
-    setSelectedEntity(updatedSelectedEntity || null)
+    setOrders(orders)
+    try {
+      const updatedSelectedEntity = orders.find(o => o.id == selectedEntity.id)
+      setSelectedEntity(updatedSelectedEntity || null)
+    } catch (e) {}
   }
 
   const formatImporte = opago => {
@@ -308,7 +316,7 @@ export default function OrdenesPagoOrdenes() {
         />
       </div>
     </div>
-    <ModalCreateOrder {...createModalProps} />
+    <ModalCreateOrder updateOrders={updateOrders} {...createModalProps} />
     <ModalCreateOrder updateOrders={updateOrders} order={selectedEntity} {...editModalProps} />
     <GenericModalDelete onDelete={handleOnDelete} label={selectedEntity?.id} {...deleteModalProps}/>
     <ModalNotifyOrder order={selectedEntity} {...notifyModal} />
