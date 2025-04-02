@@ -222,7 +222,7 @@ export const getFile = async (fileId) => {
     });
 
     if (!file) {
-        throw new Error('Archivo no encontrado');
+        throw new Error('Archivo no encontrado id=' + fileId);
     }
 
     // Construimos la ruta completa del archivo
