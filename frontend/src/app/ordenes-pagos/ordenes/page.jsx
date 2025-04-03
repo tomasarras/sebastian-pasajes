@@ -144,8 +144,8 @@ export default function OrdenesPagoOrdenes() {
         totalDollars += importe
       }
     });
-    setTotalByDollars(formatImporte({ importe: totalPesos, moneda: CURRENCY_ID.DOLLAR }))
-    setTotalByPesos(formatImporte({ importe: totalDollars, moneda: CURRENCY_ID.PESO }))
+    setTotalByDollars(formatImporte({ importe: totalPesos, moneda: CURRENCY_ID.PESO }))
+    setTotalByPesos(formatImporte({ importe: totalDollars, moneda: CURRENCY_ID.DOLLAR }))
 
     setOrders(orders)
     return orders
