@@ -1,7 +1,7 @@
 import { Personal, Puesto, PersonalLicencias, LicenciasTipo, Feriados, PersonalLicxAnio, Parametros } from "../db/index.js"
 import { EMPTY_PERSONAL } from "../utils/constants.js";
-import { Op } from 'sequelize';
-import { formatDate, newId, replaceFields, replacePlaceholders } from "../utils/functions.js";
+import { Op, fn } from 'sequelize';
+import { newId, replaceFields, replacePlaceholders } from "../utils/functions.js";
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -33,6 +33,11 @@ export const getAll = async (where) => {
             ]
     }
     where.Id = Id == undefined ? { [Op.notIn]: skipIds } : Id;
+    if (where.Nombre) {
+        where.Nombre = {
+            [Op.like]: fn('LOWER', `%${where.Nombre.toLowerCase()}%`)
+        };
+    }
 	const staffs = await Personal.findAll({ where, include: [{ model: Puesto, as: "puesto" }] })
 	return staffs.map(s => s.get({plain:true}))
 };
