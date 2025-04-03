@@ -1,6 +1,6 @@
 import { Proveedor } from "../db/index.js"
 import { EMPTY_PROVIDER } from "../utils/constants.js";
-import { Op } from 'sequelize';
+import { Op, fn } from 'sequelize';
 
 export const getAll = async (where) => {
 	const { search, active } = where
@@ -17,6 +17,11 @@ export const getAll = async (where) => {
             ]
     }
     where.Id = { [Op.notIn]: skipIds };
+    if (where.Nombre) {
+        where.Nombre = {
+            [Op.like]: fn('LOWER', `%${where.Nombre.toLowerCase()}%`)
+        };
+    }
 	const providers = await Proveedor.findAll({ where })
 	return providers.map(p => p.get({plain:true}))
 };
