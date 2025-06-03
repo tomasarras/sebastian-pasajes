@@ -159,7 +159,7 @@ export default function OrdenesPagoOrdenes() {
   const { deleteOrder, changeAlertStatusAndMessage, fetchOrders } = useContext(Context)
   const notifyModal = useModal()
   const userData = useAuth()
-  const isAdmin = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER].includes(userData?.role)
+  const isAdmin = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER, USER_ROLE.VENDEDOR_ADMINISTRADOR].includes(userData?.role)
 
   const openNotifyModal = (order) => {
     notifyModal.open()

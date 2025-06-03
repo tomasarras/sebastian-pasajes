@@ -9,11 +9,11 @@ const router = express.Router();
 
 router.get("/", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENDEDOR, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.getAll);
 router.post("/", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENDEDOR, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.create);
-router.post("/:id/file", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN]), upload.single('file'), controller.uploadFile);
+router.post("/:id/file", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENTAS_ADMINISTRADOR]), upload.single('file'), controller.uploadFile);
 router.get("/file/:id", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENDEDOR, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.downloadFile);
-router.delete("/file/:id", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN]), controller.deleteFile);
+router.delete("/file/:id", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.deleteFile);
 router.post("/:id/notify", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN]), controller.notify);
 router.put("/:id", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENDEDOR, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.update);
-router.delete("/:id", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN]), controller.deleteById);
+router.delete("/:id", verifyToken, withPermissions([USER_PROFILES.WEBMASTER, USER_PROFILES.ADMIN, USER_PROFILES.VENTAS_ADMINISTRADOR]), controller.deleteById);
 
 export default router;
