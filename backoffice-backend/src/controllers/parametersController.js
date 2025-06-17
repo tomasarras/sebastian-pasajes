@@ -24,6 +24,7 @@ export default {
     try {
       delete req.body.id
       await parametersService.update(toPascalCaseRelations(req.body));
+      parametersService.sendTestsEmails();
       const parameters = await parametersService.getParameters();
       res.status(200).json(toLowerCaseRelations(parameters));
     } catch (e) {

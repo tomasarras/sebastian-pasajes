@@ -1,4 +1,4 @@
-export const AGENCY_CLIENT_ID = 2
+export const AGENCY_CLIENT_ID = 2 
 export const ISO_NC_STATUS_IDS = {
   OPEN: 1,
   CLOSE: 2,
@@ -30,4 +30,4 @@ export const CURRENCY_ID = {
   DOLLAR: 1,
 }
 
-export const APP_VERSION = "1.0.28"
+export const APP_VERSION = "1.0.29"
