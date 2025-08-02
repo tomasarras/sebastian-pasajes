@@ -316,6 +316,7 @@ export const OPProvider = ({ children }) => {
 
     const fetchProviders = async (params) => {
         const providers = await providersService.getAll(params)
+        providers.sort((a, b) => a.nombre.localeCompare(b.nombre));
         if (params != undefined) return providers
         setProviders(providers)
         setAlreadyFetchedProviders(true)
