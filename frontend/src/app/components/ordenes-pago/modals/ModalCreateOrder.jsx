@@ -39,13 +39,14 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
   const deleteModalProps = useModal()
   const notifyModal = useModal()
   const userData = useAuth()
-  const isAdmin = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER].includes(userData?.role)
+  const isAdminOrVendedor = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER, USER_ROLE.VENDEDOR_ADMINISTRADOR, USER_ROLE.VENDEDOR].includes(userData?.role)
   const providers = useProviders();
   const personals = usePersonals();
   const [fechaAlta, setFechaAlta] = useState(getTodayDatePicker());
   const [fechaPago, setFechaPago] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState([]);
 
   useEffect(() => {
     if (!order) return;
@@ -88,11 +89,30 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
       if (values.fecha == '')
         delete values.fecha
       if (!order) {        
-        await createOrder(values)
+        const newOrder = await createOrder(values);
+        
+        // Si hay archivos pendientes, subirlos después de crear la orden
+        if (pendingFiles.length > 0) {
+          for (const pendingFile of pendingFiles) {
+            const formData = new FormData();
+            formData.append('file', pendingFile.file);
+            formData.append('observaciones', pendingFile.observaciones);
+            
+            try {
+              await ordersService.uploadFile(newOrder.id, formData);
+            } catch (fileError) {
+              console.error('Error al subir archivo pendiente:', fileError);
+            }
+          }
+          // Limpiar los archivos pendientes después de subirlos
+          setPendingFiles([]);
+        }
       } else {
         await updateOrder(order.id, values)
       }
-      updateOrders()
+      setTimeout(() => {
+        updateOrders()
+      }, 300);
       setSubmitting(false);
       resetForm();
       props.close();
@@ -104,16 +124,33 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
 
   const handleFileUpload = async (formData) => {
     try {
-      await ordersService.uploadFile(order.id, formData);
-      setTimeout(() => {
-        updateOrders()
-        setShowFileUpload(false)
-        changeAlertStatusAndMessage(true, 'success', 'Archivo subido exitosamente!');
-      }, 300);
+      if (order) {
+        // Si hay una orden existente, subir el archivo directamente
+        await ordersService.uploadFile(order.id, formData);
+        setTimeout(() => {
+          updateOrders()
+          setShowFileUpload(false)
+          changeAlertStatusAndMessage(true, 'success', 'Archivo subido exitosamente!');
+        }, 300);
+      } else {
+        // Si no hay orden, guardar el archivo en el estado para subirlo después
+        const file = formData.get('file');
+        const observaciones = formData.get('observaciones');
+        
+        setPendingFiles([...pendingFiles, { file, observaciones }]);
+        setShowFileUpload(false);
+        changeAlertStatusAndMessage(true, 'success', 'Archivo agregado a la lista de pendientes');
+      }
     } catch (error) {
       console.error('Error al subir el archivo:', error);
       changeAlertStatusAndMessage(true, 'error', 'Error al subir el archivo');
     }
+  };
+
+  const handleRemovePendingFile = (index) => {
+    const newPendingFiles = [...pendingFiles];
+    newPendingFiles.splice(index, 1);
+    setPendingFiles(newPendingFiles);
   };
 
   const handleDeleteFile = async (fileId) => {
@@ -257,24 +294,24 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
               rows={3}
             />
 
+            {isAdminOrVendedor && 
+              <div className="mt-4"> {/** Habilita la subida de archivos solo al admin */}
+                <button
+                  type="button"
+                  onClick={() => setShowFileUpload(!showFileUpload)}
+                  className="text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                >
+                  {showFileUpload ? '- Ocultar' : '+ Agregar archivo'}
+                </button>
+
+                <FileUploadSection
+                  isVisible={showFileUpload}
+                  onUpload={handleFileUpload}
+                />
+              </div>
+            }
             {order && (
               <>
-                {isAdmin && 
-                  <div className="mt-4"> {/** Habilita la subida de archivos solo al admin */}
-                    <button
-                      type="button"
-                      onClick={() => setShowFileUpload(!showFileUpload)}
-                      className="text-blue-600 hover:text-blue-700 font-medium flex items-center"
-                    >
-                      {showFileUpload ? '- Ocultar' : '+ Agregar archivo'}
-                    </button>
-
-                    <FileUploadSection
-                      isVisible={showFileUpload}
-                      onUpload={handleFileUpload}
-                    />
-                  </div>
-                }
                 {order.archivos && order.archivos.length > 0 &&
                   <div className="mt-4 border-t pt-4">
                     <h3 className="text-lg font-medium mb-4">Archivos adjuntos</h3>
@@ -284,7 +321,47 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
                       onDownloadFile={handleDownloadFile}
                     />
                   </div>
-                  }
+                }
+              </>
+            )}
+            {(order == undefined || order == null) && (
+              <>
+                {showFileUpload && (
+                  <div className="mt-4 border-t pt-4">
+                    <h3 className="text-lg font-medium mb-4">Archivos pendientes</h3>
+                    {pendingFiles && pendingFiles.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full bg-white border border-gray-200">
+                          <thead>
+                            <tr>
+                              <th className="py-2 px-4 border-b text-left">Nombre</th>
+                              <th className="py-2 px-4 border-b text-left">Observaciones</th>
+                              <th className="py-2 px-4 border-b text-left">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {pendingFiles.map((fileData, index) => (
+                              <tr key={index} className="hover:bg-gray-50">
+                                <td className="py-2 px-4 border-b">{fileData.file.name}</td>
+                                <td className="py-2 px-4 border-b">{fileData.observaciones}</td>
+                                <td className="py-2 px-4 border-b">
+                                  <button
+                                    onClick={() => handleRemovePendingFile(index)}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    Eliminar
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 italic">No hay archivos pendientes</p>
+                    )}
+                  </div>
+                )}
               </>
             )}
 
