@@ -40,7 +40,9 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
   const notifyModal = useModal()
   const userData = useAuth()
   const isAdminOrVendedor = [USER_ROLE.ADMIN, USER_ROLE.WEBMASTER, USER_ROLE.VENDEDOR_ADMINISTRADOR, USER_ROLE.VENDEDOR].includes(userData?.role)
-  const providers = useProviders();
+  const allProviders = useProviders();
+  // Filtrar los proveedores que no están dados de baja (fechaBaja = '0000-00-00')
+  const providers = allProviders ? allProviders.filter(provider => provider.fechaBaja === '0000-00-00') : [];
   const personals = usePersonals();
   const [fechaAlta, setFechaAlta] = useState(getTodayDatePicker());
   const [fechaPago, setFechaPago] = useState(null);
