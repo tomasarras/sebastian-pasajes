@@ -21,7 +21,25 @@ import { Context } from "@/app/context/OPContext";
 
 export default function OrdenesPagoUsuarios() {
   const { deleteUser } = useContext(Context)
-  const users = useUsers()
+  const rawUsers = useUsers()
+  
+  // Ordenar usuarios: primero los que no están dados de baja, luego los que sí
+  const users = useMemo(() => {
+    if (!rawUsers || rawUsers.length === 0) return [];
+    
+    return [...rawUsers].sort((a, b) => {
+      // Verificar si tiene fecha de baja válida (diferente de '0000-00-00')
+      const aHasBaja = a.fechaBaja && a.fechaBaja !== '0000-00-00';
+      const bHasBaja = b.fechaBaja && b.fechaBaja !== '0000-00-00';
+      
+      if (aHasBaja === bHasBaja) {
+        // Si ambos tienen el mismo estado de baja, mantener el orden original
+        return 0;
+      }
+      // Los que no están dados de baja van primero
+      return aHasBaja ? 1 : -1;
+    });
+  }, [rawUsers])
   const changeUserPasswordModal = useModal()
   const onClickChangeUserPassword = (user) => {
     setSelectedEntity(user)
