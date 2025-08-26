@@ -88,12 +88,28 @@ export default function OrdenesPagoPersonal() {
   }
 
   const fetchData = async () => {
+    let data;
     if (filters == null) {
-      setPersonals(defaultPersonals)
+      data = [...defaultPersonals];
     } else {
-      const personals = await fetchPersonals(filters)
-      setPersonals(personals)
+      data = await fetchPersonals(filters);
     }
+    
+    // Ordenar los datos: primero los que no están dados de baja, luego los que sí
+    data.sort((a, b) => {
+      // Verificar si tiene fecha de baja válida (diferente de '0000-00-00' o vacía)
+      const aHasBaja = a.fechaBaja && a.fechaBaja !== '0000-00-00';
+      const bHasBaja = b.fechaBaja && b.fechaBaja !== '0000-00-00';
+      
+      if (aHasBaja === bHasBaja) {
+        // Si ambos tienen el mismo estado de baja, mantener el orden original
+        return 0;
+      }
+      // Los que no están dados de baja van primero
+      return aHasBaja ? 1 : -1;
+    });
+    
+    setPersonals(data);
   }
 
   useEffect(() => {
