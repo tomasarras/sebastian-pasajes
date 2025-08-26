@@ -43,7 +43,9 @@ export default function ModalCreateOrder({ order, updateOrders, ...props }) {
   const allProviders = useProviders();
   // Filtrar los proveedores que no están dados de baja (fechaBaja = '0000-00-00')
   const providers = allProviders ? allProviders.filter(provider => provider.fechaBaja === '0000-00-00') : [];
-  const personals = usePersonals();
+  const allPersonals = usePersonals();
+
+  const personals = allPersonals ? allPersonals.filter(personal => personal.fechaBaja === '0000-00-00') : [];
   const [fechaAlta, setFechaAlta] = useState(getTodayDatePicker());
   const [fechaPago, setFechaPago] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
